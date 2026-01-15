@@ -74,6 +74,7 @@ async function getCompanyData(ticker: string) {
   const activityMap = new Map<string, { buys: number; sells: number }>()
 
   for (const txn of transactions || []) {
+    if (!txn.filed_at) continue
     const date = new Date(txn.filed_at)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 
@@ -104,7 +105,26 @@ async function getCompanyData(ticker: string) {
   return {
     company,
     transactions: (transactions || []) as InsiderTransactionWithDetails[],
-    holders: holders || [],
+    holders: (holders || [])
+      .filter(
+        (h) =>
+          h.institution_id !== null &&
+          h.institution_name !== null &&
+          h.shares !== null &&
+          h.value !== null &&
+          h.is_new_position !== null
+      )
+      .map((h) => ({
+        institution_id: h.institution_id!,
+        institution_name: h.institution_name!,
+        institution_type: h.institution_type,
+        shares: h.shares!,
+        value: h.value!,
+        percent_of_portfolio: h.percent_of_portfolio,
+        shares_change: h.shares_change,
+        shares_change_percent: h.shares_change_percent,
+        is_new_position: h.is_new_position!,
+      })),
     activityData,
     stats: {
       ytdBuys: ytdBuys.length,

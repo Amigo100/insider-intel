@@ -43,6 +43,7 @@ async function getInstitutionsData() {
   >()
 
   for (const pos of newPositionsRaw || []) {
+    if (!pos.company_id || !pos.ticker || !pos.company_name || pos.value === null || !pos.institution_name) continue
     const existing = newPositionsMap.get(pos.company_id)
     if (existing) {
       existing.new_buyers++
@@ -96,6 +97,7 @@ async function getInstitutionsData() {
   >()
 
   for (const holding of holdingsWithChanges || []) {
+    if (!holding.company_id || !holding.ticker || !holding.company_name) continue
     const change = holding.shares_change || 0
 
     if (change > 0) {

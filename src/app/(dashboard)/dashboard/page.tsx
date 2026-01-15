@@ -102,7 +102,7 @@ async function getDashboardData(userId: string) {
       .order('filed_at', { ascending: false })
       .limit(10)
 
-    watchlistAlerts = data || []
+    watchlistAlerts = (data || []) as InsiderTransactionWithDetails[]
   }
 
   // Build cluster data from purchases
@@ -116,6 +116,7 @@ async function getDashboardData(userId: string) {
   const clusterMap = new Map<string, ClusterData>()
 
   for (const txn of purchases || []) {
+    if (!txn.company_id || !txn.ticker || !txn.company_name || !txn.insider_name || !txn.transaction_date) continue
     const existing = clusterMap.get(txn.company_id)
 
     if (existing) {
