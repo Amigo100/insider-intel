@@ -17,6 +17,7 @@ interface HoldingDataPoint {
   name: string
   value: number
   percent: number
+  [key: string]: string | number
 }
 
 interface HoldingsPieChartProps {
