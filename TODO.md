@@ -6,45 +6,57 @@ This document tracks incomplete features, missing implementations, and integrati
 
 ## 1. Incomplete Features
 
-### Stripe/Payment Integration (CRITICAL)
+### Stripe/Payment Integration (COMPLETED)
 
-| File | Line | Issue | Priority |
-|------|------|-------|----------|
-| `src/app/(dashboard)/settings/billing/billing-content.tsx` | 88-94 | `handleUpgrade()` shows alert instead of redirecting to Stripe Checkout | HIGH |
-| `src/app/(dashboard)/settings/billing/billing-content.tsx` | 96-101 | `handleManageBilling()` shows alert instead of opening Stripe Customer Portal | HIGH |
-| `middleware.ts` | 8 | References `/api/stripe/webhook` route that doesn't exist | HIGH |
+| File | Status |
+|------|--------|
+| `src/app/api/stripe/checkout/route.ts` | ✅ Created - Creates Stripe Checkout Sessions |
+| `src/app/api/stripe/webhook/route.ts` | ✅ Created - Handles subscription events |
+| `src/app/api/stripe/portal/route.ts` | ✅ Created - Customer Portal sessions |
+| `src/app/(dashboard)/settings/billing/billing-content.tsx` | ✅ Updated - Uses real Stripe API |
 
-**What needs to be done:**
-- [ ] Create `src/app/api/stripe/checkout/route.ts` - Create Checkout Session
-- [ ] Create `src/app/api/stripe/webhook/route.ts` - Handle Stripe webhooks
-- [ ] Create `src/app/api/stripe/portal/route.ts` - Create Customer Portal session
-- [ ] Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to environment
-- [ ] Implement subscription tier updates on successful payment
+**Environment variables required:**
+- `STRIPE_SECRET_KEY` - Stripe secret key
+- `STRIPE_WEBHOOK_SECRET` - Webhook signing secret
+- `STRIPE_RETAIL_PRICE_ID` - Price ID for Retail plan
+- `STRIPE_PRO_PRICE_ID` - Price ID for Pro plan
 
-### Email/Notification Service (HIGH)
+### Email/Notification Service (COMPLETED)
 
-| File | Line | Issue | Priority |
-|------|------|-------|----------|
-| `src/app/(dashboard)/settings/notifications/notifications-form.tsx` | 86-114 | Notification toggles save to DB but no email service sends them | HIGH |
-| Database | - | `notification_daily_digest`, `notification_instant_alerts`, `notification_weekly_summary` columns exist but unused | HIGH |
+| File | Status |
+|------|--------|
+| `lib/email/resend-client.ts` | ✅ Created - Resend email client |
+| `lib/email/send-email.ts` | ✅ Created - Email sending functions |
+| `lib/email/templates/daily-digest.ts` | ✅ Created - Daily digest HTML/text templates |
+| `lib/email/templates/instant-alert.ts` | ✅ Created - Instant alert HTML/text templates |
+| `lib/email/templates/weekly-summary.ts` | ✅ Created - Weekly summary HTML/text templates |
+| `src/app/api/cron/send-daily-digest/route.ts` | ✅ Created - Cron job for daily emails |
+| `src/app/api/cron/send-weekly-summary/route.ts` | ✅ Created - Cron job for weekly emails |
+| `src/app/api/notifications/instant-alert/route.ts` | ✅ Created - Trigger instant alerts |
 
-**What needs to be done:**
-- [ ] Choose email provider (SendGrid, Mailgun, AWS SES, Resend)
-- [ ] Create email templates for daily digest, instant alerts, weekly summary
-- [ ] Implement cron job for daily/weekly email sending
-- [ ] Create real-time alert trigger system
-- [ ] Add email service credentials to environment
+**Environment variables required:**
+- `RESEND_API_KEY` - Resend API key
+- `EMAIL_FROM` - From address for emails
+- `CRON_SECRET` - Secret for cron job authentication
+- `INTERNAL_API_SECRET` - Secret for internal API calls
 
-### CUSIP to Ticker Mapping (MEDIUM)
+### CUSIP to Ticker Mapping (COMPLETED)
 
-| File | Line | Issue | Priority |
-|------|------|-------|----------|
-| `lib/edgar/13f-client.ts` | 90-151 | Hardcoded CUSIP_TO_TICKER mapping only covers ~60 stocks | MEDIUM |
+| File | Status |
+|------|--------|
+| `lib/openfigi/client.ts` | ✅ Created - OpenFIGI API client with batch support |
+| `lib/edgar/13f-client.ts` | ✅ Updated - Dynamic lookup with hardcoded fallback |
 
-**What needs to be done:**
-- [ ] Integrate with OpenFIGI API or similar CUSIP lookup service
-- [ ] Implement caching for CUSIP lookups
-- [ ] Gracefully handle unmapped CUSIPs
+**Features implemented:**
+- OpenFIGI API integration for dynamic CUSIP → ticker lookup
+- In-memory cache with 7-day TTL to reduce API calls
+- Batch lookup support (up to 100 CUSIPs per request with API key)
+- Hardcoded fallback for ~60 common securities
+- Rate limiting to respect OpenFIGI limits
+- Prefers US exchanges and common stock for best matches
+
+**Environment variables:**
+- `OPENFIGI_API_KEY` - Optional but recommended for higher rate limits
 
 ---
 
@@ -54,49 +66,55 @@ This document tracks incomplete features, missing implementations, and integrati
 
 | File | Line | Issue | Priority |
 |------|------|-------|----------|
-| `src/app/(auth)/reset-password/reset-password-form.tsx` | 36-61 | No handling for expired password recovery links | MEDIUM |
-| `middleware.ts` | 52 | Missing redirect for `/forgot-password` and `/reset-password` for authenticated users | LOW |
+| ✅ FIXED | `src/app/(auth)/reset-password/reset-password-form.tsx` | Expired link detection, session timeout monitoring | - |
+| ✅ FIXED | `middleware.ts` | Redirects authenticated users from `/forgot-password` and `/reset-password` | - |
 | `src/app/(auth)/login/login-form.tsx` | - | `redirectTo` query param not implemented | LOW |
 
 **What needs to be done:**
-- [ ] Add timeout detection for password recovery sessions
-- [ ] Redirect authenticated users away from all auth pages
+- [x] Add timeout detection for password recovery sessions
+- [x] Redirect authenticated users away from all auth pages
 - [ ] Implement post-login redirect to original URL
 
 ### Missing API Routes
 
 | Route | Purpose | Priority |
 |-------|---------|----------|
-| `/api/stripe/checkout` | Create Stripe Checkout Session | HIGH |
-| `/api/stripe/webhook` | Handle Stripe payment events | HIGH |
-| `/api/stripe/portal` | Create Stripe Customer Portal session | HIGH |
+| `/api/stripe/checkout` | ✅ COMPLETED | - |
+| `/api/stripe/webhook` | ✅ COMPLETED | - |
+| `/api/stripe/portal` | ✅ COMPLETED | - |
 | `/api/user/subscription` | Check/update subscription tier | MEDIUM |
 
 ---
 
 ## 3. Code Quality Issues
 
-### Console.log Statements to Remove/Replace
+### Structured Logging (COMPLETED)
 
-These should be replaced with a proper logging service (e.g., Pino, Winston) in production:
+| File | Status |
+|------|--------|
+| `lib/logger.ts` | ✅ Created - Pino logger with module-specific loggers |
+| `src/app/api/**/*.ts` | ✅ Updated - All console.log/error replaced with logger |
+| `lib/ai/claude-client.ts` | ✅ Updated - Using logger.ai |
+| `lib/db/insider-transactions.ts` | ✅ Updated - Using logger.db |
+| `lib/db/institutional-holdings.ts` | ✅ Updated - Using logger.db |
+| `lib/openfigi/client.ts` | ✅ Updated - Using logger.openfigi |
+| `lib/edgar/13f-client.ts` | ✅ Updated - Using logger.edgar |
 
-| File | Approximate Lines | Count |
-|------|-------------------|-------|
-| `src/app/api/cron/generate-context/route.ts` | 27, 38, 56, 74, 120 | 5 |
-| `lib/ai/claude-client.ts` | 132, 156, 182, 194, 198, 320 | 6 |
-| `lib/db/insider-transactions.ts` | Multiple | 14 |
-| `lib/db/institutional-holdings.ts` | Multiple | 16 |
+**Features implemented:**
+- Pino structured logging with JSON output
+- Module-specific loggers (api, db, ai, cron, stripe, email, edgar, openfigi)
+- Log levels: trace, debug, info, warn, error, fatal
+- Environment-based defaults (debug in dev, info in production)
+- Request ID support via createRequestLogger()
 
-**What needs to be done:**
-- [ ] Implement structured logging with log levels
-- [ ] Replace console.error/log with proper logger
-- [ ] Add request ID tracing
+**Environment variables:**
+- `LOG_LEVEL` - Optional, overrides default log level
 
 ### TODO Comments in Code
 
-| File | Line | Comment | Priority |
-|------|------|---------|----------|
-| `lib/edgar/13f-client.ts` | 90 | `// TODO: Replace with proper CUSIP lookup service` | MEDIUM |
+| File | Line | Comment | Status |
+|------|------|---------|--------|
+| `lib/edgar/13f-client.ts` | 90 | `// TODO: Replace with proper CUSIP lookup service` | ✅ RESOLVED |
 
 ---
 
@@ -106,24 +124,24 @@ These should be replaced with a proper logging service (e.g., Pino, Winston) in 
 
 | Status | What's Missing | Priority |
 |--------|----------------|----------|
-| Not Implemented | No error tracking service (Sentry, DataDog, etc.) | MEDIUM |
-| Not Implemented | No application performance monitoring | LOW |
-| Not Implemented | No structured logging service | MEDIUM |
+| ✅ COMPLETED | Error tracking service (Sentry) | - |
+| ✅ COMPLETED | Application performance monitoring (Sentry) | - |
+| ✅ COMPLETED | Structured logging service (Pino) | - |
 
 **What needs to be done:**
-- [ ] Integrate Sentry or similar for error tracking
-- [ ] Add APM for performance monitoring
+- [x] Integrate Sentry for error tracking
+- [x] Add APM for performance monitoring (Sentry traces)
 - [ ] Implement health check endpoint
 
 ### Security Concerns
 
 | File | Line | Issue | Priority |
 |------|------|-------|----------|
-| `src/app/api/cron/generate-context/route.ts` | 22-25 | `CRON_SECRET` is optional - should be required in production | MEDIUM |
+| ✅ FIXED | `lib/auth/cron.ts` | `CRON_SECRET` now required in production | - |
 | Environment | - | No rate limiting on public API routes | MEDIUM |
 
 **What needs to be done:**
-- [ ] Make CRON_SECRET required
+- [x] Make CRON_SECRET required in production
 - [ ] Implement rate limiting middleware
 - [ ] Add API key authentication for external API access
 
@@ -135,7 +153,7 @@ These should be replaced with a proper logging service (e.g., Pino, Winston) in 
 
 | File | Line | Issue | Priority |
 |------|------|-------|----------|
-| `src/app/(dashboard)/settings/billing/billing-content.tsx` | Various | Upgrade buttons don't work | HIGH |
+| `src/app/(dashboard)/settings/billing/billing-content.tsx` | Various | ✅ FIXED - Upgrade buttons now work | - |
 | `src/app/(dashboard)/settings/notifications/notifications-form.tsx` | 164-170 | States "Instant alerts are only available for Retail and Pro" but no enforcement | LOW |
 
 ---
@@ -146,44 +164,44 @@ These should be replaced with a proper logging service (e.g., Pino, Winston) in 
 
 | Table | Column | Purpose | Status |
 |-------|--------|---------|--------|
-| `profiles` | `stripe_customer_id` | Store Stripe customer ID | Column exists, not populated |
-| `profiles` | `notification_daily_digest` | Daily email preference | Column exists, not used |
-| `profiles` | `notification_instant_alerts` | Instant alert preference | Column exists, not used |
-| `profiles` | `notification_weekly_summary` | Weekly summary preference | Column exists, not used |
+| `profiles` | `stripe_customer_id` | Store Stripe customer ID | ✅ Now populated by Stripe integration |
+| `profiles` | `notification_daily_digest` | Daily email preference | ✅ Now used by email service |
+| `profiles` | `notification_instant_alerts` | Instant alert preference | ✅ Now used by email service |
+| `profiles` | `notification_weekly_summary` | Weekly summary preference | ✅ Now used by email service |
 
 ---
 
 ## Priority Summary
 
 ### Critical (Must fix before launch)
-1. Stripe payment integration
-2. Stripe webhook handling
+1. ~~Stripe payment integration~~ ✅ COMPLETED
+2. ~~Stripe webhook handling~~ ✅ COMPLETED
 
 ### High Priority
-3. Email notification service
-4. Stripe Customer Portal integration
+3. ~~Email notification service~~ ✅ COMPLETED
+4. ~~Stripe Customer Portal integration~~ ✅ COMPLETED
 5. Subscription tier enforcement
 
 ### Medium Priority
-6. CUSIP lookup service integration
-7. Structured logging implementation
-8. Error tracking service
-9. Cron job security (required secrets)
-10. Authentication edge cases
+6. ~~CUSIP lookup service integration~~ ✅ COMPLETED
+7. ~~Structured logging implementation~~ ✅ COMPLETED
+8. ~~Error tracking service~~ ✅ COMPLETED
+9. ~~Cron job security (required secrets)~~ ✅ COMPLETED
+10. ~~Authentication edge cases~~ ✅ COMPLETED
 
 ### Low Priority
 11. Post-login redirect implementation
-12. Console.log cleanup
+12. ~~Console.log cleanup~~ ✅ COMPLETED (part of structured logging)
 13. APM integration
 
 ---
 
 ## Implementation Order Recommendation
 
-1. **Phase 1: Payments** - Stripe integration (checkout, webhooks, portal)
-2. **Phase 2: Notifications** - Email service setup (SendGrid/Resend)
-3. **Phase 3: Observability** - Logging, error tracking, monitoring
-4. **Phase 4: Polish** - Auth edge cases, CUSIP service, cleanup
+1. **Phase 1: Payments** - ✅ COMPLETED - Stripe integration (checkout, webhooks, portal)
+2. **Phase 2: Notifications** - ✅ COMPLETED - Email service setup (Resend)
+3. **Phase 3: Observability** - ✅ COMPLETED - Structured logging (Pino), Error tracking (Sentry)
+4. **Phase 4: Polish** - Auth edge cases, CUSIP service ✅, cleanup
 
 ---
 

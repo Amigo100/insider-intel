@@ -10,6 +10,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 const FREE_TIER_LIMIT = 5
 const RETAIL_TIER_LIMIT = 25
@@ -68,7 +71,7 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (watchlistError) {
-      console.error('Error fetching watchlist:', watchlistError)
+      log.error({ error: watchlistError }, 'Error fetching watchlist')
       return NextResponse.json(
         { error: 'Failed to fetch watchlist' },
         { status: 500 }
@@ -166,7 +169,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Error in watchlist GET:', error)
+    log.error({ error }, 'Error in watchlist GET')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -264,7 +267,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('Error adding to watchlist:', insertError)
+      log.error({ error: insertError }, 'Error adding to watchlist')
       return NextResponse.json(
         { error: 'Failed to add to watchlist' },
         { status: 500 }
@@ -293,7 +296,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in watchlist POST:', error)
+    log.error({ error }, 'Error in watchlist POST')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -331,7 +334,7 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', user.id)
 
     if (deleteError) {
-      console.error('Error removing from watchlist:', deleteError)
+      log.error({ error: deleteError }, 'Error removing from watchlist')
       return NextResponse.json(
         { error: 'Failed to remove from watchlist' },
         { status: 500 }
@@ -363,7 +366,7 @@ export async function DELETE(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in watchlist DELETE:', error)
+    log.error({ error }, 'Error in watchlist DELETE')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

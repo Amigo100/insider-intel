@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Sparkles, Building2, User, ExternalLink } from 'lucide-react'
+import { Check, Sparkles, Building2, User, ExternalLink, Loader2 } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -80,29 +80,72 @@ const plans = [
 ]
 
 export function BillingContent({ initialData }: BillingContentProps) {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const currentPlan = plans.find((p) => p.id === initialData.tier)
 
-  const handleUpgrade = (planId: string) => {
-    // Placeholder for Stripe checkout
-    setSelectedPlan(planId)
-    // In production, this would redirect to Stripe Checkout
-    alert(
-      `This would redirect to Stripe Checkout for the ${planId} plan. Integration pending.`
-    )
+  const handleUpgrade = async (planId: string) => {
+    setIsLoading(planId)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planId }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setIsLoading(null)
+    }
   }
 
-  const handleManageBilling = () => {
-    // Placeholder for Stripe Customer Portal
-    // In production, this would redirect to Stripe Customer Portal
-    alert(
-      'This would redirect to Stripe Customer Portal. Integration pending.'
-    )
+  const handleManageBilling = async () => {
+    setIsLoading('portal')
+    setError(null)
+
+    try {
+      const response = await fetch('/api/stripe/portal', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create portal session')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setIsLoading(null)
+    }
   }
 
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
       {/* Current Plan Card */}
       <Card>
         <CardHeader>
@@ -131,8 +174,16 @@ export function BillingContent({ initialData }: BillingContentProps) {
               )}
             </div>
             {initialData.stripeCustomerId && (
-              <Button variant="outline" onClick={handleManageBilling}>
-                <ExternalLink className="mr-2 h-4 w-4" />
+              <Button
+                variant="outline"
+                onClick={handleManageBilling}
+                disabled={isLoading === 'portal'}
+              >
+                {isLoading === 'portal' ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                )}
                 Manage Billing
               </Button>
             )}
@@ -229,7 +280,11 @@ export function BillingContent({ initialData }: BillingContentProps) {
                       variant={plan.popular ? 'default' : 'outline'}
                       className="w-full"
                       onClick={() => handleUpgrade(plan.id)}
+                      disabled={isLoading === plan.id}
                     >
+                      {isLoading === plan.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
                       {initialData.tier === 'free' ? 'Upgrade' : 'Switch'} to{' '}
                       {plan.name}
                     </Button>

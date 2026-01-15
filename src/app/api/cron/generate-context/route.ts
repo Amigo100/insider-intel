@@ -9,22 +9,23 @@
 import { NextResponse } from 'next/server'
 import { getTransactionsNeedingAIContext, updateTransactionAIContext } from '@/lib/db/insider-transactions'
 import { generateInsiderContext } from '@/lib/ai/claude-client'
+import { requireCronAuth } from '@/lib/auth/cron'
+import { logger } from '@/lib/logger'
+
+const log = logger.cron
 
 // Vercel cron jobs have a 10-second timeout on hobby, 60s on pro
 // Process in smaller batches to stay within limits
 const BATCH_SIZE = 20
 
 export async function GET(request: Request) {
+  // Verify cron secret (required in production)
+  const authError = requireCronAuth(request)
+  if (authError) return authError
+
   const startTime = Date.now()
 
-  // Optional: Verify cron secret for security
-  const authHeader = request.headers.get('authorization')
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.warn('Unauthorized cron request attempt')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  console.log('[generate-context] Starting AI context generation job')
+  log.info('Starting AI context generation job')
 
   let processed = 0
   let successful = 0
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
     // Fetch transactions needing AI context
     const transactions = await getTransactionsNeedingAIContext(BATCH_SIZE)
 
-    console.log(`[generate-context] Found ${transactions.length} transactions needing context`)
+    log.info({ count: transactions.length }, 'Found transactions needing context')
 
     if (transactions.length === 0) {
       return NextResponse.json({
@@ -53,9 +54,9 @@ export async function GET(request: Request) {
       processed++
 
       try {
-        console.log(
-          `[generate-context] Processing ${processed}/${transactions.length}: ` +
-          `${transaction.ticker} - ${transaction.insider_name}`
+        log.debug(
+          { progress: `${processed}/${transactions.length}`, ticker: transaction.ticker, insider: transaction.insider_name },
+          'Processing transaction'
         )
 
         // Generate AI context
@@ -71,9 +72,9 @@ export async function GET(request: Request) {
 
           if (updated) {
             successful++
-            console.log(
-              `[generate-context] Success: ${transaction.ticker} - ` +
-              `Score: ${result.significanceScore.toFixed(2)}`
+            log.debug(
+              { ticker: transaction.ticker, score: result.significanceScore.toFixed(2) },
+              'Context generated successfully'
             )
           } else {
             failed++
@@ -81,9 +82,7 @@ export async function GET(request: Request) {
               id: transaction.id,
               error: 'Failed to update database',
             })
-            console.error(
-              `[generate-context] Database update failed for ${transaction.id}`
-            )
+            log.error({ transactionId: transaction.id }, 'Database update failed')
           }
         } else {
           failed++
@@ -91,9 +90,7 @@ export async function GET(request: Request) {
             id: transaction.id,
             error: 'AI context generation returned null',
           })
-          console.error(
-            `[generate-context] AI generation failed for ${transaction.id}`
-          )
+          log.error({ transactionId: transaction.id }, 'AI generation returned null')
         }
       } catch (error) {
         failed++
@@ -102,10 +99,7 @@ export async function GET(request: Request) {
           id: transaction.id,
           error: errorMessage,
         })
-        console.error(
-          `[generate-context] Error processing ${transaction.id}:`,
-          errorMessage
-        )
+        log.error({ transactionId: transaction.id, error: errorMessage }, 'Error processing transaction')
         // Continue with next transaction - don't fail the entire batch
       }
 
@@ -117,9 +111,9 @@ export async function GET(request: Request) {
 
     const durationMs = Date.now() - startTime
 
-    console.log(
-      `[generate-context] Completed: ${successful}/${processed} successful ` +
-      `in ${durationMs}ms`
+    log.info(
+      { successful, processed, durationMs },
+      'AI context generation completed'
     )
 
     return NextResponse.json({
@@ -133,7 +127,7 @@ export async function GET(request: Request) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
-    console.error('[generate-context] Fatal error:', errorMessage)
+    log.fatal({ error: errorMessage }, 'Fatal error in AI context generation')
 
     return NextResponse.json(
       {

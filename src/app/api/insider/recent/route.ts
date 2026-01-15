@@ -12,6 +12,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getRecentTransactions } from '@/lib/db/insider-transactions'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,7 +86,7 @@ export async function GET(request: NextRequest) {
       }
     )
   } catch (error) {
-    console.error('Error fetching recent transactions:', error)
+    log.error({ error }, 'Error fetching recent transactions')
 
     return NextResponse.json(
       { error: 'Internal server error' },

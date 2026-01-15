@@ -14,6 +14,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getRecentTransactions } from '@/lib/db/insider-transactions'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 interface ClusterData {
   companyId: string
@@ -166,7 +169,7 @@ export async function GET(request: NextRequest) {
       }
     )
   } catch (error) {
-    console.error('Error fetching insider clusters:', error)
+    log.error({ error }, 'Error fetching insider clusters')
 
     return NextResponse.json(
       { error: 'Internal server error' },

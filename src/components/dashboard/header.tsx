@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Loader2 } from 'lucide-react'
+import { clientLogger } from '@/lib/client-logger'
 import { Input } from '@/components/ui/input'
 import { UserMenu } from './user-menu'
 import { MobileMenuButton } from './sidebar'
@@ -65,7 +66,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           setShowResults(true)
         }
       } catch (error) {
-        console.error('Search error:', error)
+        clientLogger.error('Search error', { error })
       } finally {
         setIsSearching(false)
       }

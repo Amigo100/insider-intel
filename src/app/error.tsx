@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle, RefreshCw, Home, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -12,8 +13,8 @@ interface ErrorProps {
 
 export default function RootError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('Application error:', error)
+    // Log the error to Sentry
+    Sentry.captureException(error)
   }, [error])
 
   return (
@@ -59,10 +60,10 @@ export default function RootError({ error, reset }: ErrorProps) {
             </Button>
           </div>
           <p className="mt-8 text-sm text-muted-foreground">
-            Need help?{' '}
-            <Link href="/contact" className="text-primary hover:underline">
-              Contact Support
-            </Link>
+            Need help? Email us at{' '}
+            <a href="mailto:support@insiderintel.com" className="text-primary hover:underline">
+              support@insiderintel.com
+            </a>
           </p>
         </div>
       </main>

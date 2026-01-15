@@ -1,0 +1,52 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0f1a"/>
+
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.5"/>
+
+  <!-- Gradient orb -->
+  <circle cx="900" cy="200" r="300" fill="url(#orb1)" opacity="0.3"/>
+  <defs>
+    <radialGradient id="orb1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Logo/Icon area -->
+  <g transform="translate(100, 240)">
+    <!-- Chart icon -->
+    <rect x="0" y="60" width="20" height="90" rx="4" fill="#3b82f6"/>
+    <rect x="30" y="30" width="20" height="120" rx="4" fill="#60a5fa"/>
+    <rect x="60" y="0" width="20" height="150" rx="4" fill="#93c5fd"/>
+    <rect x="90" y="45" width="20" height="105" rx="4" fill="#3b82f6"/>
+  </g>
+
+  <!-- Text -->
+  <text x="250" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#f8fafc">
+    InsiderIntel
+  </text>
+  <text x="250" y="360" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#94a3b8">
+    Track SEC Insider Trading Activity in Real-Time
+  </text>
+
+  <!-- Stats -->
+  <g transform="translate(250, 420)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#60a5fa">$2.4B+</text>
+    <text x="0" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">Transactions Tracked</text>
+  </g>
+  <g transform="translate(450, 420)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#60a5fa">10,000+</text>
+    <text x="0" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">Active Users</text>
+  </g>
+  <g transform="translate(650, 420)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#60a5fa">Real-time</text>
+    <text x="0" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#64748b">SEC Data</text>
+  </g>
+</svg>

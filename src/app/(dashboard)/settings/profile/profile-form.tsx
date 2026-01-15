@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
+import { clientLogger } from '@/lib/client-logger'
 import { Loader2, Check } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -61,7 +63,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // Clear success message after 3 seconds
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (err) {
-      console.error('Error updating profile:', err)
+      clientLogger.error('Error updating profile', { error: err })
       setError('Failed to update profile. Please try again.')
     } finally {
       setIsSaving(false)
@@ -148,7 +150,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               </Badge>
               {initialData.subscriptionTier === 'free' && (
                 <Button variant="link" className="h-auto p-0 text-sm" asChild>
-                  <a href="/settings/billing">Upgrade your plan</a>
+                  <Link href="/dashboard/settings/billing">Upgrade your plan</Link>
                 </Button>
               )}
             </div>

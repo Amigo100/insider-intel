@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
+import { clientLogger } from '@/lib/client-logger'
 import { Loader2, Check, Mail, Zap, Calendar } from 'lucide-react'
 import {
   Card,
@@ -71,7 +72,7 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
       // Clear success message after 3 seconds
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (err) {
-      console.error('Error updating notification preferences:', err)
+      clientLogger.error('Error updating notification preferences', { error: err })
       setError('Failed to update preferences. Please try again.')
     } finally {
       setIsSaving(false)

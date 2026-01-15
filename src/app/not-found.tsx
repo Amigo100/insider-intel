@@ -51,13 +51,13 @@ export default function NotFound() {
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Button variant="outline" size="sm" asChild>
-                <Link href="/insider-trades">Insider Trades</Link>
+                <Link href="/dashboard/insider-trades">Insider Trades</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/institutions">Institutions</Link>
+                <Link href="/dashboard/institutions">Institutions</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href="/watchlist">Watchlist</Link>
+                <Link href="/dashboard/watchlist">Watchlist</Link>
               </Button>
             </div>
           </div>

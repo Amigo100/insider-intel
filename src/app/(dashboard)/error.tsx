@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,8 +13,8 @@ interface ErrorProps {
 
 export default function DashboardError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('Dashboard error:', error)
+    // Log the error to Sentry
+    Sentry.captureException(error)
   }, [error])
 
   return (

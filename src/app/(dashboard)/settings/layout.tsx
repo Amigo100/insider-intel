@@ -8,17 +8,17 @@ import { cn } from '@/lib/utils'
 const settingsNavItems = [
   {
     title: 'Profile',
-    href: '/settings/profile',
+    href: '/dashboard/settings/profile',
     icon: User,
   },
   {
     title: 'Billing',
-    href: '/settings/billing',
+    href: '/dashboard/settings/billing',
     icon: CreditCard,
   },
   {
     title: 'Notifications',
-    href: '/settings/notifications',
+    href: '/dashboard/settings/notifications',
     icon: Bell,
   },
 ]

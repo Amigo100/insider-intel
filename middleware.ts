@@ -49,12 +49,21 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute = publicRoutes.includes(pathname)
   const isAuthRoute = pathname === '/login' || pathname === '/signup'
+  const isPasswordRoute = pathname === '/forgot-password' || pathname === '/reset-password'
   const isDashboardRoute = pathname.startsWith('/dashboard')
 
-  // Redirect authenticated users away from auth pages
+  // Redirect authenticated users away from login/signup pages
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // Redirect authenticated users away from password recovery pages
+  // (they can change their password from account settings instead)
+  if (user && isPasswordRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard/settings'
     return NextResponse.redirect(url)
   }
 

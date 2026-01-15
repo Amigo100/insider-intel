@@ -6,6 +6,9 @@
  */
 
 import { delay } from './client'
+import { logger } from '@/lib/logger'
+
+const log = logger.edgar
 
 // =============================================================================
 // Types
@@ -87,10 +90,12 @@ const RETRY_DELAY_MS = 1000
 
 // =============================================================================
 // CUSIP to Ticker Mapping
-// TODO: Replace with proper CUSIP lookup service (OpenFIGI, Bloomberg, etc.)
-// This is a temporary solution for common securities
+// Primary lookup uses OpenFIGI API, with hardcoded fallback for common securities
 // =============================================================================
 
+import { lookupCUSIP, lookupCUSIPBatch } from '../openfigi/client'
+
+// Hardcoded fallback mapping for common securities (used when OpenFIGI unavailable)
 export const CUSIP_TO_TICKER: Record<string, string> = {
   // Technology
   '037833100': 'AAPL',   // Apple Inc
@@ -151,12 +156,81 @@ export const CUSIP_TO_TICKER: Record<string, string> = {
 }
 
 /**
- * Attempts to find a ticker symbol for a CUSIP
+ * Attempts to find a ticker symbol for a CUSIP using hardcoded fallback
+ * For async lookup with OpenFIGI, use cusipToTickerAsync instead
+ *
  * @param cusip - 9-character CUSIP identifier
- * @returns Ticker symbol or null if not found
+ * @returns Ticker symbol or null if not found in hardcoded map
  */
 export function cusipToTicker(cusip: string): string | null {
   return CUSIP_TO_TICKER[cusip] || null
+}
+
+/**
+ * Looks up a ticker symbol for a CUSIP using OpenFIGI API with fallback
+ *
+ * @param cusip - 9-character CUSIP identifier
+ * @returns Ticker symbol or null if not found
+ */
+export async function cusipToTickerAsync(cusip: string): Promise<string | null> {
+  // First check hardcoded map for fast response
+  const hardcoded = CUSIP_TO_TICKER[cusip]
+  if (hardcoded) {
+    return hardcoded
+  }
+
+  // Try OpenFIGI lookup
+  try {
+    const result = await lookupCUSIP(cusip)
+    return result.ticker
+  } catch (error) {
+    log.error({ cusip, error }, 'CUSIP lookup failed')
+    return null
+  }
+}
+
+/**
+ * Looks up ticker symbols for multiple CUSIPs using OpenFIGI API with fallback
+ *
+ * @param cusips - Array of 9-character CUSIP identifiers
+ * @returns Map of CUSIP to ticker symbol (or null if not found)
+ */
+export async function cusipToTickerBatch(
+  cusips: string[]
+): Promise<Map<string, string | null>> {
+  const results = new Map<string, string | null>()
+  const needsLookup: string[] = []
+
+  // First check hardcoded map
+  for (const cusip of cusips) {
+    const hardcoded = CUSIP_TO_TICKER[cusip]
+    if (hardcoded) {
+      results.set(cusip, hardcoded)
+    } else {
+      needsLookup.push(cusip)
+    }
+  }
+
+  // If all found in hardcoded map, return early
+  if (needsLookup.length === 0) {
+    return results
+  }
+
+  // Batch lookup remaining CUSIPs via OpenFIGI
+  try {
+    const lookupResults = await lookupCUSIPBatch(needsLookup)
+    for (const [cusip, result] of lookupResults) {
+      results.set(cusip, result.ticker)
+    }
+  } catch (error) {
+    log.error({ error }, 'Batch CUSIP lookup failed')
+    // Mark all as null on failure
+    for (const cusip of needsLookup) {
+      results.set(cusip, null)
+    }
+  }
+
+  return results
 }
 
 // =============================================================================
@@ -434,7 +508,9 @@ export async function fetch13FHoldings(
 }
 
 /**
- * Parses 13F infotable XML to extract holdings data
+ * Parses 13F infotable XML to extract holdings data (sync version)
+ * Uses only hardcoded CUSIP mappings for ticker enrichment.
+ * For dynamic OpenFIGI lookup, use parse13FHoldingsXMLAsync instead.
  *
  * @param xml - Raw XML string from infotable.xml
  * @returns Parsed holdings data with total value and count
@@ -491,7 +567,7 @@ export function parse13FHoldingsXML(xml: string): Parsed13FHoldings {
       votingAuthorityNone: votingNone ? parseInt(votingNone.replace(/,/g, ''), 10) : 0,
     }
 
-    // Attempt to enrich with ticker
+    // Attempt to enrich with ticker (sync/hardcoded only)
     const ticker = cusipToTicker(cusip)
     if (ticker) {
       holding.ticker = ticker
@@ -509,7 +585,94 @@ export function parse13FHoldingsXML(xml: string): Parsed13FHoldings {
 }
 
 /**
- * Fetches and parses 13F holdings in one operation
+ * Parses 13F infotable XML with async OpenFIGI ticker enrichment
+ * Uses OpenFIGI API for dynamic CUSIP to ticker mapping with hardcoded fallback.
+ *
+ * @param xml - Raw XML string from infotable.xml
+ * @param enrichTickers - Whether to enrich holdings with ticker symbols (default: true)
+ * @returns Parsed holdings data with total value and count
+ *
+ * @example
+ * const xml = await fetch13FHoldings('1067983', '0000950123-24-001234')
+ * const holdings = await parse13FHoldingsXMLAsync(xml)
+ */
+export async function parse13FHoldingsXMLAsync(
+  xml: string,
+  enrichTickers: boolean = true
+): Promise<Parsed13FHoldings> {
+  // Find all infoTable entries (handle various tag names)
+  const holdingSections = getAllXmlSections(xml, 'infoTable')
+
+  const holdings: Holding13F[] = []
+  let totalValue = 0
+
+  // First pass: parse all holdings
+  for (const section of holdingSections) {
+    const nameOfIssuer = getXmlText(section, 'nameOfIssuer') || ''
+    const titleOfClass = getXmlText(section, 'titleOfClass') || ''
+    const cusip = getXmlText(section, 'cusip') || ''
+
+    // Value is in thousands, convert to dollars
+    const valueStr = getXmlText(section, 'value')
+    const valueInThousands = valueStr ? parseInt(valueStr.replace(/,/g, ''), 10) : 0
+    const value = valueInThousands * 1000
+
+    // Get share/principal amount section
+    const sshPrnamt = getXmlText(section, 'sshPrnamt') || getXmlText(section, 'shrsOrPrnAmt')
+    const shares = sshPrnamt ? parseInt(sshPrnamt.replace(/,/g, ''), 10) : 0
+
+    const sshPrnamtType = getXmlText(section, 'sshPrnamtType') || 'SH'
+
+    const investmentDiscretion = (getXmlText(section, 'investmentDiscretion') || 'SOLE') as
+      | 'SOLE'
+      | 'SHARED'
+      | 'DEFINED'
+      | 'OTHER'
+
+    // Voting authority
+    const votingAuthority = getAllXmlSections(section, 'votingAuthority')[0] || section
+    const votingSole = getXmlText(votingAuthority, 'Sole') || getXmlText(section, 'votingAuthoritySole')
+    const votingShared = getXmlText(votingAuthority, 'Shared') || getXmlText(section, 'votingAuthorityShared')
+    const votingNone = getXmlText(votingAuthority, 'None') || getXmlText(section, 'votingAuthorityNone')
+
+    holdings.push({
+      nameOfIssuer,
+      titleOfClass,
+      cusip,
+      value,
+      shares,
+      shareType: sshPrnamtType.toUpperCase() === 'PRN' ? 'PRN' : 'SH',
+      investmentDiscretion,
+      votingAuthoritySole: votingSole ? parseInt(votingSole.replace(/,/g, ''), 10) : 0,
+      votingAuthorityShared: votingShared ? parseInt(votingShared.replace(/,/g, ''), 10) : 0,
+      votingAuthorityNone: votingNone ? parseInt(votingNone.replace(/,/g, ''), 10) : 0,
+    })
+
+    totalValue += value
+  }
+
+  // Second pass: batch enrich with tickers if requested
+  if (enrichTickers && holdings.length > 0) {
+    const cusips = holdings.map((h) => h.cusip).filter((c) => c.length > 0)
+    const tickerMap = await cusipToTickerBatch(cusips)
+
+    for (const holding of holdings) {
+      const ticker = tickerMap.get(holding.cusip)
+      if (ticker) {
+        holding.ticker = ticker
+      }
+    }
+  }
+
+  return {
+    holdings,
+    totalValue,
+    totalHoldings: holdings.length,
+  }
+}
+
+/**
+ * Fetches and parses 13F holdings in one operation (sync ticker lookup)
  *
  * @param cik - Institution CIK number
  * @param accessionNumber - Filing accession number
@@ -521,6 +684,23 @@ export async function fetchAndParse13FHoldings(
 ): Promise<Parsed13FHoldings> {
   const xml = await fetch13FHoldings(cik, accessionNumber)
   return parse13FHoldingsXML(xml)
+}
+
+/**
+ * Fetches and parses 13F holdings with dynamic OpenFIGI ticker enrichment
+ *
+ * @param cik - Institution CIK number
+ * @param accessionNumber - Filing accession number
+ * @param enrichTickers - Whether to enrich holdings with ticker symbols (default: true)
+ * @returns Parsed holdings data with enriched ticker symbols
+ */
+export async function fetchAndParse13FHoldingsWithTickers(
+  cik: string,
+  accessionNumber: string,
+  enrichTickers: boolean = true
+): Promise<Parsed13FHoldings> {
+  const xml = await fetch13FHoldings(cik, accessionNumber)
+  return parse13FHoldingsXMLAsync(xml, enrichTickers)
 }
 
 /**

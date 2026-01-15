@@ -14,6 +14,9 @@ import type {
   InsiderTransactionInsert,
   InsiderTransactionWithDetails,
 } from '@/types/database'
+import { logger } from '@/lib/logger'
+
+const log = logger.db
 
 // =============================================================================
 // Company Operations
@@ -55,7 +58,7 @@ export async function upsertCompany(company: {
     .single()
 
   if (error) {
-    console.error('Error upserting company:', error)
+    log.error({ error }, 'Error upserting company')
     return null
   }
 
@@ -80,7 +83,7 @@ export async function getCompanyByTicker(ticker: string): Promise<Company | null
   if (error) {
     if (error.code !== 'PGRST116') {
       // Not a "not found" error
-      console.error('Error fetching company:', error)
+      log.error({ error }, 'Error fetching company')
     }
     return null
   }
@@ -105,7 +108,7 @@ export async function getCompanyById(id: string): Promise<Company | null> {
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching company:', error)
+      log.error({ error }, 'Error fetching company')
     }
     return null
   }
@@ -165,7 +168,7 @@ export async function upsertInsider(insider: {
         .single()
 
       if (error) {
-        console.error('Error updating insider:', error)
+        log.error({ error }, 'Error updating insider')
         return existingInsider
       }
 
@@ -186,7 +189,7 @@ export async function upsertInsider(insider: {
     .single()
 
   if (error) {
-    console.error('Error inserting insider:', error)
+    log.error({ error }, 'Error inserting insider')
     return null
   }
 
@@ -210,7 +213,7 @@ export async function getInsiderById(id: string): Promise<Insider | null> {
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching insider:', error)
+      log.error({ error }, 'Error fetching insider')
     }
     return null
   }
@@ -244,11 +247,11 @@ export async function insertTransaction(
   if (error) {
     // Handle duplicate accession_number (unique constraint violation)
     if (error.code === '23505') {
-      console.log(`Transaction ${transaction.accession_number} already exists, skipping`)
+      log.debug({ accessionNumber: transaction.accession_number }, 'Transaction already exists, skipping')
       return null
     }
 
-    console.error('Error inserting transaction:', error)
+    log.error({ error }, 'Error inserting transaction')
     return null
   }
 
@@ -297,7 +300,7 @@ export async function getRecentTransactions(options: {
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching recent transactions:', error)
+    log.error({ error }, 'Error fetching recent transactions')
     return []
   }
 
@@ -327,7 +330,7 @@ export async function getTransactionsByCompany(
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching company transactions:', error)
+    log.error({ error }, 'Error fetching company transactions')
     return []
   }
 
@@ -353,7 +356,7 @@ export async function getTransactionsNeedingAIContext(
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching transactions needing AI context:', error)
+    log.error({ error }, 'Error fetching transactions needing AI context')
     return []
   }
 
@@ -390,7 +393,7 @@ export async function updateTransactionAIContext(
     .single()
 
   if (error) {
-    console.error('Error updating transaction AI context:', error)
+    log.error({ error }, 'Error updating transaction AI context')
     return null
   }
 
@@ -416,7 +419,7 @@ export async function getTransactionById(
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching transaction:', error)
+      log.error({ error }, 'Error fetching transaction')
     }
     return null
   }
@@ -443,7 +446,7 @@ export async function getTransactionByAccessionNumber(
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching transaction:', error)
+      log.error({ error }, 'Error fetching transaction')
     }
     return null
   }

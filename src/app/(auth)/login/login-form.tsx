@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react'
+import { clientLogger } from '@/lib/client-logger'
+import { Loader2, Mail, Lock, AlertCircle, Info } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -15,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface FormErrors {
   email?: string
@@ -22,15 +24,65 @@ interface FormErrors {
   general?: string
 }
 
+// Error message mappings for more helpful feedback
+const ERROR_MESSAGES: Record<string, { message: string; action?: string }> = {
+  'Invalid login credentials': {
+    message: 'The email or password you entered is incorrect.',
+    action: 'Please check your credentials and try again.',
+  },
+  'Email not confirmed': {
+    message: 'Your email address has not been verified.',
+    action: 'Please check your inbox for a verification email.',
+  },
+  'Too many requests': {
+    message: 'Too many login attempts.',
+    action: 'Please wait a few minutes before trying again.',
+  },
+  'User not found': {
+    message: 'No account found with this email address.',
+    action: 'Would you like to create a new account?',
+  },
+  'Invalid email': {
+    message: 'Please enter a valid email address.',
+  },
+  'Network error': {
+    message: 'Unable to connect to the server.',
+    action: 'Please check your internet connection and try again.',
+  },
+}
+
+function getErrorDetails(errorMessage: string): { message: string; action?: string } {
+  for (const [key, value] of Object.entries(ERROR_MESSAGES)) {
+    if (errorMessage.toLowerCase().includes(key.toLowerCase())) {
+      return value
+    }
+  }
+  return { message: errorMessage }
+}
+
 export function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [errorAction, setErrorAction] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
   const supabase = createClient()
+
+  // Load remembered email on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('insiderintel_remembered_email')
+    if (savedEmail) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -58,6 +110,7 @@ export function LoginForm() {
 
     setIsLoading(true)
     setErrors({})
+    setErrorAction(undefined)
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -66,23 +119,27 @@ export function LoginForm() {
       })
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          setErrors({ general: 'Invalid email or password. Please try again.' })
-        } else if (error.message.includes('Email not confirmed')) {
-          setErrors({
-            general: 'Please verify your email address before signing in.',
-          })
-        } else {
-          setErrors({ general: error.message })
-        }
+        const errorDetails = getErrorDetails(error.message)
+        setErrors({ general: errorDetails.message })
+        setErrorAction(errorDetails.action)
         return
       }
 
-      router.push('/dashboard')
+      // Handle remember me
+      if (rememberMe) {
+        localStorage.setItem('insiderintel_remembered_email', email)
+      } else {
+        localStorage.removeItem('insiderintel_remembered_email')
+      }
+
+      // Redirect to the original destination or dashboard
+      router.push(redirectTo)
       router.refresh()
     } catch (err) {
-      console.error('Login error:', err)
-      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+      clientLogger.error('Login error', { error: err })
+      const errorDetails = getErrorDetails('Network error')
+      setErrors({ general: errorDetails.message })
+      setErrorAction(errorDetails.action)
     } finally {
       setIsLoading(false)
     }
@@ -91,12 +148,19 @@ export function LoginForm() {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true)
     setErrors({})
+    setErrorAction(undefined)
 
     try {
+      // Include redirectTo in the callback URL so we can redirect after OAuth
+      const callbackUrl = new URL('/auth/callback', window.location.origin)
+      if (redirectTo !== '/dashboard') {
+        callbackUrl.searchParams.set('redirectTo', redirectTo)
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       })
 
@@ -106,14 +170,14 @@ export function LoginForm() {
       }
       // Don't set loading to false on success - user will be redirected
     } catch (err) {
-      console.error('Google login error:', err)
+      clientLogger.error('Google login error', { error: err })
       setErrors({ general: 'Failed to sign in with Google. Please try again.' })
       setIsGoogleLoading(false)
     }
   }
 
   return (
-    <Card>
+    <Card className="border-0 shadow-lg sm:border">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>
@@ -124,9 +188,16 @@ export function LoginForm() {
         <form onSubmit={handleEmailLogin} className="space-y-4">
           {/* General Error */}
           {errors.general && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span>{errors.general}</span>
+            <div className="rounded-lg bg-destructive/10 p-4 text-sm">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-medium text-destructive">{errors.general}</p>
+                  {errorAction && (
+                    <p className="text-destructive/80">{errorAction}</p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -144,12 +215,16 @@ export function LoginForm() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }))
                 }}
-                className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="email"
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.email}
+              </p>
             )}
           </div>
 
@@ -159,7 +234,7 @@ export function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-muted-foreground hover:text-primary"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
               >
                 Forgot password?
               </Link>
@@ -175,19 +250,40 @@ export function LoginForm() {
                   setPassword(e.target.value)
                   if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }))
                 }}
-                className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="current-password"
               />
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.password}
+              </p>
             )}
+          </div>
+
+          {/* Remember Me */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="remember"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)}
+              disabled={isLoading || isGoogleLoading}
+            />
+            <Label
+              htmlFor="remember"
+              className="text-sm font-normal cursor-pointer text-muted-foreground"
+            >
+              Remember my email
+            </Label>
           </div>
 
           {/* Submit Button */}
           <Button
             type="submit"
             className="w-full"
+            size="lg"
             disabled={isLoading || isGoogleLoading}
           >
             {isLoading ? (
@@ -218,6 +314,7 @@ export function LoginForm() {
           type="button"
           variant="outline"
           className="w-full"
+          size="lg"
           onClick={handleGoogleLogin}
           disabled={isLoading || isGoogleLoading}
         >
@@ -250,7 +347,7 @@ export function LoginForm() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-medium text-primary hover:underline">
-            Sign up
+            Sign up for free
           </Link>
         </p>
       </CardContent>

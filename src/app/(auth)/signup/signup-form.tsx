@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { clientLogger } from '@/lib/client-logger'
+import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Info } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { PasswordStrength } from '@/components/auth/password-strength'
 
 interface FormErrors {
   fullName?: string
@@ -26,6 +28,38 @@ interface FormErrors {
   general?: string
 }
 
+// Error message mappings for more helpful feedback
+const ERROR_MESSAGES: Record<string, { message: string; action?: string }> = {
+  'already registered': {
+    message: 'This email is already registered.',
+    action: 'Try signing in instead, or use a different email.',
+  },
+  'invalid email': {
+    message: 'Please enter a valid email address.',
+  },
+  'weak password': {
+    message: 'Password is too weak.',
+    action: 'Please choose a stronger password.',
+  },
+  'rate limit': {
+    message: 'Too many signup attempts.',
+    action: 'Please wait a few minutes before trying again.',
+  },
+  'network error': {
+    message: 'Unable to connect to the server.',
+    action: 'Please check your internet connection and try again.',
+  },
+}
+
+function getErrorDetails(errorMessage: string): { message: string; action?: string } {
+  for (const [key, value] of Object.entries(ERROR_MESSAGES)) {
+    if (errorMessage.toLowerCase().includes(key.toLowerCase())) {
+      return value
+    }
+  }
+  return { message: errorMessage }
+}
+
 export function SignupForm() {
   const router = useRouter()
   const [fullName, setFullName] = useState('')
@@ -34,6 +68,7 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [errorAction, setErrorAction] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -83,6 +118,7 @@ export function SignupForm() {
 
     setIsLoading(true)
     setErrors({})
+    setErrorAction(undefined)
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -97,13 +133,9 @@ export function SignupForm() {
       })
 
       if (error) {
-        if (error.message.includes('already registered')) {
-          setErrors({
-            general: 'This email is already registered. Try signing in instead.',
-          })
-        } else {
-          setErrors({ general: error.message })
-        }
+        const errorDetails = getErrorDetails(error.message)
+        setErrors({ general: errorDetails.message })
+        setErrorAction(errorDetails.action)
         return
       }
 
@@ -117,8 +149,10 @@ export function SignupForm() {
         setIsSuccess(true)
       }
     } catch (err) {
-      console.error('Signup error:', err)
-      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+      clientLogger.error('Signup error', { error: err })
+      const errorDetails = getErrorDetails('network error')
+      setErrors({ general: errorDetails.message })
+      setErrorAction(errorDetails.action)
     } finally {
       setIsLoading(false)
     }
@@ -127,6 +161,7 @@ export function SignupForm() {
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true)
     setErrors({})
+    setErrorAction(undefined)
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -141,7 +176,7 @@ export function SignupForm() {
         setIsGoogleLoading(false)
       }
     } catch (err) {
-      console.error('Google signup error:', err)
+      clientLogger.error('Google signup error', { error: err })
       setErrors({ general: 'Failed to sign up with Google. Please try again.' })
       setIsGoogleLoading(false)
     }
@@ -150,11 +185,11 @@ export function SignupForm() {
   // Success state - email confirmation required
   if (isSuccess) {
     return (
-      <Card>
+      <Card className="border-0 shadow-lg sm:border">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h2 className="mt-4 text-xl font-semibold">Check your email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -162,13 +197,17 @@ export function SignupForm() {
               <span className="font-medium text-foreground">{email}</span>.
               Click the link to activate your account.
             </p>
-            <Button
-              variant="outline"
-              className="mt-6"
-              onClick={() => router.push('/login')}
-            >
-              Back to sign in
-            </Button>
+            <div className="mt-6 space-y-2 text-center">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/login')}
+              >
+                Back to sign in
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Didn&apos;t receive the email? Check your spam folder.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -176,7 +215,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card>
+    <Card className="border-0 shadow-lg sm:border">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create your account</CardTitle>
         <CardDescription>
@@ -187,9 +226,16 @@ export function SignupForm() {
         <form onSubmit={handleEmailSignup} className="space-y-4">
           {/* General Error */}
           {errors.general && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span>{errors.general}</span>
+            <div className="rounded-lg bg-destructive/10 p-4 text-sm">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-medium text-destructive">{errors.general}</p>
+                  {errorAction && (
+                    <p className="text-destructive/80">{errorAction}</p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -208,12 +254,16 @@ export function SignupForm() {
                   if (errors.fullName)
                     setErrors((prev) => ({ ...prev, fullName: undefined }))
                 }}
-                className={`pl-10 ${errors.fullName ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.fullName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="name"
               />
             </div>
             {errors.fullName && (
-              <p className="text-xs text-destructive">{errors.fullName}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.fullName}
+              </p>
             )}
           </div>
 
@@ -232,12 +282,16 @@ export function SignupForm() {
                   if (errors.email)
                     setErrors((prev) => ({ ...prev, email: undefined }))
                 }}
-                className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="email"
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.email}
+              </p>
             )}
           </div>
 
@@ -256,16 +310,18 @@ export function SignupForm() {
                   if (errors.password)
                     setErrors((prev) => ({ ...prev, password: undefined }))
                 }}
-                className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="new-password"
               />
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.password}
+              </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters with uppercase, lowercase, and a number
-            </p>
+            <PasswordStrength password={password} />
           </div>
 
           {/* Confirm Password Field */}
@@ -283,12 +339,22 @@ export function SignupForm() {
                   if (errors.confirmPassword)
                     setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
                 }}
-                className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                className={`pl-10 ${errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
+                autoComplete="new-password"
               />
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.confirmPassword}
+              </p>
+            )}
+            {confirmPassword && password === confirmPassword && (
+              <p className="text-xs text-emerald-600 flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Passwords match
+              </p>
             )}
           </div>
 
@@ -308,7 +374,7 @@ export function SignupForm() {
               />
               <Label
                 htmlFor="terms"
-                className="text-sm font-normal leading-snug cursor-pointer"
+                className="text-sm font-normal leading-snug cursor-pointer text-muted-foreground"
               >
                 I agree to the{' '}
                 <Link
@@ -329,7 +395,10 @@ export function SignupForm() {
               </Label>
             </div>
             {errors.terms && (
-              <p className="text-xs text-destructive">{errors.terms}</p>
+              <p className="text-xs text-destructive flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                {errors.terms}
+              </p>
             )}
           </div>
 
@@ -337,6 +406,7 @@ export function SignupForm() {
           <Button
             type="submit"
             className="w-full"
+            size="lg"
             disabled={isLoading || isGoogleLoading}
           >
             {isLoading ? (
@@ -367,6 +437,7 @@ export function SignupForm() {
           type="button"
           variant="outline"
           className="w-full"
+          size="lg"
           onClick={handleGoogleSignup}
           disabled={isLoading || isGoogleLoading}
         >

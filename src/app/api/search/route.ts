@@ -15,6 +15,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 interface SearchResult {
   ticker: string
@@ -51,7 +54,7 @@ export async function GET(request: NextRequest) {
       .limit(10)
 
     if (error) {
-      console.error('Error searching companies:', error)
+      log.error({ error }, 'Error searching companies')
       return NextResponse.json(
         { error: 'Search failed' },
         { status: 500 }
@@ -129,7 +132,7 @@ export async function GET(request: NextRequest) {
       }
     )
   } catch (error) {
-    console.error('Error in search:', error)
+    log.error({ error }, 'Error in search')
 
     return NextResponse.json(
       { error: 'Internal server error' },

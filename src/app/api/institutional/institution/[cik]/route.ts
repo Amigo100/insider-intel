@@ -16,6 +16,9 @@ import {
   getInstitutionHoldings,
   getAvailableQuarters,
 } from '@/lib/db/institutional-holdings'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 export async function GET(
   request: NextRequest,
@@ -125,7 +128,7 @@ export async function GET(
       }
     )
   } catch (error) {
-    console.error('Error fetching institution holdings:', error)
+    log.error({ error }, 'Error fetching institution holdings')
 
     return NextResponse.json(
       { error: 'Internal server error' },

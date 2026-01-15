@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { clientLogger } from '@/lib/client-logger'
 import {
   Star,
   Search,
@@ -14,6 +15,7 @@ import {
   ArrowUpRight,
   Clock,
   Sparkles,
+  AlertCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -76,10 +78,19 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [pendingAdd, setPendingAdd] = useState<string | null>(null)
   const [pendingRemove, setPendingRemove] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const searchRef = useRef<HTMLDivElement>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const { watchlist, activity, meta } = data
+
+  // Clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -117,8 +128,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
         const data = await res.json()
         setSearchResults(data.results || [])
         setIsSearchOpen(true)
-      } catch (error) {
-        console.error('Search error:', error)
+      } catch (err) {
+        clientLogger.error('Search error', { error: err })
+        setError('Failed to search. Please try again.')
       } finally {
         setIsSearching(false)
       }
@@ -162,8 +174,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       }))
 
       router.refresh()
-    } catch (error) {
-      console.error('Error adding to watchlist:', error)
+    } catch (err) {
+      clientLogger.error('Error adding to watchlist', { error: err })
+      setError('Failed to add to watchlist. Please try again.')
     } finally {
       setPendingAdd(null)
     }
@@ -207,8 +220,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       }
 
       router.refresh()
-    } catch (error) {
-      console.error('Error removing from watchlist:', error)
+    } catch (err) {
+      clientLogger.error('Error removing from watchlist', { error: err })
+      setError('Failed to remove from watchlist. Please try again.')
     } finally {
       setPendingRemove(null)
     }
@@ -275,13 +289,27 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
         {/* Upgrade prompt at limit */}
         {meta.isAtLimit && meta.tier === 'free' && (
           <Button variant="default" size="sm" asChild>
-            <Link href="/pricing">
+            <Link href="/dashboard/settings/billing">
               <Sparkles className="mr-2 h-4 w-4" />
               Upgrade to track more
             </Link>
           </Button>
         )}
       </div>
+
+      {/* Error Toast */}
+      {error && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg border bg-destructive/10 px-4 py-3 text-sm text-destructive shadow-lg">
+          <AlertCircle className="h-4 w-4" />
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="ml-2 rounded p-1 hover:bg-destructive/20"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      )}
 
       {/* Add Stock Search */}
       <Card>
@@ -371,7 +399,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
           {meta.isAtLimit && (
             <p className="mt-3 text-sm text-muted-foreground">
               You&apos;ve reached the free tier limit of {meta.limit} stocks.{' '}
-              <Link href="/pricing" className="text-primary hover:underline">
+              <Link href="/dashboard/settings/billing" className="text-primary hover:underline">
                 Upgrade your plan
               </Link>{' '}
               to track more.
@@ -410,7 +438,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                     isRemoving && 'opacity-50'
                   )}
                 >
-                  <Link href={`/company/${item.company.ticker}`}>
+                  <Link href={`/dashboard/company/${item.company.ticker}`}>
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between">
                         <div>
@@ -550,7 +578,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/company/${transaction.ticker}`}
+                            href={`/dashboard/company/${transaction.ticker}`}
                             className="font-semibold hover:underline"
                           >
                             {transaction.ticker}

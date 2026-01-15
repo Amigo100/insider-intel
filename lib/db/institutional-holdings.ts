@@ -10,6 +10,9 @@ import type {
   InstitutionalHolding,
   InstitutionalHoldingWithDetails,
 } from '@/types/database'
+import { logger } from '@/lib/logger'
+
+const log = logger.db
 
 // =============================================================================
 // Types
@@ -130,7 +133,7 @@ export async function upsertInstitution(
     .single()
 
   if (error) {
-    console.error('Error upserting institution:', error)
+    log.error({ error }, 'Error upserting institution')
     return null
   }
 
@@ -154,7 +157,7 @@ export async function getInstitutionByCik(cik: string): Promise<Institution | nu
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching institution:', error)
+      log.error({ error }, 'Error fetching institution')
     }
     return null
   }
@@ -179,7 +182,7 @@ export async function getInstitutionById(id: string): Promise<Institution | null
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching institution:', error)
+      log.error({ error }, 'Error fetching institution')
     }
     return null
   }
@@ -219,11 +222,11 @@ export async function insertFiling(
   if (error) {
     // Handle duplicate accession_number
     if (error.code === '23505') {
-      console.log(`Filing ${filing.accession_number} already exists, skipping`)
+      log.debug({ accessionNumber: filing.accession_number }, 'Filing already exists, skipping')
       return null
     }
 
-    console.error('Error inserting filing:', error)
+    log.error({ error }, 'Error inserting filing')
     return null
   }
 
@@ -249,7 +252,7 @@ export async function getFilingByAccessionNumber(
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching filing:', error)
+      log.error({ error }, 'Error fetching filing')
     }
     return null
   }
@@ -278,7 +281,7 @@ export async function getLatestFiling(
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching latest filing:', error)
+      log.error({ error }, 'Error fetching latest filing')
     }
     return null
   }
@@ -317,7 +320,7 @@ async function getPreviousQuarterHoldings(
     .order('report_date', { ascending: false })
 
   if (error) {
-    console.error('Error fetching previous holdings:', error)
+    log.error({ error }, 'Error fetching previous holdings')
     return new Map()
   }
 
@@ -432,10 +435,10 @@ export async function insertHoldings(
     if (error) {
       // Handle duplicates gracefully
       if (error.code === '23505') {
-        console.log(`Some holdings already exist, skipping duplicates`)
+        log.debug('Some holdings already exist, skipping duplicates')
         continue
       }
-      console.error('Error inserting holdings batch:', error)
+      log.error({ error }, 'Error inserting holdings batch')
     } else {
       insertedCount += batch.length
     }
@@ -492,7 +495,7 @@ export async function getTopHolders(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching top holders:', error)
+    log.error({ error }, 'Error fetching top holders')
     return []
   }
 
@@ -556,7 +559,7 @@ export async function getInstitutionHoldings(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching institution holdings:', error)
+    log.error({ error }, 'Error fetching institution holdings')
     return []
   }
 
@@ -615,7 +618,7 @@ export async function getNewPositions(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching new positions:', error)
+    log.error({ error }, 'Error fetching new positions')
     return []
   }
 
@@ -682,7 +685,7 @@ export async function getNetBuyingSelling(
     .eq('report_date', reportDate)
 
   if (error) {
-    console.error('Error fetching net buying/selling:', error)
+    log.error({ error }, 'Error fetching net buying/selling')
     return {
       totalBuyers: 0,
       totalSellers: 0,
@@ -732,7 +735,7 @@ export async function getAvailableQuarters(): Promise<string[]> {
     .order('report_date', { ascending: false })
 
   if (error) {
-    console.error('Error fetching available quarters:', error)
+    log.error({ error }, 'Error fetching available quarters')
     return []
   }
 
@@ -762,7 +765,7 @@ export async function searchInstitutions(
     .limit(limit)
 
   if (error) {
-    console.error('Error searching institutions:', error)
+    log.error({ error }, 'Error searching institutions')
     return []
   }
 

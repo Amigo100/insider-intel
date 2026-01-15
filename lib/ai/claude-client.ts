@@ -8,6 +8,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 import { TransactionTypeLabels } from '@/types/database'
+import { logger } from '@/lib/logger'
+
+const log = logger.ai
 
 // =============================================================================
 // Types
@@ -153,7 +156,7 @@ export async function generateInsiderContext(
     // Extract text content from response
     const textContent = message.content.find((block) => block.type === 'text')
     if (!textContent || textContent.type !== 'text') {
-      console.error('No text content in Claude response')
+      log.error('No text content in Claude response')
       return null
     }
 
@@ -179,7 +182,7 @@ export async function generateInsiderContext(
       }
 
       if (!parsed.context || typeof parsed.significanceScore !== 'number') {
-        console.error('Invalid response structure:', parsed)
+        log.error({ parsed }, 'Invalid response structure')
         return null
       }
 
@@ -191,11 +194,11 @@ export async function generateInsiderContext(
         significanceScore: score,
       }
     } catch (parseError) {
-      console.error('Failed to parse Claude response as JSON:', responseText)
+      log.error({ responseText }, 'Failed to parse Claude response as JSON')
       return null
     }
   } catch (error) {
-    console.error('Error calling Claude API:', error)
+    log.error({ error }, 'Error calling Claude API')
     return null
   }
 }
@@ -317,7 +320,7 @@ Provide a 2-3 sentence summary of the overall insider sentiment and any notable 
 
     return textContent.text.trim()
   } catch (error) {
-    console.error('Error generating company summary:', error)
+    log.error({ error }, 'Error generating company summary')
     return null
   }
 }

@@ -13,6 +13,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getNewPositions, getAvailableQuarters } from '@/lib/db/institutional-holdings'
+import { logger } from '@/lib/logger'
+
+const log = logger.api
 
 export async function GET(request: NextRequest) {
   try {
@@ -122,7 +125,7 @@ export async function GET(request: NextRequest) {
       }
     )
   } catch (error) {
-    console.error('Error fetching new positions:', error)
+    log.error({ error }, 'Error fetching new positions')
 
     return NextResponse.json(
       { error: 'Internal server error' },

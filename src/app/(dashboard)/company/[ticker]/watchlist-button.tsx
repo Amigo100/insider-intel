@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Star, StarOff, Loader2 } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
+import { clientLogger } from '@/lib/client-logger'
 import { Button } from '@/components/ui/button'
 
 interface WatchlistButtonProps {
@@ -67,7 +68,7 @@ export function WatchlistButton({
 
         router.refresh()
       } catch (error) {
-        console.error('Error toggling watchlist:', error)
+        clientLogger.error('Error toggling watchlist', { error })
       }
     })
   }

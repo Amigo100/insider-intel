@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { logger } from '@/lib/logger'
 import { TransactionFilters, ResultsSummary } from '@/components/dashboard/transaction-filters'
 import { TransactionTable } from '@/components/dashboard/transaction-table'
 import { Button } from '@/components/ui/button'
@@ -69,7 +70,7 @@ async function getTransactions(params: {
       page: parseInt(page, 10),
     }
   } catch (error) {
-    console.error('Error fetching transactions:', error)
+    logger.app.error({ error }, 'Error fetching transactions')
     return {
       transactions: [],
       total: 0,
