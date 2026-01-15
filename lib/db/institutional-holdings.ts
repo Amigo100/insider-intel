@@ -496,18 +496,20 @@ export async function getTopHolders(
     return []
   }
 
-  return (data || []).map((row) => ({
-    institution_id: row.institution_id,
-    institution_name: row.institution_name,
-    institution_type: row.institution_type,
-    shares: row.shares,
-    value: row.value,
-    percent_of_portfolio: row.percent_of_portfolio,
-    shares_change: row.shares_change,
-    shares_change_percent: row.shares_change_percent,
-    is_new_position: row.is_new_position,
-    report_date: row.report_date,
-  }))
+  return (data || [])
+    .filter((row) => row.institution_id && row.institution_name && row.shares && row.value && row.report_date)
+    .map((row) => ({
+      institution_id: row.institution_id!,
+      institution_name: row.institution_name!,
+      institution_type: row.institution_type,
+      shares: row.shares!,
+      value: row.value!,
+      percent_of_portfolio: row.percent_of_portfolio,
+      shares_change: row.shares_change,
+      shares_change_percent: row.shares_change_percent,
+      is_new_position: row.is_new_position ?? false,
+      report_date: row.report_date!,
+    }))
 }
 
 /**
@@ -558,7 +560,26 @@ export async function getInstitutionHoldings(
     return []
   }
 
-  return data as InstitutionalHoldingWithDetails[]
+  return (data || [])
+    .filter((row) => row.id && row.filing_id && row.institution_id && row.company_id && row.report_date && row.shares !== null && row.value !== null && row.ticker && row.company_name && row.institution_name)
+    .map((row) => ({
+      id: row.id!,
+      filing_id: row.filing_id!,
+      institution_id: row.institution_id!,
+      company_id: row.company_id!,
+      report_date: row.report_date!,
+      shares: row.shares!,
+      value: row.value!,
+      percent_of_portfolio: row.percent_of_portfolio,
+      shares_change: row.shares_change,
+      shares_change_percent: row.shares_change_percent,
+      is_new_position: row.is_new_position ?? false,
+      is_closed_position: row.is_closed_position ?? false,
+      created_at: row.created_at!,
+      ticker: row.ticker!,
+      company_name: row.company_name!,
+      institution_name: row.institution_name!,
+    }))
 }
 
 /**
@@ -598,20 +619,22 @@ export async function getNewPositions(
     return []
   }
 
-  return (data || []).map((row) => ({
-    id: row.id,
-    institution_id: row.institution_id,
-    institution_name: row.institution_name,
-    institution_type: row.institution_type,
-    company_id: row.company_id,
-    ticker: row.ticker,
-    company_name: row.company_name,
-    shares: row.shares,
-    value: row.value,
-    percent_of_portfolio: row.percent_of_portfolio,
-    report_date: row.report_date,
-    created_at: row.created_at,
-  }))
+  return (data || [])
+    .filter((row) => row.id && row.institution_id && row.institution_name && row.company_id && row.ticker && row.company_name && row.shares && row.value && row.report_date && row.created_at)
+    .map((row) => ({
+      id: row.id!,
+      institution_id: row.institution_id!,
+      institution_name: row.institution_name!,
+      institution_type: row.institution_type,
+      company_id: row.company_id!,
+      ticker: row.ticker!,
+      company_name: row.company_name!,
+      shares: row.shares!,
+      value: row.value!,
+      percent_of_portfolio: row.percent_of_portfolio,
+      report_date: row.report_date!,
+      created_at: row.created_at!,
+    }))
 }
 
 /**
