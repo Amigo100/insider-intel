@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   PieChart,
   Pie,
@@ -8,7 +7,6 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
-  Sector,
 } from 'recharts'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -78,54 +76,6 @@ function CustomTooltip({
 }
 
 /**
- * Custom active shape for hover effect
- */
-function renderActiveShape(props: any) {
-  const {
-    cx,
-    cy,
-    innerRadius,
-    outerRadius,
-    startAngle,
-    endAngle,
-    fill,
-    payload,
-  } = props
-
-  return (
-    <g>
-      <Sector
-        cx={cx}
-        cy={cy}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius + 6}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-      />
-      <text
-        x={cx}
-        y={cy - 10}
-        textAnchor="middle"
-        fill="hsl(var(--foreground))"
-        className="text-sm font-medium"
-      >
-        {payload.name}
-      </text>
-      <text
-        x={cx}
-        y={cy + 10}
-        textAnchor="middle"
-        fill="hsl(var(--muted-foreground))"
-        className="text-xs"
-      >
-        {payload.percent.toFixed(1)}%
-      </text>
-    </g>
-  )
-}
-
-/**
  * Custom legend component
  */
 function CustomLegend({
@@ -188,8 +138,6 @@ export function HoldingsPieChart({
   height = 300,
   showLegend = true,
 }: HoldingsPieChartProps) {
-  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
-
   if (loading) {
     return (
       <div className={cn('w-full', className)} style={{ height }}>
@@ -226,10 +174,7 @@ export function HoldingsPieChart({
             outerRadius={80}
             paddingAngle={2}
             dataKey="value"
-            activeIndex={activeIndex}
-            activeShape={renderActiveShape}
-            onMouseEnter={(_, index) => setActiveIndex(index)}
-            onMouseLeave={() => setActiveIndex(undefined)}
+            nameKey="name"
           >
             {processedData.map((_, index) => (
               <Cell
