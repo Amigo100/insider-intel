@@ -41,140 +41,158 @@ interface ClusterData {
 }
 
 async function getDashboardData(userId: string) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  // Get date range for queries
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    // Get date range for queries
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-  // Fetch recent transactions
-  const { data: recentTransactions } = await supabase
-    .from('v_recent_insider_transactions')
-    .select('*')
-    .order('filed_at', { ascending: false })
-    .limit(10)
-
-  // Fetch today's transactions count
-  const { count: todayCount } = await supabase
-    .from('insider_transactions')
-    .select('*', { count: 'exact', head: true })
-    .gte('filed_at', today.toISOString())
-
-  // Fetch high significance transactions (score > 0.7)
-  const { data: notableTransactions } = await supabase
-    .from('v_recent_insider_transactions')
-    .select('*')
-    .gt('ai_significance_score', 0.7)
-    .gte('filed_at', thirtyDaysAgo.toISOString())
-    .order('ai_significance_score', { ascending: false })
-    .limit(5)
-
-  // Fetch user's watchlist with company details
-  const { data: watchlistItems } = await supabase
-    .from('watchlist_items')
-    .select(`
-      id,
-      company_id,
-      created_at,
-      companies (
-        id,
-        ticker,
-        name,
-        sector
-      )
-    `)
-    .eq('user_id', userId)
-    .limit(6)
-
-  // Fetch watchlist alerts (recent activity on watched stocks)
-  const watchlistCompanyIds = watchlistItems?.map((item) => item.company_id) || []
-  let watchlistAlerts: InsiderTransactionWithDetails[] = []
-
-  if (watchlistCompanyIds.length > 0) {
-    const { data } = await supabase
+    // Fetch recent transactions
+    const { data: recentTransactions } = await supabase
       .from('v_recent_insider_transactions')
       .select('*')
-      .in('company_id', watchlistCompanyIds)
-      .gte('filed_at', thirtyDaysAgo.toISOString())
       .order('filed_at', { ascending: false })
       .limit(10)
 
-    watchlistAlerts = (data || []) as InsiderTransactionWithDetails[]
-  }
+    // Fetch today's transactions count
+    const { count: todayCount } = await supabase
+      .from('insider_transactions')
+      .select('*', { count: 'exact', head: true })
+      .gte('filed_at', today.toISOString())
 
-  // Build cluster data from purchases
-  const { data: purchases } = await supabase
-    .from('v_recent_insider_transactions')
-    .select('*')
-    .eq('transaction_type', 'P')
-    .gte('filed_at', thirtyDaysAgo.toISOString())
-    .order('filed_at', { ascending: false })
+    // Fetch high significance transactions (score > 0.7)
+    const { data: notableTransactions } = await supabase
+      .from('v_recent_insider_transactions')
+      .select('*')
+      .gt('ai_significance_score', 0.7)
+      .gte('filed_at', thirtyDaysAgo.toISOString())
+      .order('ai_significance_score', { ascending: false })
+      .limit(5)
 
-  const clusterMap = new Map<string, ClusterData>()
+    // Fetch user's watchlist with company details
+    const { data: watchlistItems } = await supabase
+      .from('watchlist_items')
+      .select(`
+        id,
+        company_id,
+        created_at,
+        companies (
+          id,
+          ticker,
+          name,
+          sector
+        )
+      `)
+      .eq('user_id', userId)
+      .limit(6)
 
-  for (const txn of purchases || []) {
-    if (!txn.company_id || !txn.ticker || !txn.company_name || !txn.insider_name || !txn.transaction_date) continue
-    const existing = clusterMap.get(txn.company_id)
+    // Fetch watchlist alerts (recent activity on watched stocks)
+    const watchlistCompanyIds = watchlistItems?.map((item) => item.company_id) || []
+    let watchlistAlerts: InsiderTransactionWithDetails[] = []
 
-    if (existing) {
-      const existingInsider = existing.insiders.find((i) => i.name === txn.insider_name)
-      if (!existingInsider) {
-        existing.insiders.push({
-          name: txn.insider_name,
-          title: txn.insider_title,
-          value: txn.total_value || 0,
-          transactionDate: txn.transaction_date,
-        })
-        existing.buyerCount = existing.insiders.length
-      } else {
-        existingInsider.value += txn.total_value || 0
-      }
-      existing.totalValue += txn.total_value || 0
-    } else {
-      clusterMap.set(txn.company_id, {
-        companyId: txn.company_id,
-        ticker: txn.ticker,
-        companyName: txn.company_name,
-        buyerCount: 1,
-        totalValue: txn.total_value || 0,
-        insiders: [
-          {
+    if (watchlistCompanyIds.length > 0) {
+      const { data } = await supabase
+        .from('v_recent_insider_transactions')
+        .select('*')
+        .in('company_id', watchlistCompanyIds)
+        .gte('filed_at', thirtyDaysAgo.toISOString())
+        .order('filed_at', { ascending: false })
+        .limit(10)
+
+      watchlistAlerts = (data || []) as InsiderTransactionWithDetails[]
+    }
+
+    // Build cluster data from purchases
+    const { data: purchases } = await supabase
+      .from('v_recent_insider_transactions')
+      .select('*')
+      .eq('transaction_type', 'P')
+      .gte('filed_at', thirtyDaysAgo.toISOString())
+      .order('filed_at', { ascending: false })
+
+    const clusterMap = new Map<string, ClusterData>()
+
+    for (const txn of purchases || []) {
+      if (!txn.company_id || !txn.ticker || !txn.company_name || !txn.insider_name || !txn.transaction_date) continue
+      const existing = clusterMap.get(txn.company_id)
+
+      if (existing) {
+        const existingInsider = existing.insiders.find((i) => i.name === txn.insider_name)
+        if (!existingInsider) {
+          existing.insiders.push({
             name: txn.insider_name,
             title: txn.insider_title,
             value: txn.total_value || 0,
             transactionDate: txn.transaction_date,
-          },
-        ],
-      })
+          })
+          existing.buyerCount = existing.insiders.length
+        } else {
+          existingInsider.value += txn.total_value || 0
+        }
+        existing.totalValue += txn.total_value || 0
+      } else {
+        clusterMap.set(txn.company_id, {
+          companyId: txn.company_id,
+          ticker: txn.ticker,
+          companyName: txn.company_name,
+          buyerCount: 1,
+          totalValue: txn.total_value || 0,
+          insiders: [
+            {
+              name: txn.insider_name,
+              title: txn.insider_title,
+              value: txn.total_value || 0,
+              transactionDate: txn.transaction_date,
+            },
+          ],
+        })
+      }
     }
-  }
 
-  const clusters = Array.from(clusterMap.values())
-    .filter((c) => c.buyerCount >= 2)
-    .sort((a, b) => b.buyerCount - a.buyerCount || b.totalValue - a.totalValue)
-    .slice(0, 5)
+    const clusters = Array.from(clusterMap.values())
+      .filter((c) => c.buyerCount >= 2)
+      .sort((a, b) => b.buyerCount - a.buyerCount || b.totalValue - a.totalValue)
+      .slice(0, 5)
 
-  return {
-    recentTransactions: (recentTransactions || []) as InsiderTransactionWithDetails[],
-    todayCount: todayCount || 0,
-    notableTransactions: (notableTransactions || []) as InsiderTransactionWithDetails[],
-    watchlistItems: watchlistItems || [],
-    watchlistAlerts,
-    clusters,
+    return {
+      recentTransactions: (recentTransactions || []) as InsiderTransactionWithDetails[],
+      todayCount: todayCount || 0,
+      notableTransactions: (notableTransactions || []) as InsiderTransactionWithDetails[],
+      watchlistItems: watchlistItems || [],
+      watchlistAlerts,
+      clusters,
+    }
+  } catch (error) {
+    // Return empty data on error to prevent page crash
+    console.error('Error fetching dashboard data:', error)
+    return {
+      recentTransactions: [] as InsiderTransactionWithDetails[],
+      todayCount: 0,
+      notableTransactions: [] as InsiderTransactionWithDetails[],
+      watchlistItems: [],
+      watchlistAlerts: [] as InsiderTransactionWithDetails[],
+      clusters: [],
+    }
   }
 }
 
 async function getUserProfile(userId: string) {
   const supabase = await createClient()
 
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('full_name')
     .eq('id', userId)
     .single()
+
+  // Return null if profile doesn't exist (trigger may not have run)
+  if (error) {
+    return null
+  }
 
   return profile
 }

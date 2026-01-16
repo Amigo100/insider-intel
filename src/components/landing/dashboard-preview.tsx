@@ -29,7 +29,7 @@ export function DashboardPreview() {
     >
       {/* Floating notification cards - decorative */}
       <FloatingCard
-        className="absolute -left-4 top-20 hidden lg:block"
+        className="absolute -left-4 top-20 z-10 hidden lg:block"
         delay={0}
       >
         <div className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export function DashboardPreview() {
       </FloatingCard>
 
       <FloatingCard
-        className="absolute -right-4 top-32 hidden lg:block"
+        className="absolute -right-4 top-32 z-10 hidden lg:block"
         delay={1}
       >
         <div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export function DashboardPreview() {
       </FloatingCard>
 
       <FloatingCard
-        className="absolute -left-8 bottom-32 hidden lg:block"
+        className="absolute -left-8 bottom-32 z-10 hidden lg:block"
         delay={2}
       >
         <div className="flex items-center gap-2">
