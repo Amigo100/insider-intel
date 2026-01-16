@@ -137,6 +137,61 @@ CREATE INDEX IF NOT EXISTS idx_insider_transactions_company ON public.insider_tr
 CREATE INDEX IF NOT EXISTS idx_insider_transactions_filed_at ON public.insider_transactions(filed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_watchlist_user ON public.watchlist_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_companies_ticker ON public.companies(ticker);
+
+-- Drop existing views first (required if columns changed)
+DROP VIEW IF EXISTS public.v_recent_insider_transactions;
+DROP VIEW IF EXISTS public.v_institutional_holdings;
+
+-- View for recent insider transactions with company and insider details
+CREATE VIEW public.v_recent_insider_transactions AS
+SELECT
+  it.id,
+  it.company_id,
+  it.insider_id,
+  it.accession_number,
+  it.filed_at,
+  it.transaction_date,
+  it.transaction_type,
+  it.shares,
+  it.price_per_share,
+  it.total_value,
+  it.insider_title,
+  it.is_director,
+  it.is_officer,
+  it.ai_context,
+  it.ai_significance_score,
+  it.ai_generated_at,
+  it.created_at,
+  c.ticker,
+  c.name AS company_name,
+  i.name AS insider_name
+FROM public.insider_transactions it
+JOIN public.companies c ON it.company_id = c.id
+JOIN public.insiders i ON it.insider_id = i.id
+ORDER BY it.filed_at DESC;
+
+-- View for institutional holdings with company and institution details
+CREATE VIEW public.v_institutional_holdings AS
+SELECT
+  ih.id,
+  ih.filing_id,
+  ih.institution_id,
+  ih.company_id,
+  ih.report_date,
+  ih.shares,
+  ih.value,
+  ih.shares_change,
+  ih.is_new_position,
+  ih.is_closed_position,
+  ih.created_at,
+  c.ticker,
+  c.name AS company_name,
+  inst.name AS institution_name,
+  inst.institution_type
+FROM public.institutional_holdings ih
+JOIN public.companies c ON ih.company_id = c.id
+JOIN public.institutions inst ON ih.institution_id = inst.id
+ORDER BY ih.report_date DESC;
 ```
 
 ### 1.4 Configure Row Level Security (RLS)
