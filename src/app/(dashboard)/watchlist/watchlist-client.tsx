@@ -319,14 +319,18 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
       {/* Error Toast */}
       {error && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg border bg-destructive/10 px-4 py-3 text-sm text-destructive shadow-lg">
-          <AlertCircle className="h-4 w-4" />
+        <div
+          role="alert"
+          className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg border bg-destructive/10 px-4 py-3 text-sm text-destructive shadow-lg"
+        >
+          <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
-            className="ml-2 rounded p-1 hover:bg-destructive/20"
+            aria-label="Dismiss error"
+            className="ml-2 min-h-[28px] min-w-[28px] flex items-center justify-center rounded p-1 hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           >
-            <X className="h-3 w-3" />
+            <X className="h-3 w-3" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -421,7 +425,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
           {/* Ticker suggestions */}
           {!meta.isAtLimit && (
-            <div className="flex items-center gap-2 mt-3">
+            <div className="flex flex-wrap items-center gap-2 mt-3">
               <span className="text-xs text-slate-500">Popular:</span>
               {['AAPL', 'MSFT', 'NVDA', 'TSLA', 'GOOGL'].map((tickerSuggestion) => {
                 const alreadyAdded = isInWatchlist(tickerSuggestion)
@@ -430,15 +434,18 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                     key={tickerSuggestion}
                     onClick={() => !alreadyAdded && handleAdd(tickerSuggestion)}
                     disabled={alreadyAdded || pendingAdd === tickerSuggestion}
+                    aria-label={alreadyAdded ? `${tickerSuggestion} already in watchlist` : `Add ${tickerSuggestion} to watchlist`}
                     className={cn(
-                      'px-2.5 py-1 text-xs font-medium rounded-md border transition-all',
+                      // Touch-friendly sizing (min 36px height for mobile) + focus state
+                      'min-h-[36px] min-w-[52px] px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
                       alreadyAdded
-                        ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
-                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30'
+                        ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed opacity-50'
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30 active:scale-95'
                     )}
                   >
                     {pendingAdd === tickerSuggestion ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <Loader2 className="h-3.5 w-3.5 animate-spin mx-auto" />
                     ) : (
                       tickerSuggestion
                     )}

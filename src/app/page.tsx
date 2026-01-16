@@ -142,7 +142,7 @@ export default function LandingPage() {
             <div className="mx-auto max-w-3xl text-center">
               <Badge variant="secondary" className="mb-6 gap-1.5 animate-fade-in">
                 <Zap className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                50,000+ transactions tracked this month
+                AI-powered SEC filing analysis
               </Badge>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl animate-fade-in-up">
                 Track Insider & Institutional Trading{' '}

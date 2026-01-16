@@ -190,9 +190,10 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           <button
             type="button"
             onClick={handleClearTicker}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+            aria-label="Clear ticker filter"
+            className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[24px] min-w-[24px] flex items-center justify-center rounded text-slate-400 hover:text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>

@@ -1,43 +1,39 @@
-import { Star, Quote } from 'lucide-react'
+import { FileText, TrendingUp, Bell } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
-interface Testimonial {
-  quote: string
-  name: string
+interface UseCase {
   title: string
-  company: string
-  rating: number
+  description: string
+  icon: React.ElementType
 }
 
-const testimonials: Testimonial[] = [
+const useCases: UseCase[] = [
   {
-    quote:
-      "InsiderIntel has completely changed how I research stocks. The cluster buying alerts have helped me identify opportunities I would have missed otherwise.",
-    name: 'Michael Chen',
-    title: 'Portfolio Manager',
-    company: 'Apex Capital',
-    rating: 5,
+    title: 'Track Insider Activity',
+    description:
+      'Monitor Form 4 filings to see when executives and directors buy or sell shares in their own companies.',
+    icon: FileText,
   },
   {
-    quote:
-      "The AI analysis saves me hours of work every week. Instead of manually parsing SEC filings, I get clear insights on what matters and why.",
-    name: 'Sarah Rodriguez',
-    title: 'Independent Trader',
-    company: 'Self-employed',
-    rating: 5,
+    title: 'Spot Cluster Buying',
+    description:
+      'Identify when multiple insiders at the same company are buying shares - a potential signal of confidence.',
+    icon: TrendingUp,
   },
   {
-    quote:
-      "As a financial advisor, I use InsiderIntel to stay on top of insider activity for my clients' holdings. The real-time alerts are invaluable.",
-    name: 'David Thompson',
-    title: 'Financial Advisor',
-    company: 'Meridian Wealth',
-    rating: 5,
+    title: 'Get Timely Alerts',
+    description:
+      'Receive notifications when there is significant insider activity in companies on your watchlist.',
+    icon: Bell,
   },
 ]
 
 /**
- * Testimonials section showing social proof from users
+ * Use cases section - replacing fake testimonials with honest feature descriptions
+ *
+ * NOTE: This replaces the previous testimonials section which contained
+ * fabricated quotes from fictional people. Real testimonials should only
+ * be added once actual users provide them with permission.
  */
 export function Testimonials() {
   return (
@@ -45,16 +41,16 @@ export function Testimonials() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Trusted by investors worldwide
+            Make smarter investment decisions
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            See what our users have to say about InsiderIntel
+            Leverage insider trading data to inform your research
           </p>
         </div>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <TestimonialCard key={index} testimonial={testimonial} />
+          {useCases.map((useCase, index) => (
+            <UseCaseCard key={index} useCase={useCase} />
           ))}
         </div>
       </div>
@@ -62,46 +58,22 @@ export function Testimonials() {
   )
 }
 
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+function UseCaseCard({ useCase }: { useCase: UseCase }) {
+  const Icon = useCase.icon
+
   return (
     <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      {/* Quote icon decoration */}
-      <div className="absolute right-4 top-4 text-primary/10">
-        <Quote className="h-12 w-12" />
-      </div>
-
       <CardContent className="pt-6">
-        {/* Star rating */}
-        <div className="mb-4 flex gap-0.5">
-          {Array.from({ length: testimonial.rating }).map((_, i) => (
-            <Star
-              key={i}
-              className="h-4 w-4 fill-yellow-400 text-yellow-400"
-            />
-          ))}
+        {/* Icon */}
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+          <Icon className="h-6 w-6 text-primary" />
         </div>
 
-        {/* Quote */}
-        <blockquote className="text-muted-foreground">
-          &ldquo;{testimonial.quote}&rdquo;
-        </blockquote>
+        {/* Title */}
+        <h3 className="text-lg font-semibold">{useCase.title}</h3>
 
-        {/* Author */}
-        <div className="mt-6 flex items-center gap-3">
-          {/* Avatar placeholder */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {testimonial.name
-              .split(' ')
-              .map((n) => n[0])
-              .join('')}
-          </div>
-          <div>
-            <p className="font-semibold">{testimonial.name}</p>
-            <p className="text-sm text-muted-foreground">
-              {testimonial.title}, {testimonial.company}
-            </p>
-          </div>
-        </div>
+        {/* Description */}
+        <p className="mt-2 text-muted-foreground">{useCase.description}</p>
       </CardContent>
     </Card>
   )

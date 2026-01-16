@@ -221,8 +221,8 @@ function ByStockTab() {
       {/* Search */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="relative flex-1 max-w-xs">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div className="relative flex-1 sm:max-w-xs">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 type="text"
@@ -233,7 +233,7 @@ function ByStockTab() {
                 className="pl-9"
               />
             </div>
-            <Button variant="cyan" onClick={handleSearch} disabled={loading}>
+            <Button variant="cyan" onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -243,14 +243,16 @@ function ByStockTab() {
             </Button>
           </div>
           {/* Quick ticker suggestions */}
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex flex-wrap items-center gap-2 mt-3">
             <span className="text-xs text-slate-500">Try:</span>
             {['AAPL', 'MSFT', 'NVDA', 'TSLA'].map((tickerSuggestion) => (
               <button
                 key={tickerSuggestion}
                 type="button"
                 onClick={() => handleQuickSearch(tickerSuggestion)}
-                className="px-2.5 py-1 text-xs font-medium rounded-md bg-white/5 text-slate-300 border border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30 transition-all"
+                disabled={loading}
+                aria-label={`Search for ${tickerSuggestion} institutional holders`}
+                className="min-h-[36px] min-w-[52px] px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/5 text-slate-300 border border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               >
                 {tickerSuggestion}
               </button>

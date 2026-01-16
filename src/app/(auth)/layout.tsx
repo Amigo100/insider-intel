@@ -26,53 +26,48 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
           {/* Main Content */}
           <div className="space-y-8">
-            {/* Stats */}
+            {/* Feature highlights - honest, verifiable claims */}
             <div className="grid grid-cols-2 gap-6">
               <StatCard
                 icon={DollarSign}
-                value="$2.4B+"
-                label="Insider transactions tracked"
+                value="Form 4"
+                label="Insider transaction filings"
               />
               <StatCard
                 icon={Users}
-                value="10,000+"
-                label="Active investors"
+                value="13F"
+                label="Institutional holdings"
               />
               <StatCard
                 icon={TrendingUp}
-                value="50,000+"
-                label="Transactions this month"
+                value="SEC"
+                label="Official data source"
               />
               <StatCard
                 icon={TrendingDown}
-                value="99.9%"
-                label="Data accuracy"
+                value="AI"
+                label="Powered analysis"
               />
             </div>
 
-            {/* Testimonial */}
+            {/* Value proposition - honest description, no fake testimonial */}
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-8">
               <Quote className="h-8 w-8 text-primary/60 mb-4" />
               <blockquote className="text-lg leading-relaxed text-white/90">
-                &ldquo;InsiderIntel completely changed how I research stocks. Seeing what
-                executives are doing with their own money gives me an edge I didn&apos;t
-                have before. The cluster buying alerts alone have been worth the subscription.&rdquo;
+                Track what company insiders are doing with their own money.
+                When executives and directors buy or sell shares, it can signal
+                their confidence in the company&apos;s future.
               </blockquote>
-              <div className="mt-6 flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center text-lg font-semibold">
-                  MR
-                </div>
-                <div>
-                  <p className="font-semibold">Michael R.</p>
-                  <p className="text-sm text-white/60">Portfolio Manager</p>
-                </div>
-              </div>
+              <p className="mt-4 text-sm text-white/60">
+                InsiderIntel aggregates SEC Form 4 and 13F filings to help you
+                spot trends in insider and institutional trading activity.
+              </p>
             </div>
           </div>
 
           {/* Footer */}
           <div className="text-sm text-white/40">
-            <p>Trusted by professional and retail investors worldwide</p>
+            <p>Data sourced from official SEC EDGAR filings</p>
           </div>
         </div>
       </div>

@@ -133,18 +133,22 @@ function ActivityItem({
 
 /**
  * Static fallback when API is unavailable
+ * Clearly labeled as example data for transparency
  */
 function StaticActivityFeed() {
   const staticData = [
-    { ticker: 'NVDA', role: 'CFO', type: 'buy', value: '$1.8M', time: '12 min ago' },
-    { ticker: 'AAPL', role: 'Director', type: 'sell', value: '$450K', time: '34 min ago' },
-    { ticker: 'MSFT', role: 'CEO', type: 'buy', value: '$2.1M', time: '1 hour ago' },
-    { ticker: 'AMZN', role: 'VP', type: 'buy', value: '$890K', time: '2 hours ago' },
-    { ticker: 'GOOGL', role: 'Director', type: 'sell', value: '$1.2M', time: '3 hours ago' },
+    { ticker: 'NVDA', role: 'CFO', type: 'buy', value: '$1.8M', time: 'Example' },
+    { ticker: 'AAPL', role: 'Director', type: 'sell', value: '$450K', time: 'Example' },
+    { ticker: 'MSFT', role: 'CEO', type: 'buy', value: '$2.1M', time: 'Example' },
+    { ticker: 'AMZN', role: 'VP', type: 'buy', value: '$890K', time: 'Example' },
+    { ticker: 'GOOGL', role: 'Director', type: 'sell', value: '$1.2M', time: 'Example' },
   ]
 
   return (
     <div className="space-y-3">
+      <p className="text-center text-xs text-muted-foreground mb-2">
+        Example transactions (sign up to see real data)
+      </p>
       {staticData.map((item, index) => (
         <div
           key={index}
@@ -197,8 +201,8 @@ export function LiveActivityHeader() {
         <Activity className="h-5 w-5 text-emerald-500" />
         <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
       </div>
-      <h2 className="text-lg font-semibold">Live Insider Activity</h2>
-      <span className="text-xs text-muted-foreground">(Updated every 5 min)</span>
+      <h2 className="text-lg font-semibold">Recent Insider Activity</h2>
+      <span className="text-xs text-muted-foreground">(From SEC filings)</span>
     </div>
   )
 }

@@ -1,19 +1,25 @@
-import { Shield, Database, Lock, FileCheck } from 'lucide-react'
+import { Database, Lock, FileCheck, Cpu } from 'lucide-react'
 
 /**
  * Data sources and trust badges section
  * Shows where data comes from to add legitimacy
+ *
+ * IMPORTANT: Only display claims that are verifiably true
+ * - SEC EDGAR: TRUE - data is fetched from SEC
+ * - OpenFIGI: TRUE - used for CUSIP lookups
+ * - AI-Powered: TRUE - uses Claude for analysis
+ * - SSL: TRUE - Vercel provides HTTPS
  */
 export function TrustBadges() {
   return (
     <section className="border-y bg-muted/20 py-12">
       <div className="container mx-auto px-4">
         <p className="mb-8 text-center text-sm font-medium text-muted-foreground">
-          OFFICIAL DATA SOURCES & SECURITY
+          OFFICIAL DATA SOURCES & TECHNOLOGY
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
-          {/* SEC EDGAR */}
+          {/* SEC EDGAR - TRUE: We fetch data from SEC */}
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
               <FileCheck className="h-6 w-6" />
@@ -24,7 +30,7 @@ export function TrustBadges() {
             </div>
           </div>
 
-          {/* OpenFIGI */}
+          {/* OpenFIGI - TRUE: Used for CUSIP lookups */}
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
               <Database className="h-6 w-6" />
@@ -35,25 +41,25 @@ export function TrustBadges() {
             </div>
           </div>
 
-          {/* SOC 2 placeholder */}
+          {/* AI Powered - TRUE: Uses Claude for context generation */}
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
-              <Shield className="h-6 w-6" />
+              <Cpu className="h-6 w-6" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">SOC 2</p>
-              <p className="text-xs">Enterprise security</p>
+              <p className="font-semibold text-foreground">AI-Powered</p>
+              <p className="text-xs">Claude analysis</p>
             </div>
           </div>
 
-          {/* SSL/TLS */}
+          {/* SSL/TLS - TRUE: Vercel provides this by default */}
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
               <Lock className="h-6 w-6" />
             </div>
             <div>
               <p className="font-semibold text-foreground">256-bit SSL</p>
-              <p className="text-xs">Bank-grade encryption</p>
+              <p className="text-xs">Encrypted connection</p>
             </div>
           </div>
         </div>
@@ -64,13 +70,19 @@ export function TrustBadges() {
 
 /**
  * Stats banner showing key metrics
+ *
+ * NOTE: These should ideally be fetched from the database for accuracy.
+ * For now, these are conservative estimates based on SEC filing volumes.
+ * Form 4 filings: ~150,000/year from SEC
+ * Public companies: ~8,000 on major exchanges
+ * 13F filers: ~5,000+ institutions file quarterly
  */
 export function StatsBanner() {
   const stats = [
-    { value: '50K+', label: 'Transactions Tracked' },
-    { value: '8,000+', label: 'Companies Monitored' },
-    { value: '500+', label: 'Institutions Tracked' },
-    { value: '99.9%', label: 'Uptime' },
+    { value: 'Form 4', label: 'Insider Filings' },
+    { value: '13F', label: 'Institutional Filings' },
+    { value: 'Daily', label: 'SEC Data Updates' },
+    { value: 'AI', label: 'Powered Analysis' },
   ]
 
   return (

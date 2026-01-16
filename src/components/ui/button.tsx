@@ -4,7 +4,20 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none active:scale-[0.98]',
+  // Base styles with improved focus visibility for both light and dark themes
+  [
+    'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200',
+    // Focus state - visible cyan ring for keyboard navigation
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2',
+    // Light mode ring offset
+    'focus-visible:ring-offset-white',
+    // Dark mode ring offset
+    'dark:focus-visible:ring-offset-slate-900',
+    // Disabled state
+    'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none',
+    // Active press effect
+    'active:scale-[0.98]',
+  ].join(' '),
   {
     variants: {
       variant: {
