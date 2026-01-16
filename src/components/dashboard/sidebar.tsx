@@ -28,22 +28,22 @@ const navItems = [
   },
   {
     title: 'Insider Trades',
-    href: '/dashboard/insider-trades',
+    href: '/insider-trades',
     icon: UserCheck,
   },
   {
     title: 'Institutions',
-    href: '/dashboard/institutions',
+    href: '/institutions',
     icon: Building2,
   },
   {
     title: 'Watchlist',
-    href: '/dashboard/watchlist',
+    href: '/watchlist',
     icon: Star,
   },
   {
     title: 'Settings',
-    href: '/dashboard/settings',
+    href: '/settings',
     icon: Settings,
   },
 ]

@@ -76,14 +76,14 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => router.push('/dashboard/settings')}
+          onClick={() => router.push('/settings')}
         >
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => router.push('/dashboard/billing')}
+          onClick={() => router.push('/settings/billing')}
         >
           <CreditCard className="mr-2 h-4 w-4" />
           <span>Billing</span>

@@ -154,7 +154,7 @@ function LoadMoreButton({
   }
   searchParams.set('page', String(nextPage))
 
-  const href = `/dashboard/insider-trades?${searchParams.toString()}`
+  const href = `/insider-trades?${searchParams.toString()}`
 
   return (
     <Button variant="outline" asChild>

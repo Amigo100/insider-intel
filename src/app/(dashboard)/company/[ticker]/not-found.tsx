@@ -18,7 +18,7 @@ export default function CompanyNotFound() {
           <Link href="/dashboard">Go to Dashboard</Link>
         </Button>
         <Button asChild>
-          <Link href="/dashboard/insider-trades">Browse Transactions</Link>
+          <Link href="/insider-trades">Browse Transactions</Link>
         </Button>
       </div>
     </div>

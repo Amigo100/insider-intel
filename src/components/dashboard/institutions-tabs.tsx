@@ -386,7 +386,7 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
                     <TableRow key={inst.id}>
                       <TableCell>
                         <Link
-                          href={`/dashboard/institution/${inst.cik}`}
+                          href={`/institution/${inst.cik}`}
                           className="font-medium hover:underline"
                         >
                           {inst.name}
@@ -461,7 +461,7 @@ export function NewPositionsSection({
                   <TableRow key={pos.company_id}>
                     <TableCell>
                       <Link
-                        href={`/dashboard/company/${pos.ticker}`}
+                        href={`/company/${pos.ticker}`}
                         className="font-medium hover:underline"
                       >
                         {pos.ticker}
@@ -520,7 +520,7 @@ export function TopMovementsSection({
               {topBought.slice(0, 5).map((item, index) => (
                 <Link
                   key={item.ticker}
-                  href={`/dashboard/company/${item.ticker}`}
+                  href={`/company/${item.ticker}`}
                   className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -565,7 +565,7 @@ export function TopMovementsSection({
               {topSold.slice(0, 5).map((item, index) => (
                 <Link
                   key={item.ticker}
-                  href={`/dashboard/company/${item.ticker}`}
+                  href={`/company/${item.ticker}`}
                   className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">

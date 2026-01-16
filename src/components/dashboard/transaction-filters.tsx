@@ -51,8 +51,8 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
 
       const queryString = params.toString()
       const url = queryString
-        ? `/dashboard/insider-trades?${queryString}`
-        : '/dashboard/insider-trades'
+        ? `/insider-trades?${queryString}`
+        : '/insider-trades'
 
       startTransition(() => {
         router.push(url)
@@ -91,7 +91,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
     setDays('30')
     setTicker('')
     startTransition(() => {
-      router.push('/dashboard/insider-trades')
+      router.push('/insider-trades')
     })
   }
 

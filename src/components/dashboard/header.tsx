@@ -107,7 +107,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
     setSearchQuery('')
     setShowResults(false)
     setSelectedIndex(-1)
-    router.push(`/dashboard/company/${ticker}`)
+    router.push(`/company/${ticker}`)
   }
 
   return (

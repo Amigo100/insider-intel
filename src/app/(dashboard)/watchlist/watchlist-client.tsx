@@ -289,7 +289,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
         {/* Upgrade prompt at limit */}
         {meta.isAtLimit && meta.tier === 'free' && (
           <Button variant="default" size="sm" asChild>
-            <Link href="/dashboard/settings/billing">
+            <Link href="/settings/billing">
               <Sparkles className="mr-2 h-4 w-4" />
               Upgrade to track more
             </Link>
@@ -399,7 +399,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
           {meta.isAtLimit && (
             <p className="mt-3 text-sm text-muted-foreground">
               You&apos;ve reached the free tier limit of {meta.limit} stocks.{' '}
-              <Link href="/dashboard/settings/billing" className="text-primary hover:underline">
+              <Link href="/settings/billing" className="text-primary hover:underline">
                 Upgrade your plan
               </Link>{' '}
               to track more.
@@ -438,7 +438,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                     isRemoving && 'opacity-50'
                   )}
                 >
-                  <Link href={`/dashboard/company/${item.company.ticker}`}>
+                  <Link href={`/company/${item.company.ticker}`}>
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between">
                         <div>
@@ -578,7 +578,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/dashboard/company/${transaction.ticker}`}
+                            href={`/company/${transaction.ticker}`}
                             className="font-semibold hover:underline"
                           >
                             {transaction.ticker}

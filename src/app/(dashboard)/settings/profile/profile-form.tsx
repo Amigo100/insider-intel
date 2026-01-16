@@ -150,7 +150,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               </Badge>
               {initialData.subscriptionTier === 'free' && (
                 <Button variant="link" className="h-auto p-0 text-sm" asChild>
-                  <Link href="/dashboard/settings/billing">Upgrade your plan</Link>
+                  <Link href="/settings/billing">Upgrade your plan</Link>
                 </Button>
               )}
             </div>

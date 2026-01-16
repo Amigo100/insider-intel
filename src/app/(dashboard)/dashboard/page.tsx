@@ -239,7 +239,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Notable Activity</h2>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/insider-trades?filter=notable">
+              <Link href="/insider-trades?filter=notable">
                 View all
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
@@ -287,7 +287,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Recent Insider Trades</h2>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/insider-trades">
+            <Link href="/insider-trades">
               View all
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -304,7 +304,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Your Watchlist</h2>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/watchlist">
+            <Link href="/watchlist">
               Manage
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -322,7 +322,7 @@ export default async function DashboardPage() {
               return (
                 <Link
                   key={item.id}
-                  href={`/dashboard/company/${company.ticker}`}
+                  href={`/company/${company.ticker}`}
                 >
                   <Card className="transition-colors hover:bg-muted/50">
                     <CardContent className="p-4">
@@ -362,7 +362,7 @@ export default async function DashboardPage() {
                 Add stocks to track insider trading activity
               </p>
               <Button asChild>
-                <Link href="/dashboard/watchlist">
+                <Link href="/watchlist">
                   <Plus className="mr-2 h-4 w-4" />
                   Add stocks
                 </Link>

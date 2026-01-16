@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS public.institutional_holdings (
 );
 
 -- Watchlist table
-CREATE TABLE IF NOT EXISTS public.watchlist (
+CREATE TABLE IF NOT EXISTS public.watchlist_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist (
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_insider_transactions_company ON public.insider_transactions(company_id);
 CREATE INDEX IF NOT EXISTS idx_insider_transactions_filed_at ON public.insider_transactions(filed_at DESC);
-CREATE INDEX IF NOT EXISTS idx_watchlist_user ON public.watchlist(user_id);
+CREATE INDEX IF NOT EXISTS idx_watchlist_user ON public.watchlist_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_companies_ticker ON public.companies(ticker);
 ```
 
@@ -144,7 +144,7 @@ CREATE INDEX IF NOT EXISTS idx_companies_ticker ON public.companies(ticker);
 ```sql
 -- Enable RLS on tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.watchlist ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.watchlist_items ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Users can read/update their own profile
 CREATE POLICY "Users can view own profile" ON public.profiles
@@ -154,13 +154,13 @@ CREATE POLICY "Users can update own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
 
 -- Watchlist: Users can manage their own watchlist
-CREATE POLICY "Users can view own watchlist" ON public.watchlist
+CREATE POLICY "Users can view own watchlist" ON public.watchlist_items
   FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own watchlist" ON public.watchlist
+CREATE POLICY "Users can insert own watchlist" ON public.watchlist_items
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own watchlist" ON public.watchlist
+CREATE POLICY "Users can delete own watchlist" ON public.watchlist_items
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Public read access for companies, transactions (no user data)

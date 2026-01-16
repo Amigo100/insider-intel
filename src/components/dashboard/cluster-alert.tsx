@@ -51,7 +51,7 @@ export function ClusterAlert({
   const buyerCount = insiders.length
 
   return (
-    <Link href={`/dashboard/company/${ticker}`}>
+    <Link href={`/company/${ticker}`}>
       <Card
         className={cn(
           'overflow-hidden border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-100/50 transition-all hover:shadow-md hover:border-emerald-300 dark:from-emerald-950/50 dark:to-emerald-900/30 dark:border-emerald-800',
@@ -140,7 +140,7 @@ export function ClusterAlertCompact({
   const buyerCount = insiders.length
 
   return (
-    <Link href={`/dashboard/company/${ticker}`}>
+    <Link href={`/company/${ticker}`}>
       <div
         className={cn(
           'flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 transition-colors hover:bg-emerald-100/50 dark:border-emerald-800 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/30',
@@ -182,7 +182,7 @@ export function ClusterAlertFeatured({
   const buyerCount = insiders.length
 
   return (
-    <Link href={`/dashboard/company/${ticker}`}>
+    <Link href={`/company/${ticker}`}>
       <Card
         className={cn(
           'overflow-hidden border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 via-emerald-100/80 to-emerald-50 transition-all hover:shadow-lg hover:border-emerald-400 dark:from-emerald-950 dark:via-emerald-900/50 dark:to-emerald-950 dark:border-emerald-700',

@@ -2,10 +2,37 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Public routes that don't require authentication
-const publicRoutes = ['/', '/login', '/signup']
+const publicRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/about',
+  '/contact',
+  '/terms',
+  '/privacy',
+  '/disclaimer',
+]
+
+// Protected route prefixes that require authentication
+// These match the (dashboard) route group pages
+const protectedPrefixes = [
+  '/dashboard',
+  '/insider-trades',
+  '/institutions',
+  '/watchlist',
+  '/company/',
+  '/settings',
+]
 
 // Routes that should bypass auth checks entirely
 const bypassRoutes = ['/api/cron/', '/api/stripe/webhook']
+
+// Check if a pathname matches a protected route
+function isProtectedRoute(pathname: string): boolean {
+  return protectedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix))
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -50,7 +77,6 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathname)
   const isAuthRoute = pathname === '/login' || pathname === '/signup'
   const isPasswordRoute = pathname === '/forgot-password' || pathname === '/reset-password'
-  const isDashboardRoute = pathname.startsWith('/dashboard')
 
   // Redirect authenticated users away from login/signup pages
   if (user && isAuthRoute) {
@@ -63,12 +89,12 @@ export async function middleware(request: NextRequest) {
   // (they can change their password from account settings instead)
   if (user && isPasswordRoute) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard/settings'
+    url.pathname = '/settings'
     return NextResponse.redirect(url)
   }
 
   // Protect dashboard routes - redirect to login if not authenticated
-  if (!user && isDashboardRoute) {
+  if (!user && isProtectedRoute(pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     // Preserve the original URL to redirect back after login

@@ -80,7 +80,7 @@ export function TransactionCard({ transaction, className }: TransactionCardProps
     .join(' • ') || 'Insider'
 
   return (
-    <Link href={`/dashboard/company/${transaction.ticker}`}>
+    <Link href={`/company/${transaction.ticker}`}>
       <Card
         className={cn(
           'transition-colors hover:bg-muted/50 cursor-pointer',
@@ -168,7 +168,7 @@ export function TransactionCardCompact({
   })
 
   return (
-    <Link href={`/dashboard/company/${transaction.ticker}`}>
+    <Link href={`/company/${transaction.ticker}`}>
       <div
         className={cn(
           'flex items-center justify-between gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/50',

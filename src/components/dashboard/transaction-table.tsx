@@ -214,7 +214,7 @@ export function TransactionTable({
               </TableCell>
               <TableCell>
                 <Link
-                  href={`/dashboard/company/${transaction.ticker}`}
+                  href={`/company/${transaction.ticker}`}
                   className="font-medium hover:underline"
                 >
                   {transaction.ticker}
