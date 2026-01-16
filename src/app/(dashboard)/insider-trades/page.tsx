@@ -66,7 +66,7 @@ function calculateStats(transactions: InsiderTransactionWithDetails[]) {
     todayCount: todayCount.toString(),
     weekCount: weekCount.toString(),
     netVolume: formatVolume(netVolume),
-    netVolumeType: netVolume >= 0 ? 'positive' : 'negative' as const,
+    netVolumeType: (netVolume >= 0 ? 'positive' : 'negative') as 'positive' | 'negative',
     activeCompanies: uniqueTickers.size.toString(),
   }
 }
