@@ -324,7 +324,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
         <CardContent>
           <div ref={searchRef} className="relative">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 placeholder={
                   meta.isAtLimit
@@ -335,16 +335,16 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                 onChange={(e) => handleSearch(e.target.value)}
                 onFocus={() => searchQuery && setIsSearchOpen(true)}
                 disabled={meta.isAtLimit}
-                className="pl-10"
+                className="pl-10 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-400"
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />
               )}
             </div>
 
             {/* Search Dropdown */}
             {isSearchOpen && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-auto rounded-md border bg-popover p-1 shadow-lg">
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-auto rounded-md border border-slate-700/50 bg-slate-800 p-1 shadow-lg">
                 {searchResults.map((result) => {
                   const alreadyAdded = isInWatchlist(result.ticker)
                   const isAdding = pendingAdd === result.ticker
@@ -355,17 +355,17 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       onClick={() => !alreadyAdded && handleAdd(result.ticker)}
                       disabled={alreadyAdded || isAdding}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm',
+                        'flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm text-white',
                         alreadyAdded
                           ? 'cursor-not-allowed opacity-50'
-                          : 'hover:bg-accent'
+                          : 'hover:bg-slate-700/50'
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="font-mono font-semibold">
+                        <span className="font-mono font-semibold text-white">
                           {result.ticker}
                         </span>
-                        <span className="text-muted-foreground truncate max-w-[200px]">
+                        <span className="text-slate-400 truncate max-w-[200px]">
                           {result.name}
                         </span>
                         {result.has_recent_activity && (
@@ -381,7 +381,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       ) : isAdding ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Star className="h-4 w-4 text-muted-foreground" />
+                        <Star className="h-4 w-4 text-slate-400" />
                       )}
                     </button>
                   )
@@ -393,8 +393,8 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
               searchQuery &&
               !isSearching &&
               searchResults.length === 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover p-4 shadow-lg">
-                  <p className="text-sm text-muted-foreground text-center">
+                <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-slate-700/50 bg-slate-800 p-4 shadow-lg">
+                  <p className="text-sm text-slate-400 text-center">
                     No companies found for &quot;{searchQuery}&quot;
                   </p>
                 </div>

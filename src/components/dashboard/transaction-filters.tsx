@@ -101,12 +101,12 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center',
+        'flex flex-col gap-4 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 sm:flex-row sm:items-center',
         className
       )}
     >
       {/* Transaction Type Toggle */}
-      <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
+      <div className="flex items-center gap-1 rounded-lg bg-slate-700/50 p-1">
         <Button
           variant={type === 'all' ? 'default' : 'ghost'}
           size="sm"
@@ -141,7 +141,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
         onValueChange={(value) => handleDaysChange(value as TimePeriod)}
         disabled={isPending}
       >
-        <SelectTrigger className="w-[130px]">
+        <SelectTrigger className="w-[130px] bg-slate-800/50 border-slate-700/50 text-white">
           <SelectValue placeholder="Time period" />
         </SelectTrigger>
         <SelectContent>
@@ -153,21 +153,21 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
 
       {/* Ticker Search */}
       <div className="relative flex-1 max-w-xs">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <Input
           type="text"
           placeholder="Filter by ticker..."
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
           onKeyDown={handleTickerKeyDown}
-          className="pl-9 pr-9"
+          className="pl-9 pr-9 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400"
           disabled={isPending}
         />
         {ticker && (
           <button
             type="button"
             onClick={handleClearTicker}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
           >
             <X className="h-4 w-4" />
           </button>
@@ -179,7 +179,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
         onClick={handleTickerSearch}
         disabled={isPending}
         variant="secondary"
-        className="sm:w-auto"
+        className="sm:w-auto bg-slate-700 hover:bg-slate-600 text-white"
       >
         {isPending ? 'Loading...' : 'Search'}
       </Button>
@@ -191,7 +191,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           size="sm"
           onClick={handleReset}
           disabled={isPending}
-          className="text-muted-foreground"
+          className="text-slate-400 hover:text-white hover:bg-slate-700/50"
         >
           Reset
         </Button>

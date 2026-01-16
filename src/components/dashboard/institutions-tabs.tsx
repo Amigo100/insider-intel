@@ -186,14 +186,14 @@ function ByStockTab() {
         <CardContent className="pt-6">
           <div className="flex gap-4">
             <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 type="text"
                 placeholder="Enter ticker symbol..."
                 value={ticker}
                 onChange={(e) => setTicker(e.target.value.toUpperCase())}
                 onKeyDown={handleKeyDown}
-                className="pl-9"
+                className="pl-9 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-400"
               />
             </div>
             <Button onClick={handleSearch} disabled={loading}>
@@ -354,13 +354,13 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
     <div className="space-y-4">
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <Input
           type="text"
           placeholder="Search institutions..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9"
+          className="pl-9 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400"
         />
       </div>
 
@@ -432,7 +432,7 @@ export function NewPositionsSection({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">New Institutional Positions</CardTitle>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[150px] bg-slate-700/50 border-slate-600/50 text-white">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
@@ -520,15 +520,15 @@ export function TopMovementsSection({
                 <Link
                   key={item.ticker}
                   href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-slate-700/50 p-3 hover:bg-slate-700/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-muted-foreground">
+                    <span className="text-lg font-bold text-slate-400">
                       {index + 1}
                     </span>
                     <div>
-                      <p className="font-medium">{item.ticker}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[120px]">
+                      <p className="font-medium text-white">{item.ticker}</p>
+                      <p className="text-xs text-slate-400 truncate max-w-[120px]">
                         {item.company_name}
                       </p>
                     </div>
@@ -537,7 +537,7 @@ export function TopMovementsSection({
                     <p className="font-mono text-buy">
                       +{formatNumber(item.net_change)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-slate-400">
                       {item.institution_count} institutions
                     </p>
                   </div>
@@ -565,15 +565,15 @@ export function TopMovementsSection({
                 <Link
                   key={item.ticker}
                   href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-slate-700/50 p-3 hover:bg-slate-700/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-muted-foreground">
+                    <span className="text-lg font-bold text-slate-400">
                       {index + 1}
                     </span>
                     <div>
-                      <p className="font-medium">{item.ticker}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[120px]">
+                      <p className="font-medium text-white">{item.ticker}</p>
+                      <p className="text-xs text-slate-400 truncate max-w-[120px]">
                         {item.company_name}
                       </p>
                     </div>
@@ -582,7 +582,7 @@ export function TopMovementsSection({
                     <p className="font-mono text-sell">
                       {formatNumber(item.net_change)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-slate-400">
                       {item.institution_count} institutions
                     </p>
                   </div>
