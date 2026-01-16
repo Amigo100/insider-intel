@@ -8,7 +8,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border border-slate-700/50 bg-slate-800/50 text-white shadow-sm transition-colors duration-200',
+      'rounded-lg border bg-card text-card-foreground shadow-sm',
       className
     )}
     {...props}
@@ -23,7 +23,7 @@ const CardInteractive = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border border-slate-700/50 bg-slate-800/50 text-white shadow-sm transition-colors duration-200 hover:border-slate-600 cursor-pointer',
+      'rounded-lg border bg-card text-card-foreground shadow-sm hover:border-primary/50 cursor-pointer',
       className
     )}
     {...props}

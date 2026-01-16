@@ -19,7 +19,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev)
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="dark min-h-screen bg-slate-900">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
