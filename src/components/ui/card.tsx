@@ -8,7 +8,11 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm',
+      'rounded-xl border border-white/[0.08] text-white',
+      'bg-gradient-to-br from-slate-800/80 to-slate-900/90',
+      'backdrop-blur-sm',
+      'transition-all duration-200',
+      'hover:border-white/[0.12]',
       className
     )}
     {...props}
@@ -23,7 +27,12 @@ const CardInteractive = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm hover:border-primary/50 cursor-pointer',
+      'rounded-xl border border-white/[0.08] text-white',
+      'bg-gradient-to-br from-slate-800/80 to-slate-900/90',
+      'backdrop-blur-sm',
+      'transition-all duration-200',
+      'hover:border-cyan-400/30 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3),0_0_20px_rgba(34,211,238,0.08)]',
+      'cursor-pointer',
       className
     )}
     {...props}
@@ -50,7 +59,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      'text-2xl font-semibold leading-none tracking-tight',
+      'text-lg font-semibold leading-none tracking-tight text-white',
       className
     )}
     {...props}
@@ -64,7 +73,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn('text-sm text-slate-400', className)}
     {...props}
   />
 ))

@@ -179,6 +179,43 @@ function ByStockTab() {
     }
   }
 
+  const handleQuickSearch = (tickerSymbol: string) => {
+    setTicker(tickerSymbol)
+    // We need to use a callback to search with the new value
+    setLoading(true)
+    setError(null)
+
+    fetch(`/api/institutional/holders/${tickerSymbol}`)
+      .then(async (holdersRes) => {
+        if (!holdersRes.ok) {
+          if (holdersRes.status === 404) {
+            setError('Company not found')
+          } else {
+            setError('Failed to fetch data')
+          }
+          setHolders([])
+          setActivity(null)
+          return
+        }
+        const holdersData = await holdersRes.json()
+        setHolders(holdersData.holders || [])
+
+        const activityRes = await fetch(`/api/institutional/activity/${tickerSymbol}`)
+        if (activityRes.ok) {
+          const activityData = await activityRes.json()
+          setActivity(activityData.activity)
+        }
+
+        setSearchedTicker(tickerSymbol)
+      })
+      .catch(() => {
+        setError('Failed to fetch data')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -193,10 +230,10 @@ function ByStockTab() {
                 value={ticker}
                 onChange={(e) => setTicker(e.target.value.toUpperCase())}
                 onKeyDown={handleKeyDown}
-                className="pl-9 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-400"
+                className="pl-9"
               />
             </div>
-            <Button onClick={handleSearch} disabled={loading}>
+            <Button variant="cyan" onClick={handleSearch} disabled={loading}>
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -205,14 +242,28 @@ function ByStockTab() {
               Search
             </Button>
           </div>
+          {/* Quick ticker suggestions */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-xs text-slate-500">Try:</span>
+            {['AAPL', 'MSFT', 'NVDA', 'TSLA'].map((tickerSuggestion) => (
+              <button
+                key={tickerSuggestion}
+                type="button"
+                onClick={() => handleQuickSearch(tickerSuggestion)}
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-white/5 text-slate-300 border border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30 transition-all"
+              >
+                {tickerSuggestion}
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
       {/* Error */}
       {error && (
-        <Card className="border-destructive">
+        <Card className="border-red-500/30">
           <CardContent className="pt-6">
-            <p className="text-destructive">{error}</p>
+            <p className="text-red-400">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -225,23 +276,23 @@ function ByStockTab() {
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Institutions Buying</p>
-                  <p className="text-2xl font-bold text-buy">
+                  <p className="text-sm text-slate-400">Institutions Buying</p>
+                  <p className="text-2xl font-bold text-emerald-400">
                     {activity.totalBuyers}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Institutions Selling</p>
-                  <p className="text-2xl font-bold text-sell">
+                  <p className="text-sm text-slate-400">Institutions Selling</p>
+                  <p className="text-2xl font-bold text-red-400">
                     {activity.totalSellers}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Sentiment</p>
+                  <p className="text-sm text-slate-400">Sentiment</p>
                   <Badge
                     variant={
                       activity.sentiment === 'bullish'
@@ -261,14 +312,15 @@ function ByStockTab() {
 
           {/* Holders Table */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
+            <CardHeader className="border-b border-white/[0.06]">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-cyan-400" />
                 Top Institutional Holders - {searchedTicker}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {holders.length > 0 ? (
-                <div className="rounded-md border">
+                <div className="rounded-lg border border-white/[0.06] overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -282,17 +334,17 @@ function ByStockTab() {
                       {holders.slice(0, 20).map((holder) => (
                         <TableRow key={holder.institution_id}>
                           <TableCell>
-                            <p className="font-medium">{holder.institution_name}</p>
+                            <p className="font-medium text-white">{holder.institution_name}</p>
                             {holder.institution_type && (
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-slate-400">
                                 {holder.institution_type}
                               </p>
                             )}
                           </TableCell>
-                          <TableCell className="text-right font-mono">
+                          <TableCell className="text-right font-mono text-slate-200">
                             {formatNumber(holder.shares)}
                           </TableCell>
-                          <TableCell className="text-right font-mono">
+                          <TableCell className="text-right font-mono text-slate-200">
                             {formatCurrency(holder.value)}
                           </TableCell>
                           <TableCell className="text-right">
@@ -304,10 +356,10 @@ function ByStockTab() {
                               <span
                                 className={
                                   holder.shares_change_percent > 0
-                                    ? 'text-buy'
+                                    ? 'text-emerald-400'
                                     : holder.shares_change_percent < 0
-                                      ? 'text-sell'
-                                      : 'text-muted-foreground'
+                                      ? 'text-red-400'
+                                      : 'text-slate-400'
                                 }
                               >
                                 {formatPercent(holder.shares_change_percent)}
@@ -322,7 +374,7 @@ function ByStockTab() {
                   </Table>
                 </div>
               ) : (
-                <p className="text-center py-8 text-muted-foreground">
+                <p className="text-center py-8 text-slate-500 text-sm">
                   No institutional holders found
                 </p>
               )}
@@ -360,7 +412,7 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
           placeholder="Search institutions..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400"
+          className="pl-9"
         />
       </div>
 
@@ -368,7 +420,7 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
       <Card>
         <CardContent className="pt-6">
           {filteredInstitutions.length > 0 ? (
-            <div className="rounded-md border">
+            <div className="rounded-lg border border-white/[0.06] overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -384,7 +436,7 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
                       <TableCell>
                         <Link
                           href={`/institution/${inst.cik}`}
-                          className="font-medium hover:underline"
+                          className="font-medium text-white hover:text-cyan-400 transition-colors"
                         >
                           {inst.name}
                         </Link>
@@ -396,10 +448,10 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
                           '-'
                         )}
                       </TableCell>
-                      <TableCell className="text-right font-mono">
+                      <TableCell className="text-right font-mono text-slate-200">
                         {formatCurrency(inst.aum_estimate)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right text-slate-200">
                         {inst.holdings_count || '-'}
                       </TableCell>
                     </TableRow>
@@ -429,10 +481,13 @@ export function NewPositionsSection({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-base">New Institutional Positions</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between border-b border-white/[0.06] p-4">
+        <CardTitle className="text-base flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-cyan-400" />
+          New Institutional Positions
+        </CardTitle>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[150px] bg-slate-700/50 border-slate-600/50 text-white">
+          <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
@@ -443,9 +498,9 @@ export function NewPositionsSection({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         {positions.length > 0 ? (
-          <div className="rounded-md border">
+          <div className="rounded-lg border border-white/[0.06] overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -461,22 +516,22 @@ export function NewPositionsSection({
                     <TableCell>
                       <Link
                         href={`/company/${pos.ticker}`}
-                        className="font-medium hover:underline"
+                        className="font-medium text-white hover:text-cyan-400 transition-colors"
                       >
                         {pos.ticker}
                       </Link>
-                      <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                      <p className="text-xs text-slate-400 truncate max-w-[150px]">
                         {pos.company_name}
                       </p>
                     </TableCell>
                     <TableCell className="text-right">
                       <Badge variant="success">{pos.new_buyers}</Badge>
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right font-mono text-slate-200">
                       {formatCurrency(pos.total_value)}
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      <p className="text-sm text-slate-400 truncate max-w-[200px]">
                         {pos.notable_names.slice(0, 2).join(', ')}
                         {pos.notable_names.length > 2 && '...'}
                       </p>
@@ -487,7 +542,7 @@ export function NewPositionsSection({
             </Table>
           </div>
         ) : (
-          <p className="text-center py-8 text-muted-foreground">
+          <p className="text-center py-8 text-slate-500 text-sm">
             No new positions this quarter
           </p>
         )}
@@ -507,20 +562,20 @@ export function TopMovementsSection({
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Most Bought */}
       <Card>
-        <CardHeader>
+        <CardHeader className="border-b border-white/[0.06] p-4">
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-buy" />
+            <TrendingUp className="h-4 w-4 text-emerald-400" />
             Most Bought by Institutions
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {topBought.length > 0 ? (
             <div className="space-y-3">
               {topBought.slice(0, 5).map((item, index) => (
                 <Link
                   key={item.ticker}
                   href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border border-slate-700/50 p-3 hover:bg-slate-700/50 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-white/[0.06] p-3 hover:bg-white/[0.02] hover:border-white/[0.12] transition-all"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-slate-400">
@@ -534,7 +589,7 @@ export function TopMovementsSection({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-buy">
+                    <p className="font-mono text-emerald-400">
                       +{formatNumber(item.net_change)}
                     </p>
                     <p className="text-xs text-slate-400">
@@ -545,27 +600,27 @@ export function TopMovementsSection({
               ))}
             </div>
           ) : (
-            <p className="text-center py-8 text-muted-foreground">No data</p>
+            <p className="text-center py-8 text-slate-500 text-sm">No data</p>
           )}
         </CardContent>
       </Card>
 
       {/* Most Sold */}
       <Card>
-        <CardHeader>
+        <CardHeader className="border-b border-white/[0.06] p-4">
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-sell" />
+            <TrendingDown className="h-4 w-4 text-red-400" />
             Most Sold by Institutions
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {topSold.length > 0 ? (
             <div className="space-y-3">
               {topSold.slice(0, 5).map((item, index) => (
                 <Link
                   key={item.ticker}
                   href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border border-slate-700/50 p-3 hover:bg-slate-700/50 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-white/[0.06] p-3 hover:bg-white/[0.02] hover:border-white/[0.12] transition-all"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-slate-400">
@@ -579,7 +634,7 @@ export function TopMovementsSection({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-sell">
+                    <p className="font-mono text-red-400">
                       {formatNumber(item.net_change)}
                     </p>
                     <p className="text-xs text-slate-400">
@@ -590,7 +645,7 @@ export function TopMovementsSection({
               ))}
             </div>
           ) : (
-            <p className="text-center py-8 text-muted-foreground">No data</p>
+            <p className="text-center py-8 text-slate-500 text-sm">No data</p>
           )}
         </CardContent>
       </Card>

@@ -101,38 +101,51 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 sm:flex-row sm:items-center',
+        'flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-slate-800/30 p-4 sm:flex-row sm:items-center',
         className
       )}
     >
       {/* Transaction Type Toggle */}
-      <div className="flex items-center gap-1 rounded-lg bg-slate-700/50 p-1">
-        <Button
-          variant={type === 'all' ? 'default' : 'ghost'}
-          size="sm"
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
           onClick={() => handleTypeChange('all')}
           disabled={isPending}
+          className={cn(
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            type === 'all'
+              ? 'bg-white/10 text-white border border-white/20'
+              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+          )}
         >
           All
-        </Button>
-        <Button
-          variant={type === 'P' ? 'default' : 'ghost'}
-          size="sm"
+        </button>
+        <button
+          type="button"
           onClick={() => handleTypeChange('P')}
           disabled={isPending}
-          className={type === 'P' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+          className={cn(
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            type === 'P'
+              ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/30'
+              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+          )}
         >
           Buys
-        </Button>
-        <Button
-          variant={type === 'S' ? 'default' : 'ghost'}
-          size="sm"
+        </button>
+        <button
+          type="button"
           onClick={() => handleTypeChange('S')}
           disabled={isPending}
-          className={type === 'S' ? 'bg-red-600 hover:bg-red-700' : ''}
+          className={cn(
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            type === 'S'
+              ? 'bg-red-400/20 text-red-400 border border-red-400/30'
+              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+          )}
         >
           Sells
-        </Button>
+        </button>
       </div>
 
       {/* Time Period Select */}
@@ -141,7 +154,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
         onValueChange={(value) => handleDaysChange(value as TimePeriod)}
         disabled={isPending}
       >
-        <SelectTrigger className="w-[130px] bg-slate-800/50 border-slate-700/50 text-white">
+        <SelectTrigger className="w-[130px]">
           <SelectValue placeholder="Time period" />
         </SelectTrigger>
         <SelectContent>
@@ -160,14 +173,14 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
           onKeyDown={handleTickerKeyDown}
-          className="pl-9 pr-9 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400"
+          className="pl-9 pr-9"
           disabled={isPending}
         />
         {ticker && (
           <button
             type="button"
             onClick={handleClearTicker}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -178,8 +191,8 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
       <Button
         onClick={handleTickerSearch}
         disabled={isPending}
-        variant="secondary"
-        className="sm:w-auto bg-slate-700 hover:bg-slate-600 text-white"
+        variant="cyan"
+        className="sm:w-auto"
       >
         {isPending ? 'Loading...' : 'Search'}
       </Button>
@@ -191,7 +204,6 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           size="sm"
           onClick={handleReset}
           disabled={isPending}
-          className="text-slate-400 hover:text-white hover:bg-slate-700/50"
         >
           Reset
         </Button>
@@ -218,7 +230,7 @@ export function ResultsSummary({
 }) {
   if (loading) {
     return (
-      <p className="text-sm text-muted-foreground">Loading transactions...</p>
+      <p className="text-sm text-slate-500">Loading transactions...</p>
     )
   }
 
@@ -241,7 +253,7 @@ export function ResultsSummary({
   }
 
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="text-sm text-slate-500">
       Showing {count.toLocaleString()} {parts.join(' ')}
     </p>
   )

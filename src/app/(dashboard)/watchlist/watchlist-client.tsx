@@ -17,12 +17,10 @@ import {
   Sparkles,
   AlertCircle,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import EmptyState from '@/components/dashboard/empty-state'
 import LiveIndicator from '@/components/dashboard/live-indicator'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 interface Company {
@@ -277,29 +275,51 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
   return (
     <>
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Your Watchlist</h1>
-          <p className="text-slate-400">
-            {meta.count} of {meta.limit} stocks
-            {meta.tier === 'free' && (
-              <span className="ml-2 text-xs">(Free tier)</span>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-white">Your Watchlist</h1>
+            <span className={cn(
+              'px-2.5 py-1 text-xs font-medium rounded-full',
+              meta.tier === 'free'
+                ? 'bg-slate-700 text-slate-300'
+                : meta.tier === 'retail'
+                ? 'bg-cyan-400/20 text-cyan-400'
+                : 'bg-purple-400/20 text-purple-400'
+            )}>
+              {meta.tier === 'free' ? 'Free' : meta.tier === 'retail' ? 'Retail' : 'Pro'}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Upgrade prompt at limit */}
+            {meta.isAtLimit && meta.tier === 'free' && (
+              <Button variant="cyan" size="sm" asChild>
+                <Link href="/settings/billing">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Upgrade to track more
+                </Link>
+              </Button>
             )}
-          </p>
-          <div className="mt-2">
             <LiveIndicator text="Activity monitored in real-time" />
           </div>
         </div>
-
-        {/* Upgrade prompt at limit */}
-        {meta.isAtLimit && meta.tier === 'free' && (
-          <Button variant="default" size="sm" asChild>
-            <Link href="/settings/billing">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Upgrade to track more
-            </Link>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+          </span>
+          <p className="text-slate-400">
+            {meta.count} of {meta.limit} stocks tracked
+            {meta.tier === 'free' && !meta.isAtLimit && (
+              <span className="ml-2">
+                ·{' '}
+                <Link href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                  Upgrade for unlimited
+                </Link>
+              </span>
+            )}
+          </p>
+        </div>
       </div>
 
       {/* Error Toast */}
@@ -317,11 +337,14 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       )}
 
       {/* Add Stock Search */}
-      <Card className="bg-slate-800/50 border-slate-700/50">
-        <CardHeader>
-          <CardTitle className="text-lg text-white">Add Stock</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+        <div className="border-b border-white/[0.06] p-4">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+            <Star className="h-5 w-5 text-cyan-400" />
+            Add Stock
+          </h3>
+        </div>
+        <div className="p-4">
           <div ref={searchRef} className="relative">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -344,7 +367,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
             {/* Search Dropdown */}
             {isSearchOpen && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-auto rounded-md border border-slate-700/50 bg-slate-800 p-1 shadow-lg">
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-auto rounded-lg border border-white/[0.08] bg-slate-800 p-1 shadow-lg">
                 {searchResults.map((result) => {
                   const alreadyAdded = isInWatchlist(result.ticker)
                   const isAdding = pendingAdd === result.ticker
@@ -355,10 +378,10 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       onClick={() => !alreadyAdded && handleAdd(result.ticker)}
                       disabled={alreadyAdded || isAdding}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm text-white',
+                        'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm text-white',
                         alreadyAdded
                           ? 'cursor-not-allowed opacity-50'
-                          : 'hover:bg-slate-700/50'
+                          : 'hover:bg-white/5'
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -369,17 +392,17 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                           {result.name}
                         </span>
                         {result.has_recent_activity && (
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-emerald-400/20 text-emerald-400">
                             Active
-                          </Badge>
+                          </span>
                         )}
                       </div>
                       {alreadyAdded ? (
-                        <Badge variant="outline" className="text-xs">
+                        <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-white/10 text-slate-400">
                           Added
-                        </Badge>
+                        </span>
                       ) : isAdding ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
                       ) : (
                         <Star className="h-4 w-4 text-slate-400" />
                       )}
@@ -393,7 +416,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
               searchQuery &&
               !isSearching &&
               searchResults.length === 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-slate-700/50 bg-slate-800 p-4 shadow-lg">
+                <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 p-4 shadow-lg">
                   <p className="text-sm text-slate-400 text-center">
                     No companies found for &quot;{searchQuery}&quot;
                   </p>
@@ -401,17 +424,46 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
               )}
           </div>
 
+          {/* Ticker suggestions */}
+          {!meta.isAtLimit && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-xs text-slate-500">Popular:</span>
+              {['AAPL', 'MSFT', 'NVDA', 'TSLA', 'GOOGL'].map((tickerSuggestion) => {
+                const alreadyAdded = isInWatchlist(tickerSuggestion)
+                return (
+                  <button
+                    key={tickerSuggestion}
+                    onClick={() => !alreadyAdded && handleAdd(tickerSuggestion)}
+                    disabled={alreadyAdded || pendingAdd === tickerSuggestion}
+                    className={cn(
+                      'px-2.5 py-1 text-xs font-medium rounded-md border transition-all',
+                      alreadyAdded
+                        ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30'
+                    )}
+                  >
+                    {pendingAdd === tickerSuggestion ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      tickerSuggestion
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
           {meta.isAtLimit && (
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm text-slate-500">
               You&apos;ve reached the free tier limit of {meta.limit} stocks.{' '}
-              <Link href="/settings/billing" className="text-primary hover:underline">
+              <Link href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 transition-colors">
                 Upgrade your plan
               </Link>{' '}
               to track more.
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Empty State */}
       {watchlist.length === 0 ? (
@@ -428,77 +480,77 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
               const isRemoving = pendingRemove === item.id
 
               return (
-                <Card
+                <div
                   key={item.id}
                   className={cn(
-                    'group relative transition-opacity bg-slate-800/50 border-slate-700/50',
+                    'group relative bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08] transition-all hover:border-white/[0.12]',
                     isRemoving && 'opacity-50'
                   )}
                 >
                   <Link href={`/company/${item.company.ticker}`}>
-                    <CardContent className="p-5">
+                    <div className="p-5">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold">
+                            <span className="text-lg font-bold text-white">
                               {item.company.ticker}
                             </span>
-                            <Badge
-                              variant={
+                            <span
+                              className={cn(
+                                'px-2 py-0.5 text-xs font-medium rounded-full flex items-center gap-1',
                                 item.stats.sentiment === 'bullish'
-                                  ? 'default'
+                                  ? 'bg-emerald-400/20 text-emerald-400'
                                   : item.stats.sentiment === 'bearish'
-                                  ? 'destructive'
-                                  : 'secondary'
-                              }
-                              className="text-xs"
+                                  ? 'bg-red-400/20 text-red-400'
+                                  : 'bg-slate-700 text-slate-400'
+                              )}
                             >
                               {getSentimentIcon(item.stats.sentiment)}
-                              <span className="ml-1">
+                              <span>
                                 {getSentimentLabel(item.stats.sentiment)}
                               </span>
-                            </Badge>
+                            </span>
                           </div>
-                          <p className="text-sm text-muted-foreground truncate max-w-[180px]">
+                          <p className="text-sm text-slate-400 truncate max-w-[180px]">
                             {item.company.name}
                           </p>
                         </div>
-                        <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
 
                       <div className="mt-4 space-y-2 text-sm">
                         {item.stats.lastTransaction ? (
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground">
+                            <span className="text-slate-500">
                               Last trade:
                             </span>
-                            <span>
-                              {item.stats.lastTransaction.transaction_type ===
-                              'P'
-                                ? 'Buy'
-                                : 'Sell'}{' '}
+                            <span className="text-white">
+                              <span className={item.stats.lastTransaction.transaction_type === 'P' ? 'text-emerald-400' : 'text-red-400'}>
+                                {item.stats.lastTransaction.transaction_type === 'P' ? 'Buy' : 'Sell'}
+                              </span>
+                              {' '}
                               {formatValue(
                                 item.stats.lastTransaction.total_value || 0
                               )}
                             </span>
                           </div>
                         ) : (
-                          <p className="text-muted-foreground">
+                          <p className="text-slate-500">
                             No recent activity
                           </p>
                         )}
 
                         {item.stats.transactionCount > 0 && (
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground">
+                            <span className="text-slate-500">
                               30-day activity:
                             </span>
                             <span>
-                              <span className="text-buy">
+                              <span className="text-emerald-400">
                                 {item.stats.recentBuys} buys
                               </span>
                               {' / '}
-                              <span className="text-sell">
+                              <span className="text-red-400">
                                 {item.stats.recentSells} sells
                               </span>
                             </span>
@@ -507,16 +559,16 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
                         {item.stats.avgSignificance !== null && (
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground">
+                            <span className="text-slate-500">
                               Avg significance:
                             </span>
-                            <Badge variant="outline">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded bg-white/10 text-white">
                               {item.stats.avgSignificance.toFixed(1)}/10
-                            </Badge>
+                            </span>
                           </div>
                         )}
                       </div>
-                    </CardContent>
+                    </div>
                   </Link>
 
                   {/* Remove button */}
@@ -527,42 +579,42 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       handleRemove(item.id)
                     }}
                     disabled={isRemoving}
-                    className="absolute right-1 top-1 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
+                    className="absolute right-1 top-1 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] opacity-0 transition-opacity hover:bg-red-400/10 group-hover:opacity-100"
                     aria-label="Remove from watchlist"
                   >
                     {isRemoving ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
                     ) : (
-                      <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                      <X className="h-4 w-4 text-slate-400 hover:text-red-400" />
                     )}
                   </button>
-                </Card>
+                </div>
               )
             })}
           </div>
 
           {/* Activity Feed */}
           {activity.length > 0 && (
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <Clock className="h-5 w-5" />
+            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+              <div className="border-b border-white/[0.06] p-4">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                  <Clock className="h-5 w-5 text-cyan-400" />
                   Recent Watchlist Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-4">
                 <div className="space-y-4">
                   {activity.map((transaction, index) => (
                     <div
                       key={transaction.id || index}
-                      className="flex items-start gap-4 border-b pb-4 last:border-0 last:pb-0"
+                      className="flex items-start gap-4 border-b border-white/[0.06] pb-4 last:border-0 last:pb-0"
                     >
                       <div
                         className={cn(
                           'flex h-8 w-8 items-center justify-center rounded-full',
                           transaction.transaction_type === 'P'
-                            ? 'bg-buy text-buy'
-                            : 'bg-sell text-sell'
+                            ? 'bg-emerald-400/20 text-emerald-400'
+                            : 'bg-red-400/20 text-red-400'
                         )}
                       >
                         {transaction.transaction_type === 'P' ? (
@@ -576,47 +628,47 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/company/${transaction.ticker}`}
-                            className="font-semibold hover:underline"
+                            className="font-semibold text-white hover:text-cyan-400 transition-colors"
                           >
                             {transaction.ticker}
                           </Link>
-                          <Badge
-                            variant={
+                          <span
+                            className={cn(
+                              'px-2 py-0.5 text-xs font-medium rounded-full',
                               transaction.transaction_type === 'P'
-                                ? 'default'
-                                : 'destructive'
-                            }
-                            className="text-xs"
+                                ? 'bg-emerald-400/20 text-emerald-400'
+                                : 'bg-red-400/20 text-red-400'
+                            )}
                           >
                             {transaction.transaction_type === 'P'
                               ? 'Buy'
                               : 'Sell'}
-                          </Badge>
+                          </span>
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">
+                        <p className="text-sm text-slate-400 truncate">
                           {transaction.insider_name} ({transaction.insider_title}
                           )
                         </p>
                         {transaction.ai_context && (
-                          <p className="mt-1 text-sm line-clamp-2">
+                          <p className="mt-1 text-sm text-slate-300 line-clamp-2">
                             {transaction.ai_context}
                           </p>
                         )}
                       </div>
 
                       <div className="text-right">
-                        <p className="font-medium">
+                        <p className="font-medium text-white">
                           {formatValue(transaction.total_value || 0)}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-slate-500">
                           {formatDate(transaction.filed_at)}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
         </>
       )}

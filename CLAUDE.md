@@ -25,7 +25,7 @@ InsiderIntel is a web application that tracks and analyzes SEC insider trading f
 4. **Cluster Detection** - Identifies when multiple insiders buy/sell the same stock within a time window
 5. **Watchlist** - Personal watchlist to track specific companies with activity alerts
 6. **Email Notifications** - Daily digests, weekly summaries, and instant alerts for watched stocks
-7. **Subscription Tiers** - Free, Retail ($9.99/mo), and Pro ($29.99/mo) plans
+7. **Subscription Tiers** - Free, Retail ($29/mo), and Pro ($79/mo) plans with Stripe integration
 
 ---
 
@@ -275,6 +275,7 @@ lib/
 │   └── cron.ts                # Cron job authentication (verifyCronSecret)
 │
 ├── logger.ts                  # Pino structured logging with module loggers
+├── client-logger.ts           # Browser-safe logger for client components
 └── sentry.ts                  # Sentry initialization
 ```
 
@@ -363,12 +364,15 @@ Uses **shadcn/ui patterns** built on Radix UI primitives:
    - Sidebar: Always dark theme (slate-900), collapsible on mobile
    - Main content: `lg:pl-64` offset, responsive padding
    - Header: Sticky with user menu dropdown
+   - **Important**: Dashboard shell applies `dark` CSS class for theme scoping
 
-2. **Auth Layout**: Centered card on gradient background
-   - No sidebar, minimal chrome
-   - Card-based forms with consistent spacing
+2. **Auth Layout**: Split-panel design
+   - Left panel: Dark gradient with testimonial and stats (hidden on mobile)
+   - Right panel: Light background with centered form card
+   - Responsive: single column on mobile
 
-3. **Marketing Layout**: Full-width sections with navigation
+3. **Marketing/Landing Layout**: Full-width sections
+   - Light theme with gradient accents
    - Public pages (about, terms, privacy, etc.)
    - Shared header/footer
 
@@ -380,6 +384,7 @@ Uses **shadcn/ui patterns** built on Radix UI primitives:
    - `Card`, `CardHeader`, `CardTitle`, `CardContent`, `CardDescription`
    - Consistent padding (p-4 or p-6)
    - Hover states with subtle lift effect
+   - **Uses CSS variables for theme-aware styling**
 
 6. **Tables**: For transaction lists with sortable columns
    - Responsive: hide columns on mobile
@@ -389,6 +394,53 @@ Uses **shadcn/ui patterns** built on Radix UI primitives:
 7. **Loading States**: Skeleton components for async data
    - Matching dimensions to content
    - Pulse animation
+
+### Theming Architecture
+
+The app uses a **CSS variable-based theming system** with scoped dark mode:
+
+#### How It Works
+
+1. **CSS Variables** in `globals.css`:
+   - `:root` defines light theme values
+   - `.dark` class overrides with dark theme values
+   - Variables: `--background`, `--foreground`, `--card`, `--primary`, `--muted`, etc.
+
+2. **Theme Scoping by Route**:
+   | Route Group | Theme | Implementation |
+   |-------------|-------|----------------|
+   | Landing (`/`) | Light | No `dark` class |
+   | Auth (`/login`, `/signup`) | Light | No `dark` class |
+   | Dashboard (`/dashboard/*`) | Dark | `dark` class on shell |
+   | Marketing (`/about`, etc.) | Light | No `dark` class |
+
+3. **Dashboard Dark Theme**:
+   ```tsx
+   // src/components/dashboard/dashboard-shell.tsx
+   <div className="dark min-h-screen bg-slate-900">
+     {/* All children inherit dark CSS variables */}
+   </div>
+   ```
+
+#### Critical Rules for UI Components
+
+1. **Always use CSS variables** in `src/components/ui/*`:
+   ```tsx
+   // ✅ Correct - theme-aware
+   className="bg-card text-card-foreground border"
+
+   // ❌ Wrong - breaks theming
+   className="bg-slate-800 text-white border-slate-700"
+   ```
+
+2. **Never hardcode dark colors** in base UI components
+   - Components should work in both light and dark contexts
+   - The `dark` class on ancestors handles theme switching
+
+3. **Semantic color exceptions**:
+   - Buy/Sell indicators use explicit colors (`emerald-500`, `red-500`)
+   - Significance badges use explicit colors (`orange-500`, `yellow-500`)
+   - These are intentionally theme-independent
 
 ### Animation Classes (defined in globals.css)
 
@@ -767,6 +819,30 @@ NEXT_PUBLIC_APP_URL=https://insiderintel.com  # Used in emails, OAuth callbacks
 4. Create send function in `lib/email/send-email.ts`
 5. Create cron route if scheduled, or API route if triggered
 
+### Modifying UI Components
+
+When editing components in `src/components/ui/`:
+
+1. **Use CSS variables**, not hardcoded colors:
+   ```tsx
+   // ✅ Correct
+   className="bg-card text-card-foreground border"
+
+   // ❌ Wrong - breaks landing page
+   className="bg-slate-800 text-white border-slate-700"
+   ```
+
+2. **Test in both contexts**:
+   - Landing page (light theme): `/`
+   - Dashboard (dark theme): `/dashboard`
+
+3. **CSS variable reference** (from `globals.css`):
+   - `bg-background`, `text-foreground` - Page backgrounds
+   - `bg-card`, `text-card-foreground` - Card surfaces
+   - `bg-muted`, `text-muted-foreground` - Subdued elements
+   - `bg-primary`, `text-primary-foreground` - Primary actions
+   - `border` - Default border color
+
 ### Running Locally
 
 ```bash
@@ -795,4 +871,4 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 ---
 
-*Last updated: January 2026*
+*Last updated: January 16, 2026*

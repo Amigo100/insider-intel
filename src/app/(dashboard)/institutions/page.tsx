@@ -152,16 +152,16 @@ export default async function InstitutionsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
-          Institutional Holdings
-        </h1>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Institutional Holdings
+          </h1>
+          <LiveIndicator text="13F filings updated quarterly from SEC EDGAR" />
+        </div>
         <p className="text-slate-400">
           Track 13F filings and institutional ownership changes
         </p>
-        <div className="mt-2">
-          <LiveIndicator text="13F filings updated quarterly from SEC EDGAR" />
-        </div>
       </div>
 
       {/* Tabs */}

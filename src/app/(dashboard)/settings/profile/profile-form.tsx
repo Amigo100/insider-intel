@@ -6,11 +6,11 @@ import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { clientLogger } from '@/lib/client-logger'
 import { Loader2, Check } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 interface ProfileFormProps {
   initialData: {
@@ -103,53 +103,58 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const hasChanges = fullName !== initialData.fullName
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profile</CardTitle>
-        <CardDescription>
+    <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
+      <div className="p-6 border-b border-white/[0.08]">
+        <h2 className="text-lg font-semibold text-white">Profile</h2>
+        <p className="text-sm text-slate-400 mt-1">
           Manage your personal information and account details
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Display Name */}
           <div className="space-y-2">
-            <Label htmlFor="fullName">Display Name</Label>
+            <Label htmlFor="fullName" className="text-slate-300 text-sm font-medium">
+              Display Name
+            </Label>
             <Input
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your name"
+              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400/50 focus:ring-cyan-400/20"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-slate-500">
               This is how your name will appear across the app
             </p>
           </div>
 
           {/* Email (read-only) */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               value={initialData.email}
               disabled
-              className="bg-muted"
+              className="bg-slate-900 border-slate-700 text-slate-500"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-slate-500">
               Email cannot be changed. Contact support if you need to update it.
             </p>
           </div>
 
           {/* Current Plan */}
           <div className="space-y-2">
-            <Label>Current Plan</Label>
+            <Label className="text-slate-300 text-sm font-medium">Current Plan</Label>
             <div className="flex items-center gap-3">
               <Badge variant={getTierVariant(initialData.subscriptionTier)}>
                 {getTierLabel(initialData.subscriptionTier)}
               </Badge>
               {initialData.subscriptionTier === 'free' && (
-                <Button variant="link" className="h-auto p-0 text-sm" asChild>
+                <Button variant="link" className="h-auto p-0 text-sm text-cyan-400 hover:text-cyan-300" asChild>
                   <Link href="/settings/billing">Upgrade your plan</Link>
                 </Button>
               )}
@@ -158,22 +163,31 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           {/* Account Created */}
           <div className="space-y-2">
-            <Label>Account Created</Label>
-            <p className="text-sm text-muted-foreground">
+            <Label className="text-slate-300 text-sm font-medium">Account Created</Label>
+            <p className="text-sm text-slate-400">
               {formatDate(initialData.createdAt)}
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
               {error}
             </div>
           )}
 
           {/* Save Button */}
-          <div className="flex items-center gap-4">
-            <Button type="submit" disabled={isSaving || !hasChanges}>
+          <div className="flex items-center gap-4 pt-2">
+            <Button
+              type="submit"
+              disabled={isSaving || !hasChanges}
+              className={cn(
+                'min-w-[140px]',
+                hasChanges && !isSaving
+                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400'
+                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              )}
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -189,13 +203,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               )}
             </Button>
             {!hasChanges && !saveSuccess && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-slate-500">
                 No changes to save
               </span>
             )}
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

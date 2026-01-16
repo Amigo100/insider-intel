@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { logger } from '@/lib/logger'
 import { TransactionFilters, ResultsSummary } from '@/components/dashboard/transaction-filters'
 import { TransactionTable } from '@/components/dashboard/transaction-table'
-import { StatsRow } from '@/components/dashboard/stats-card'
+import { StatCard, StatsRow } from '@/components/dashboard/stats-card'
 import LiveIndicator from '@/components/dashboard/live-indicator'
 import { InsiderTradesEmptyState } from './empty-state-client'
 import { Button } from '@/components/ui/button'
@@ -160,25 +160,28 @@ export default async function InsiderTradesPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Insider Transactions</h1>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight text-white">Insider Transactions</h1>
+          <LiveIndicator />
+        </div>
         <p className="text-slate-400">
           Track insider buying and selling activity across all SEC filings
         </p>
-        <div className="mt-2">
-          <LiveIndicator />
-        </div>
       </div>
 
       {/* Stats Summary */}
-      <StatsRow
-        stats={[
-          { label: "Today's Trades", value: stats.todayCount },
-          { label: 'This Week', value: stats.weekCount },
-          { label: 'Net Buy Volume', value: stats.netVolume, changeType: stats.netVolumeType },
-          { label: 'Active Companies', value: stats.activeCompanies },
-        ]}
-      />
+      <StatsRow>
+        <StatCard label="Today's Trades" value={stats.todayCount} />
+        <StatCard label="This Week" value={stats.weekCount} />
+        <StatCard
+          label="Net Buy Volume"
+          value={stats.netVolume}
+          change={stats.netVolumeType === 'positive' ? 'Net buying' : 'Net selling'}
+          changeType={stats.netVolumeType}
+        />
+        <StatCard label="Active Companies" value={stats.activeCompanies} />
+      </StatsRow>
 
       {/* Filters */}
       <Suspense fallback={<FiltersSkeleton />}>
@@ -238,7 +241,7 @@ function LoadMoreButton({
 
 function FiltersSkeleton() {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-slate-800/30 p-4 sm:flex-row sm:items-center">
       <Skeleton className="h-10 w-36 bg-slate-700/50" />
       <Skeleton className="h-10 w-32 bg-slate-700/50" />
       <Skeleton className="h-10 w-48 bg-slate-700/50" />
@@ -249,8 +252,8 @@ function FiltersSkeleton() {
 
 function TableSkeleton() {
   return (
-    <div className="rounded-md border border-slate-700/50 bg-slate-800/50">
-      <div className="border-b border-slate-700/50 p-4">
+    <div className="rounded-xl border border-white/[0.08] bg-gradient-to-br from-slate-800/50 to-slate-900/70">
+      <div className="border-b border-white/[0.06] p-4">
         <div className="flex items-center gap-4">
           <Skeleton className="h-4 w-16 bg-slate-700/50" />
           <Skeleton className="h-4 w-24 bg-slate-700/50" />

@@ -4,18 +4,20 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none active:scale-[0.98]',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md transition-shadow',
+        default:
+          'bg-slate-800 text-white hover:bg-slate-700 border border-white/10',
+        cyan: 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:shadow-[0_4px_20px_rgba(34,211,238,0.4)] hover:-translate-y-0.5 transition-all duration-200 border-0',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-md',
+          'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30',
         outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20',
+          'border border-white/20 bg-transparent text-white hover:bg-cyan-400/10 hover:border-cyan-400/50 hover:text-cyan-400 transition-all duration-200',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-sm',
-        ghost: 'hover:bg-slate-700/50 hover:text-accent-foreground',
+          'bg-slate-700 text-white hover:bg-slate-600 border border-white/10',
+        ghost: 'text-slate-400 hover:bg-white/5 hover:text-white transition-colors duration-200',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

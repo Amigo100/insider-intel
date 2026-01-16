@@ -40,10 +40,10 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-8 lg:flex-row">
+      <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* Sidebar Navigation */}
-        <aside className="lg:w-48">
-          <nav className="flex flex-row gap-2 lg:flex-col">
+        <aside className="lg:w-52">
+          <nav className="bg-slate-800/50 rounded-lg p-1 flex flex-row gap-1 lg:flex-col">
             {settingsNavItems.map((item) => {
               const isActive = pathname === item.href
               const Icon = item.icon
@@ -53,10 +53,10 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-slate-800/50 text-white border border-slate-700/50'
-                      : 'text-slate-400 hover:bg-slate-800/30 hover:text-white'
+                      ? 'bg-white/10 text-white'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
                   )}
                 >
                   <Icon className="h-4 w-4" />

@@ -1,9 +1,11 @@
 import { type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface EmptyStateAction {
   label: string
-  onClick: () => void
+  onClick?: () => void
+  href?: string
 }
 
 interface EmptyStateProps {
@@ -11,26 +13,55 @@ interface EmptyStateProps {
   title: string
   description: string
   action?: EmptyStateAction
+  className?: string
 }
 
 /**
  * Reusable empty state component for displaying when no data is available
+ * Features cyan glowing icon container and styled action button
  */
 export default function EmptyState({
   icon: Icon,
   title,
   description,
   action,
+  className,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center text-center py-12" role="status">
-      <Icon className="h-16 w-16 text-slate-400 mb-4" aria-hidden="true" />
-      <h3 className="text-lg font-semibold text-slate-200 mb-2">{title}</h3>
-      <p className="text-sm text-slate-400 max-w-md mb-6">{description}</p>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center py-16 text-center',
+        className
+      )}
+      role="status"
+    >
+      {/* Cyan glowing icon container */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl" />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-slate-800 border border-white/[0.08]">
+          <Icon className="h-10 w-10 text-cyan-400" aria-hidden="true" />
+        </div>
+      </div>
+
+      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+      <p className="text-sm text-slate-400 max-w-md mb-8">{description}</p>
+
       {action && (
-        <Button variant="outline" onClick={action.onClick}>
-          {action.label}
-        </Button>
+        action.href ? (
+          <Button
+            asChild
+            className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400"
+          >
+            <a href={action.href}>{action.label}</a>
+          </Button>
+        ) : (
+          <Button
+            onClick={action.onClick}
+            className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400"
+          >
+            {action.label}
+          </Button>
+        )
       )}
     </div>
   )

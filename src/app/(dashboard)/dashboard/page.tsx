@@ -10,11 +10,11 @@ import {
   ArrowDownRight,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { StatsRow } from '@/components/dashboard/stats-card'
+import { StatCard, StatsRow } from '@/components/dashboard/stats-card'
 import LiveIndicator from '@/components/dashboard/live-indicator'
+import EmptyState from '@/components/dashboard/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
@@ -232,10 +232,10 @@ export default async function DashboardPage() {
       {/* Header Section */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
             {greeting}, {userName}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-lg text-slate-400 mt-1">
             Here&apos;s what&apos;s happening with insider trades today
           </p>
         </div>
@@ -243,27 +243,28 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Row */}
-      <StatsRow
-        stats={[
-          {
-            label: "Today's Trades",
-            value: data.todayCount.toString(),
-          },
-          {
-            label: 'Cluster Alerts',
-            value: data.clusters.length.toString(),
-          },
-          {
-            label: 'Watchlist Activity',
-            value: data.watchlistActivityCount.toString(),
-          },
-          {
-            label: 'Net Buy Volume',
-            value: formatCurrency(data.netBuyVolume),
-            changeType: data.netBuyVolume >= 0 ? 'positive' : 'negative',
-          },
-        ]}
-      />
+      <StatsRow>
+        <StatCard
+          label="Today's Trades"
+          value={data.todayCount}
+          icon={TrendingUp}
+        />
+        <StatCard
+          label="Cluster Alerts"
+          value={data.clusters.length}
+          icon={Users}
+        />
+        <StatCard
+          label="Watchlist Activity"
+          value={data.watchlistActivityCount}
+        />
+        <StatCard
+          label="Net Buy Volume"
+          value={formatCurrency(data.netBuyVolume)}
+          change={data.netBuyVolume >= 0 ? 'Net buying' : 'Net selling'}
+          changeType={data.netBuyVolume >= 0 ? 'positive' : 'negative'}
+        />
+      </StatsRow>
 
       {/* Cluster Alert Banner */}
       {data.clusters.length > 0 && (
@@ -302,22 +303,22 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-white">Recent Insider Transactions</h2>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/insider-trades">
-              View all transactions
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+          <Link
+            href="/insider-trades"
+            className="group flex items-center gap-1 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+          >
+            View all transactions
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
 
         <Suspense fallback={<TransactionTableSkeleton />}>
           {data.recentTransactions.length > 0 ? (
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
+            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+              <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-700/50">
+                      <tr className="border-b border-white/[0.06]">
                         <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
                           Company
                         </th>
@@ -335,7 +336,7 @@ export default async function DashboardPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-700/50">
+                    <tbody className="divide-y divide-white/[0.06]">
                       {data.recentTransactions.slice(0, 8).map((transaction) => {
                         const isBuy = transaction.transaction_type === 'P'
                         const isSell = transaction.transaction_type === 'S'
@@ -343,7 +344,7 @@ export default async function DashboardPage() {
                         return (
                           <tr
                             key={transaction.id}
-                            className="hover:bg-slate-700/30 transition-colors"
+                            className="hover:bg-white/[0.02] transition-colors"
                           >
                             <td className="px-4 py-3">
                               <Link
@@ -393,18 +394,19 @@ export default async function DashboardPage() {
                     </tbody>
                   </table>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           ) : (
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <TrendingUp className="h-12 w-12 text-slate-600 mb-4" />
-                <p className="text-lg font-medium text-white">No recent transactions</p>
-                <p className="text-sm text-slate-400">
-                  Check back later for new insider trading activity
-                </p>
-              </CardContent>
-            </Card>
+            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+              <EmptyState
+                icon={TrendingUp}
+                title="No recent transactions"
+                description="Check back later for new insider trading activity"
+                action={{
+                  label: 'View all trades',
+                  href: '/insider-trades',
+                }}
+              />
+            </div>
           )}
         </Suspense>
       </section>
@@ -414,26 +416,24 @@ export default async function DashboardPage() {
 
 function TransactionTableSkeleton() {
   return (
-    <Card className="bg-slate-800/50 border-slate-700/50">
-      <CardContent className="p-0">
-        <div className="divide-y divide-slate-700/50">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-4 py-3">
-              <div>
-                <Skeleton className="h-4 w-16 bg-slate-700/50" />
-                <Skeleton className="mt-1 h-3 w-24 bg-slate-700/50" />
-              </div>
-              <div className="flex-1">
-                <Skeleton className="h-4 w-28 bg-slate-700/50" />
-                <Skeleton className="mt-1 h-3 w-20 bg-slate-700/50" />
-              </div>
-              <Skeleton className="h-6 w-16 rounded-full bg-slate-700/50" />
-              <Skeleton className="h-4 w-20 bg-slate-700/50" />
+    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+      <div className="divide-y divide-white/[0.06]">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-3">
+            <div>
               <Skeleton className="h-4 w-16 bg-slate-700/50" />
+              <Skeleton className="mt-1 h-3 w-24 bg-slate-700/50" />
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <div className="flex-1">
+              <Skeleton className="h-4 w-28 bg-slate-700/50" />
+              <Skeleton className="mt-1 h-3 w-20 bg-slate-700/50" />
+            </div>
+            <Skeleton className="h-6 w-16 rounded-full bg-slate-700/50" />
+            <Skeleton className="h-4 w-20 bg-slate-700/50" />
+            <Skeleton className="h-4 w-16 bg-slate-700/50" />
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

@@ -16,8 +16,6 @@ import {
   Building2,
   LineChart,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 /**
@@ -81,18 +79,18 @@ export function PricingSection() {
 
         <div className="mt-12 grid gap-8 lg:grid-cols-3 lg:items-start">
           {/* Free Plan */}
-          <Card className="relative border-muted bg-card/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl">Free</CardTitle>
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 transition-all duration-200 hover:border-slate-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="pb-4">
+              <h3 className="text-xl font-semibold text-slate-900">Free</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold">${prices.free}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.free}</span>
+                <span className="text-slate-500">/month</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 Perfect for exploring insider data
               </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </div>
+            <div className="space-y-6">
               <ul className="space-y-3">
                 <FeatureItem icon={Star} tooltip="Track up to 5 companies in your personal watchlist">
                   5 stocks in watchlist
@@ -107,41 +105,42 @@ export function PricingSection() {
                   Daily email digest
                 </FeatureItem>
               </ul>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/signup">Get Started Free</Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <Link
+                href="/signup"
+                className="block w-full text-center bg-white text-slate-900 font-semibold py-3 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors"
+              >
+                Get Started Free
+              </Link>
+            </div>
+          </div>
 
           {/* Retail Plan - Most Popular */}
-          <Card className="relative border-primary shadow-xl scale-[1.02] bg-gradient-to-b from-primary/5 to-transparent lg:-mt-4 lg:mb-4">
+          <div className="relative bg-white rounded-2xl border-2 border-slate-900 p-8 shadow-xl transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 lg:-mt-4 lg:mb-4">
             {/* Popular Badge */}
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <Badge className="bg-primary text-primary-foreground shadow-lg px-4 py-1">
-                <Zap className="mr-1 h-3 w-3" />
-                Most Popular
-              </Badge>
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-1 rounded-full flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              Most Popular
             </div>
 
-            <CardHeader className="pb-4 pt-8">
-              <CardTitle className="text-xl">Retail</CardTitle>
+            <div className="pb-4 pt-4">
+              <h3 className="text-xl font-semibold text-slate-900">Retail</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold">${prices.retail}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.retail}</span>
+                <span className="text-slate-500">/month</span>
                 {isAnnual && (
-                  <span className="ml-2 text-sm text-muted-foreground line-through">
+                  <span className="ml-2 text-sm text-slate-400 line-through">
                     $29
                   </span>
                 )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 For serious individual investors
               </p>
               <p className="mt-1 text-xs text-emerald-600 font-medium">
                 Join 500+ investors on this plan
               </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </div>
+            <div className="space-y-6">
               <ul className="space-y-3">
                 <FeatureItem icon={Star} highlight tooltip="Add unlimited companies to track insider activity">
                   <strong>Unlimited</strong> watchlist
@@ -162,43 +161,44 @@ export function PricingSection() {
                   <strong>Cluster buying</strong> detection
                 </FeatureItem>
               </ul>
-              <Button className="w-full" size="lg" asChild>
-                <Link href="/signup">
-                  Start 14-day free trial
-                </Link>
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
+              <Link
+                href="/signup"
+                className="block w-full text-center bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                Start 14-day free trial
+              </Link>
+              <p className="text-center text-xs text-slate-500">
                 No credit card required
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Pro Plan */}
-          <Card className="relative">
+          <div className="relative bg-white rounded-2xl border border-slate-200 p-8 transition-all duration-200 hover:border-slate-300 hover:shadow-lg hover:-translate-y-1">
             {/* For Teams Badge */}
             <div className="absolute -top-3 right-4">
-              <Badge variant="secondary" className="text-xs">
+              <span className="inline-flex items-center bg-slate-100 text-slate-700 text-xs font-medium px-3 py-1 rounded-full">
                 <Building2 className="mr-1 h-3 w-3" />
                 For Teams
-              </Badge>
+              </span>
             </div>
 
-            <CardHeader className="pb-4 pt-6">
-              <CardTitle className="text-xl">Pro</CardTitle>
+            <div className="pb-4 pt-2">
+              <h3 className="text-xl font-semibold text-slate-900">Pro</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold">${prices.pro}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.pro}</span>
+                <span className="text-slate-500">/month</span>
                 {isAnnual && (
-                  <span className="ml-2 text-sm text-muted-foreground line-through">
+                  <span className="ml-2 text-sm text-slate-400 line-through">
                     $79
                   </span>
                 )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 For professionals & institutions
               </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </div>
+            <div className="space-y-6">
               <ul className="space-y-3">
                 <FeatureItem icon={Check} tooltip="All features from the Retail plan included">
                   Everything in Retail
@@ -219,11 +219,14 @@ export function PricingSection() {
                   Priority support
                 </FeatureItem>
               </ul>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/signup">Contact Sales</Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <Link
+                href="/signup"
+                className="block w-full text-center bg-white text-slate-900 font-semibold py-3 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors"
+              >
+                Contact Sales
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Money-back Guarantee */}
@@ -256,18 +259,18 @@ function FeatureItem({ icon: Icon, children, tooltip, highlight }: FeatureItemPr
       <div
         className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full ${
           highlight
-            ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-            : 'bg-muted text-muted-foreground'
+            ? 'bg-emerald-100 text-emerald-500'
+            : 'bg-slate-100 text-slate-400'
         }`}
       >
         <Icon className="h-3 w-3" />
       </div>
-      <span className="text-sm flex-1">{children}</span>
+      <span className="text-sm text-slate-700 flex-1">{children}</span>
       {tooltip && (
         <div className="relative">
-          <HelpCircle className="h-4 w-4 text-muted-foreground/50 cursor-help" />
+          <HelpCircle className="h-4 w-4 text-slate-300 cursor-help" />
           <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50">
-            <div className="w-48 rounded-lg border bg-popover p-2 text-xs text-popover-foreground shadow-lg">
+            <div className="w-48 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg">
               {tooltip}
             </div>
           </div>

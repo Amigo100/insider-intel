@@ -5,16 +5,10 @@ import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { clientLogger } from '@/lib/client-logger'
 import { Loader2, Check, Mail, Zap, Calendar } from 'lucide-react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 interface NotificationsFormProps {
   initialData: {
@@ -115,15 +109,15 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
   ]
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
-        <CardDescription>
+    <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
+      <div className="p-6 border-b border-white/[0.08]">
+        <h2 className="text-lg font-semibold text-white">Notification Preferences</h2>
+        <p className="text-sm text-slate-400 mt-1">
           Choose how and when you want to be notified about insider trading
           activity
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Notification Options */}
           <div className="space-y-4">
@@ -133,20 +127,20 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
               return (
                 <div
                   key={option.id}
-                  className="flex items-start justify-between gap-4 rounded-lg border p-4"
+                  className="flex items-start justify-between gap-4 rounded-lg border border-white/[0.08] bg-slate-700/30 p-5"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700/50">
+                      <Icon className="h-5 w-5 text-slate-400" />
                     </div>
                     <div className="space-y-1">
                       <Label
                         htmlFor={option.id}
-                        className="text-base font-medium cursor-pointer"
+                        className="text-base font-medium cursor-pointer text-slate-200"
                       >
                         {option.label}
                       </Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         {option.description}
                       </p>
                     </div>
@@ -162,24 +156,36 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
           </div>
 
           {/* Info Box */}
-          <div className="rounded-lg bg-muted/50 p-4">
-            <p className="text-sm text-muted-foreground">
-              <strong>Note:</strong> Instant alerts are only available for Retail
-              and Pro subscribers. Upgrade your plan to enable real-time
-              notifications.
+          <div className="rounded-lg bg-cyan-400/5 border border-cyan-400/20 p-4">
+            <p className="text-sm text-slate-400">
+              <strong className="text-cyan-400">Note:</strong> Instant alerts are only available for Retail
+              and Pro subscribers.{' '}
+              <a href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                Upgrade your plan
+              </a>{' '}
+              to enable real-time notifications.
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
               {error}
             </div>
           )}
 
           {/* Save Button */}
-          <div className="flex items-center gap-4">
-            <Button type="submit" disabled={isSaving || !hasChanges}>
+          <div className="flex items-center gap-4 pt-2">
+            <Button
+              type="submit"
+              disabled={isSaving || !hasChanges}
+              className={cn(
+                'min-w-[160px]',
+                hasChanges && !isSaving
+                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400'
+                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              )}
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -195,13 +201,13 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
               )}
             </Button>
             {!hasChanges && !saveSuccess && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-slate-500">
                 No changes to save
               </span>
             )}
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

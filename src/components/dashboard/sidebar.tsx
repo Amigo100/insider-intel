@@ -64,15 +64,15 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-full w-64 flex-col bg-sidebar-background text-sidebar-foreground transition-transform duration-300 ease-in-out lg:translate-x-0',
+          'fixed left-0 top-0 z-50 flex h-full w-64 flex-col bg-slate-900 border-r border-white/[0.06] text-sidebar-foreground transition-transform duration-300 ease-in-out lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+        <div className="flex h-16 items-center justify-between border-b border-white/[0.06] px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-emerald-400" aria-hidden="true" />
-            <span className="text-lg font-bold">InsiderIntel</span>
+            <TrendingUp className="h-6 w-6 text-cyan-400" aria-hidden="true" />
+            <span className="text-lg font-bold text-white">InsiderIntel</span>
           </Link>
           <Button
             variant="ghost"
@@ -102,13 +102,22 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   }
                 }}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+                  'group relative flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
                   isActive
-                    ? 'bg-slate-700/50 text-white border-l-2 border-emerald-500'
-                    : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
+                    ? 'bg-cyan-400/10 text-white'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                 )}
               >
-                <item.icon className="h-5 w-5" aria-hidden="true" />
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-cyan-400 rounded-r" />
+                )}
+                <item.icon
+                  className={cn(
+                    'h-5 w-5 transition-colors duration-150',
+                    isActive ? 'text-cyan-400' : 'text-slate-500 group-hover:text-slate-400'
+                  )}
+                  aria-hidden="true"
+                />
                 {item.title}
               </Link>
             )
@@ -116,9 +125,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-sidebar-border p-4">
-          <div className="rounded-lg bg-sidebar-accent p-3">
-            <p className="text-xs text-sidebar-muted-foreground">
+        <div className="border-t border-white/[0.06] p-4">
+          <div className="rounded-lg bg-slate-800/50 p-3">
+            <p className="text-xs text-slate-500">
               Data updated hourly from SEC EDGAR filings
             </p>
           </div>
