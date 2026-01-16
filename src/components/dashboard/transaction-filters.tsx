@@ -101,21 +101,27 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-slate-800/30 p-4 sm:flex-row sm:items-center',
+        'flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-slate-800/30 p-4 sm:flex-row sm:items-center',
         className
       )}
     >
-      {/* Transaction Type Toggle */}
-      <div className="flex items-center gap-2">
+      {/* Transaction Type Toggle - Segmented Control */}
+      <div
+        className="inline-flex h-11 items-center rounded-lg border border-white/[0.08] bg-slate-900/50 p-1"
+        role="group"
+        aria-label="Transaction type filter"
+      >
         <button
           type="button"
           onClick={() => handleTypeChange('all')}
           disabled={isPending}
+          aria-pressed={type === 'all'}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
+            'min-h-[36px] min-w-[44px] px-4 rounded-md text-sm font-medium transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-900',
             type === 'all'
-              ? 'bg-white/10 text-white border-white/20'
-              : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-white'
+              ? 'bg-cyan-400 text-slate-900 shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
           )}
         >
           All
@@ -124,11 +130,13 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           type="button"
           onClick={() => handleTypeChange('P')}
           disabled={isPending}
+          aria-pressed={type === 'P'}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
+            'min-h-[36px] min-w-[44px] px-4 rounded-md text-sm font-medium transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-900',
             type === 'P'
-              ? 'bg-emerald-400/20 text-emerald-400 border-emerald-400/30'
-              : 'bg-transparent text-slate-400 border-transparent hover:bg-emerald-400/10 hover:text-emerald-400'
+              ? 'bg-emerald-500 text-white shadow-sm'
+              : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10'
           )}
         >
           Buys
@@ -137,11 +145,13 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           type="button"
           onClick={() => handleTypeChange('S')}
           disabled={isPending}
+          aria-pressed={type === 'S'}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
+            'min-h-[36px] min-w-[44px] px-4 rounded-md text-sm font-medium transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-900',
             type === 'S'
-              ? 'bg-red-400/20 text-red-400 border-red-400/30'
-              : 'bg-transparent text-slate-400 border-transparent hover:bg-red-400/10 hover:text-red-400'
+              ? 'bg-red-500 text-white shadow-sm'
+              : 'text-slate-400 hover:text-red-400 hover:bg-red-400/10'
           )}
         >
           Sells
@@ -154,7 +164,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
         onValueChange={(value) => handleDaysChange(value as TimePeriod)}
         disabled={isPending}
       >
-        <SelectTrigger className="min-w-[140px]">
+        <SelectTrigger className="h-10 min-w-[140px] rounded-lg">
           <SelectValue placeholder="Time period" />
         </SelectTrigger>
         <SelectContent>
@@ -173,7 +183,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
           onKeyDown={handleTickerKeyDown}
-          className="pl-9 pr-9"
+          className="h-10 pl-9 pr-9"
           disabled={isPending}
         />
         {ticker && (
@@ -191,8 +201,8 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
       <Button
         onClick={handleTickerSearch}
         disabled={isPending}
-        variant="cyan"
-        className="sm:w-auto"
+        variant="outline"
+        className="h-10 px-5 sm:w-auto"
       >
         {isPending ? 'Loading...' : 'Search'}
       </Button>
@@ -204,6 +214,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           size="sm"
           onClick={handleReset}
           disabled={isPending}
+          className="h-10 text-slate-400 hover:text-white"
         >
           Reset
         </Button>
@@ -230,7 +241,7 @@ export function ResultsSummary({
 }) {
   if (loading) {
     return (
-      <p className="text-sm text-slate-500">Loading transactions...</p>
+      <p className="text-sm text-slate-400">Loading transactions...</p>
     )
   }
 
@@ -253,7 +264,7 @@ export function ResultsSummary({
   }
 
   return (
-    <p className="text-sm text-slate-500">
+    <p className="text-sm text-slate-400">
       Showing {count.toLocaleString()} {parts.join(' ')}
     </p>
   )

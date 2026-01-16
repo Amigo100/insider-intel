@@ -160,7 +160,7 @@ export function FAQSection() {
             <p className="mt-2 text-sm text-muted-foreground">
               Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
             </p>
-            <Button className="mt-4" variant="outline" asChild>
+            <Button className="mt-4" variant="outline-light" asChild>
               <a href="mailto:support@insiderintel.com">Contact Support</a>
             </Button>
           </div>

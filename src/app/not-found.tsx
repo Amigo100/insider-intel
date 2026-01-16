@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { FileQuestion, Home, Search, TrendingUp } from 'lucide-react'
+import { FileQuestion, Home, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 export default function NotFound() {
   return (
@@ -8,12 +9,7 @@ export default function NotFound() {
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="dark" size="md" />
         </div>
       </header>
 
@@ -30,7 +26,7 @@ export default function NotFound() {
             might have been moved, deleted, or never existed in the first place.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button variant="outline" asChild>
+            <Button variant="outline-light" asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
                 Go Home
@@ -50,13 +46,13 @@ export default function NotFound() {
               trading data.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline-light" size="sm" asChild>
                 <Link href="/insider-trades">Insider Trades</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline-light" size="sm" asChild>
                 <Link href="/institutions">Institutions</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline-light" size="sm" asChild>
                 <Link href="/watchlist">Watchlist</Link>
               </Button>
             </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 export default function MarketingLayout({
   children,
@@ -12,12 +12,7 @@ export default function MarketingLayout({
       {/* Navigation */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="dark" size="md" />
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
@@ -39,12 +34,7 @@ export default function MarketingLayout({
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <TrendingUp className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold">InsiderIntel</span>
-              </Link>
+              <Logo variant="dark" size="md" />
               <p className="mt-4 text-sm text-muted-foreground">
                 Track insider trading and institutional holdings with AI-powered
                 insights.

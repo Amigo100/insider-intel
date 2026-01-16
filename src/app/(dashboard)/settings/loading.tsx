@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
 
 export default function SettingsLoading() {
   return (
@@ -22,7 +22,7 @@ export default function SettingsLoading() {
 
         {/* Main Content Skeleton */}
         <main className="flex-1">
-          <Card>
+          <DashboardCard>
             <CardHeader>
               <Skeleton className="h-6 w-24" />
               <Skeleton className="h-4 w-64" />
@@ -40,7 +40,7 @@ export default function SettingsLoading() {
               {/* Save Button Skeleton */}
               <Skeleton className="h-10 w-32" />
             </CardContent>
-          </Card>
+          </DashboardCard>
         </main>
       </div>
     </div>

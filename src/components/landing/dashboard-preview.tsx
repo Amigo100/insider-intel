@@ -102,9 +102,7 @@ export function DashboardPreview() {
           <aside className="hidden w-52 flex-shrink-0 border-r bg-slate-900 p-4 md:block">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-8">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
-                <TrendingUp className="h-4 w-4 text-slate-900" />
-              </div>
+              <TrendingUp className="h-5 w-5 text-cyan-400" />
               <span className="text-sm font-bold text-white">InsiderIntel</span>
             </div>
 

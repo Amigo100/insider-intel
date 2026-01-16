@@ -8,12 +8,12 @@ import {
   Building2,
   Star,
   Settings,
-  TrendingUp,
   Menu,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 interface SidebarProps {
   isOpen: boolean
@@ -70,10 +70,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         {/* Logo */}
         <div className="flex h-16 items-center justify-between border-b border-white/[0.06] px-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-cyan-400" aria-hidden="true" />
-            <span className="text-lg font-bold text-white">InsiderIntel</span>
-          </Link>
+          <Logo variant="light" size="sm" href="/dashboard" />
           <Button
             variant="ghost"
             size="icon"
@@ -103,9 +100,10 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 }}
                 className={cn(
                   'group relative flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
                   isActive
                     ? 'bg-cyan-400/10 text-white'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
                 )}
               >
                 {isActive && (
@@ -114,7 +112,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <item.icon
                   className={cn(
                     'h-5 w-5 transition-colors duration-150',
-                    isActive ? 'text-cyan-400' : 'text-slate-500 group-hover:text-slate-400'
+                    isActive ? 'text-cyan-400' : 'text-slate-400 group-hover:text-slate-300'
                   )}
                   aria-hidden="true"
                 />
@@ -127,7 +125,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         {/* Footer */}
         <div className="border-t border-white/[0.06] p-4">
           <div className="rounded-lg bg-slate-800/50 p-3">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Data updated hourly from SEC EDGAR filings
             </p>
           </div>

@@ -125,7 +125,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           aria-expanded={showResults && searchResults.length > 0}
           aria-controls="search-results"
           aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
-          className="pl-9 pr-4 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400 focus:border-slate-600"
+          className="pl-9 pr-4"
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value)
@@ -148,7 +148,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
             id="search-results"
             role="listbox"
             aria-label="Search results"
-            className="absolute top-full left-0 right-0 mt-1 rounded-md border border-slate-700/50 bg-slate-800 shadow-lg"
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 shadow-lg"
           >
             <ul className="py-1">
               {searchResults.map((result, index) => (
@@ -159,8 +159,8 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
                     role="option"
                     aria-selected={index === selectedIndex}
                     className={cn(
-                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-700/50',
-                      index === selectedIndex && 'bg-slate-700/50'
+                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.05]',
+                      index === selectedIndex && 'bg-white/[0.05]'
                     )}
                     onClick={() => navigateToCompany(result.ticker)}
                     onMouseEnter={() => setSelectedIndex(index)}
@@ -168,7 +168,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
                     <span className="font-semibold text-white">
                       {result.ticker}
                     </span>
-                    <span className="flex-1 truncate text-slate-400">
+                    <span className="flex-1 truncate text-slate-300">
                       {result.name}
                     </span>
                     {result.has_recent_activity && (
@@ -183,7 +183,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
 
         {/* No results message */}
         {showResults && searchResults.length === 0 && searchQuery.length >= 1 && !isSearching && (
-          <div className="absolute top-full left-0 right-0 mt-1 rounded-md border border-slate-700/50 bg-slate-800 p-3 shadow-lg">
+          <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 p-3 shadow-lg">
             <p className="text-sm text-slate-400">No companies found</p>
           </div>
         )}

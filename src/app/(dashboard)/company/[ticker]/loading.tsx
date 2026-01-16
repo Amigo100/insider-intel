@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
 
 export default function CompanyLoading() {
   return (
@@ -24,7 +24,7 @@ export default function CompanyLoading() {
         {/* Stats Cards Skeleton */}
         <div className="grid gap-4 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i}>
+            <DashboardCard key={i}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
@@ -35,22 +35,22 @@ export default function CompanyLoading() {
                   <Skeleton className="h-10 w-10 rounded-full" />
                 </div>
               </CardContent>
-            </Card>
+            </DashboardCard>
           ))}
         </div>
 
         {/* Chart Skeleton */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-48" />
           </CardHeader>
           <CardContent>
             <Skeleton className="h-[250px] w-full" />
           </CardContent>
-        </Card>
+        </DashboardCard>
 
         {/* Table Skeleton */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-32" />
           </CardHeader>
@@ -84,7 +84,7 @@ export default function CompanyLoading() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
       </div>
     </div>
   )

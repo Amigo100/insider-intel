@@ -21,6 +21,7 @@ import EmptyState from '@/components/dashboard/empty-state'
 import LiveIndicator from '@/components/dashboard/live-indicator'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DashboardCard, CardInteractive } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 interface Company {
@@ -303,23 +304,17 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
             <LiveIndicator text="Activity monitored in real-time" />
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-          </span>
-          <p className="text-slate-400">
-            {meta.count} of {meta.limit} stocks tracked
-            {meta.tier === 'free' && !meta.isAtLimit && (
-              <span className="ml-2">
-                ·{' '}
-                <Link href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 transition-colors">
-                  Upgrade for unlimited
-                </Link>
-              </span>
-            )}
-          </p>
-        </div>
+        <p className="text-slate-400">
+          {meta.count} of {meta.limit} stocks tracked
+          {meta.tier === 'free' && !meta.isAtLimit && (
+            <span className="ml-2">
+              ·{' '}
+              <Link href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                Upgrade for unlimited
+              </Link>
+            </span>
+          )}
+        </p>
       </div>
 
       {/* Error Toast */}
@@ -337,7 +332,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       )}
 
       {/* Add Stock Search */}
-      <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+      <DashboardCard>
         <div className="border-b border-white/[0.06] p-4">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
             <Star className="h-5 w-5 text-cyan-400" />
@@ -358,7 +353,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                 onChange={(e) => handleSearch(e.target.value)}
                 onFocus={() => searchQuery && setIsSearchOpen(true)}
                 disabled={meta.isAtLimit}
-                className="pl-10 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-slate-400"
+                className="pl-10"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />
@@ -463,15 +458,21 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
             </p>
           )}
         </div>
-      </div>
+      </DashboardCard>
 
       {/* Empty State */}
       {watchlist.length === 0 ? (
-        <EmptyState
-          icon={Star}
-          title="Start tracking stocks"
-          description="Add companies to your watchlist to monitor insider trading activity and get personalized insights. Use the search above to find stocks by ticker or company name."
-        />
+        <DashboardCard>
+          <EmptyState
+            icon={Star}
+            title="Build your watchlist"
+            description="Track insider trading activity for the companies you care about. Search for a stock above by ticker or company name, or browse recent insider trades to discover opportunities."
+            action={{
+              label: 'Explore insider trades',
+              href: '/insider-trades',
+            }}
+          />
+        </DashboardCard>
       ) : (
         <>
           {/* Watchlist Cards Grid */}
@@ -480,10 +481,10 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
               const isRemoving = pendingRemove === item.id
 
               return (
-                <div
+                <CardInteractive
                   key={item.id}
                   className={cn(
-                    'group relative bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08] transition-all hover:border-white/[0.12]',
+                    'group relative p-0',
                     isRemoving && 'opacity-50'
                   )}
                 >
@@ -588,14 +589,14 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       <X className="h-4 w-4 text-slate-400 hover:text-red-400" />
                     )}
                   </button>
-                </div>
+                </CardInteractive>
               )
             })}
           </div>
 
           {/* Activity Feed */}
           {activity.length > 0 && (
-            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+            <DashboardCard>
               <div className="border-b border-white/[0.06] p-4">
                 <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                   <Clock className="h-5 w-5 text-cyan-400" />
@@ -668,7 +669,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                   ))}
                 </div>
               </div>
-            </div>
+            </DashboardCard>
           )}
         </>
       )}

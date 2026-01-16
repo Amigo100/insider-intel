@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
 
 export default function DashboardLoading() {
   return (
@@ -13,7 +13,7 @@ export default function DashboardLoading() {
       {/* Stats Cards Skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
+          <DashboardCard key={i}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -23,14 +23,14 @@ export default function DashboardLoading() {
                 <Skeleton className="h-10 w-10 rounded-full" />
               </div>
             </CardContent>
-          </Card>
+          </DashboardCard>
         ))}
       </div>
 
       {/* Main Content Grid Skeleton */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Chart Card Skeleton */}
-        <Card className="lg:col-span-2">
+        <DashboardCard className="lg:col-span-2">
           <CardHeader>
             <Skeleton className="h-5 w-48" />
             <Skeleton className="h-4 w-64" />
@@ -38,10 +38,10 @@ export default function DashboardLoading() {
           <CardContent>
             <Skeleton className="h-[300px] w-full" />
           </CardContent>
-        </Card>
+        </DashboardCard>
 
         {/* Recent Transactions Skeleton */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-40" />
           </CardHeader>
@@ -62,10 +62,10 @@ export default function DashboardLoading() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
 
         {/* Watchlist Skeleton */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-32" />
           </CardHeader>
@@ -85,7 +85,7 @@ export default function DashboardLoading() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
       </div>
     </div>
   )

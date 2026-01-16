@@ -170,21 +170,9 @@ export function TransactionTable({
     )
   }
 
-  // Empty state
+  // Empty state - let parent component handle empty states for better UX
   if (transactions.length === 0) {
-    return (
-      <div
-        className={cn(
-          'flex flex-col items-center justify-center rounded-md border py-12',
-          className
-        )}
-      >
-        <p className="text-lg font-medium">No transactions found</p>
-        <p className="text-sm text-muted-foreground">
-          Try adjusting your filters or check back later
-        </p>
-      </div>
-    )
+    return null
   }
 
   return (
@@ -250,8 +238,8 @@ export function TransactionTable({
                 <TableCell
                   className={cn(
                     'text-right font-mono font-semibold',
-                    isBuy && 'text-buy',
-                    isSell && 'text-sell'
+                    isBuy && 'text-emerald-400',
+                    isSell && 'text-red-400'
                   )}
                 >
                   {formatCurrency(transaction.total_value)}
@@ -275,7 +263,11 @@ function TransactionTypeBadge({ type }: { type: string }) {
   // Custom styled badges for BUY and SELL
   if (type === 'P') {
     return (
-      <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+      <Badge
+        className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium"
+        role="status"
+        aria-label="Purchase transaction"
+      >
         <ArrowUpRight className="mr-1 h-3 w-3" aria-hidden="true" />
         BUY
       </Badge>
@@ -284,7 +276,11 @@ function TransactionTypeBadge({ type }: { type: string }) {
 
   if (type === 'S') {
     return (
-      <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 font-medium">
+      <Badge
+        className="bg-red-500/20 text-red-400 border border-red-500/30 font-medium"
+        role="status"
+        aria-label="Sale transaction"
+      >
         <ArrowDownRight className="mr-1 h-3 w-3" aria-hidden="true" />
         SELL
       </Badge>
@@ -299,9 +295,11 @@ function TransactionTypeBadge({ type }: { type: string }) {
     M: 'Exercise',
   }
 
+  const label = labelMap[type] || type
+
   return (
-    <Badge variant="secondary">
-      {labelMap[type] || type}
+    <Badge variant="secondary" role="status" aria-label={`${label} transaction`}>
+      {label}
     </Badge>
   )
 }

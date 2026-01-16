@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
-  TrendingUp,
   ChevronRight,
   ArrowRight,
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Logo } from '@/components/ui/logo'
 import { DashboardPreview } from '@/components/landing/dashboard-preview'
 import { LiveActivityFeed, LiveActivityHeader } from '@/components/landing/live-activity-feed'
 import { TrustBadges, StatsBanner } from '@/components/landing/trust-badges'
@@ -83,12 +83,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="dark" size="md" />
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-8 md:flex">
@@ -168,7 +163,7 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="#features"
-                  className="w-full sm:w-auto inline-flex items-center justify-center border border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200"
                 >
                   See How It Works
                 </Link>
@@ -321,7 +316,7 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center border border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200"
                 >
                   Sign In
                 </Link>
@@ -337,12 +332,7 @@ export default function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div className="sm:col-span-2 lg:col-span-1">
-              <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <TrendingUp className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold">InsiderIntel</span>
-              </Link>
+              <Logo variant="dark" size="md" />
               <p className="mt-4 text-sm text-muted-foreground max-w-xs">
                 Track insider trading and institutional holdings with AI-powered
                 insights.

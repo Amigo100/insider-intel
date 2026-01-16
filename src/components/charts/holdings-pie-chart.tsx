@@ -26,15 +26,19 @@ interface HoldingsPieChartProps {
   showLegend?: boolean
 }
 
-// Color palette for chart segments
+// Accessible color palette - well-separated on color wheel, distinct for color blindness
+// Using colors that are distinguishable even with various forms of color blindness
 const COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#f59e0b', // amber
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#6b7280', // gray (for Others)
+  '#22d3ee', // cyan-400 (primary accent)
+  '#a855f7', // purple-500
+  '#f97316', // orange-500
+  '#3b82f6', // blue-500
+  '#ec4899', // pink-500
+  '#64748b', // slate-500 (for Others - intentionally muted)
 ]
+
+// Color names for accessibility/screen readers
+const COLOR_NAMES = ['Cyan', 'Purple', 'Orange', 'Blue', 'Pink', 'Gray']
 
 /**
  * Formats currency for display
@@ -49,26 +53,34 @@ function formatCurrency(value: number): string {
 }
 
 /**
- * Custom tooltip component
+ * Custom tooltip component - styled for dark theme
  */
 function CustomTooltip({
   active,
   payload,
 }: {
   active?: boolean
-  payload?: Array<{ name: string; value: number; payload: HoldingDataPoint }>
+  payload?: Array<{ name: string; value: number; payload: HoldingDataPoint; color: string }>
 }) {
   if (!active || !payload || !payload.length) return null
 
   const data = payload[0].payload
+  const color = payload[0].color
 
   return (
-    <div className="rounded-lg border bg-popover p-3 shadow-md">
-      <p className="font-medium">{data.name}</p>
-      <p className="text-sm text-muted-foreground">
+    <div className="rounded-lg border border-white/[0.08] bg-slate-800 p-3 shadow-xl">
+      <div className="flex items-center gap-2 mb-1">
+        <span
+          className="h-3 w-3 rounded-sm shrink-0"
+          style={{ backgroundColor: color }}
+          aria-hidden="true"
+        />
+        <p className="font-medium text-white truncate max-w-[180px]">{data.name}</p>
+      </div>
+      <p className="text-sm text-slate-300">
         {formatCurrency(data.value)}
       </p>
-      <p className="text-sm font-medium text-primary">
+      <p className="text-sm font-semibold text-cyan-400">
         {data.percent.toFixed(1)}% of portfolio
       </p>
     </div>
@@ -76,7 +88,7 @@ function CustomTooltip({
 }
 
 /**
- * Custom legend component
+ * Custom legend component - improved readability and accessibility
  */
 function CustomLegend({
   payload,
@@ -86,19 +98,72 @@ function CustomLegend({
   if (!payload) return null
 
   return (
-    <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+    <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 px-2" role="list" aria-label="Chart legend">
       {payload.map((entry, index) => (
-        <li key={index} className="flex items-center gap-1.5 text-xs">
+        <li key={index} className="flex items-center gap-2 text-sm">
           <span
-            className="h-2.5 w-2.5 rounded-sm"
+            className="h-3 w-3 rounded-sm shrink-0"
             style={{ backgroundColor: entry.color }}
+            aria-hidden="true"
           />
-          <span className="text-muted-foreground truncate max-w-[100px]">
+          <span className="text-slate-300 truncate max-w-[120px]" title={entry.value}>
             {entry.value}
           </span>
+          {entry.payload && (
+            <span className="text-slate-500 text-xs">
+              ({entry.payload.percent.toFixed(0)}%)
+            </span>
+          )}
         </li>
       ))}
     </ul>
+  )
+}
+
+/**
+ * Custom label renderer for pie segments
+ * Only shows percentage on segments >= 10% to avoid clutter
+ */
+function renderCustomLabel(props: {
+  cx?: number
+  cy?: number
+  midAngle?: number
+  innerRadius?: number
+  outerRadius?: number
+  percent?: number
+}) {
+  const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props
+
+  // Guard against undefined values and only show label for segments >= 10%
+  if (
+    cx === undefined ||
+    cy === undefined ||
+    midAngle === undefined ||
+    innerRadius === undefined ||
+    outerRadius === undefined ||
+    percent === undefined ||
+    percent < 0.1
+  ) {
+    return null
+  }
+
+  const RADIAN = Math.PI / 180
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#fff"
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="text-xs font-semibold"
+      style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
   )
 }
 
@@ -150,12 +215,12 @@ export function HoldingsPieChart({
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg border bg-muted/20',
+          'flex items-center justify-center rounded-lg border border-white/[0.08] bg-slate-800/30',
           className
         )}
         style={{ height }}
       >
-        <p className="text-sm text-muted-foreground">No holdings data available</p>
+        <p className="text-sm text-slate-400">No holdings data available</p>
       </div>
     )
   }
@@ -163,25 +228,28 @@ export function HoldingsPieChart({
   const processedData = processData(data)
 
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div className={cn('w-full', className)} style={{ height }} role="img" aria-label="Institutional holdings distribution chart">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={processedData}
             cx="50%"
-            cy="50%"
+            cy="45%"
             innerRadius={60}
-            outerRadius={80}
+            outerRadius={90}
             paddingAngle={2}
             dataKey="value"
             nameKey="name"
+            label={renderCustomLabel}
+            labelLine={false}
           >
-            {processedData.map((_, index) => (
+            {processedData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={COLORS[index % COLORS.length]}
-                stroke="hsl(var(--background))"
+                stroke="hsl(222.2 84% 4.9%)"
                 strokeWidth={2}
+                aria-label={`${entry.name}: ${entry.percent.toFixed(1)}%`}
               />
             ))}
           </Pie>
@@ -190,7 +258,7 @@ export function HoldingsPieChart({
             <Legend
               content={<CustomLegend />}
               verticalAlign="bottom"
-              height={36}
+              height={50}
             />
           )}
         </PieChart>
@@ -215,11 +283,11 @@ export function HoldingsPieChartCompact({
     return (
       <div
         className={cn(
-          'flex h-[150px] items-center justify-center rounded-lg border bg-muted/20',
+          'flex h-[150px] items-center justify-center rounded-lg border border-white/[0.08] bg-slate-800/30',
           className
         )}
       >
-        <p className="text-xs text-muted-foreground">No data</p>
+        <p className="text-xs text-slate-400">No data</p>
       </div>
     )
   }
@@ -227,7 +295,7 @@ export function HoldingsPieChartCompact({
   const processedData = processData(data)
 
   return (
-    <div className={cn('h-[150px] w-full', className)}>
+    <div className={cn('h-[150px] w-full', className)} role="img" aria-label="Holdings distribution">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -235,16 +303,17 @@ export function HoldingsPieChartCompact({
             cx="50%"
             cy="50%"
             innerRadius={35}
-            outerRadius={50}
+            outerRadius={55}
             paddingAngle={2}
             dataKey="value"
           >
-            {processedData.map((_, index) => (
+            {processedData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={COLORS[index % COLORS.length]}
-                stroke="hsl(var(--background))"
+                stroke="hsl(222.2 84% 4.9%)"
                 strokeWidth={1}
+                aria-label={`${entry.name}: ${entry.percent.toFixed(1)}%`}
               />
             ))}
           </Pie>

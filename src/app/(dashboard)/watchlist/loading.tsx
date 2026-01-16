@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
 
 export default function WatchlistLoading() {
   return (
@@ -14,19 +14,19 @@ export default function WatchlistLoading() {
       </div>
 
       {/* Add Stock Search Skeleton */}
-      <Card>
+      <DashboardCard>
         <CardHeader>
           <Skeleton className="h-5 w-24" />
         </CardHeader>
         <CardContent>
           <Skeleton className="h-10 w-full" />
         </CardContent>
-      </Card>
+      </DashboardCard>
 
       {/* Watchlist Cards Grid Skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
+          <DashboardCard key={i}>
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -53,12 +53,12 @@ export default function WatchlistLoading() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </DashboardCard>
         ))}
       </div>
 
       {/* Activity Feed Skeleton */}
-      <Card>
+      <DashboardCard>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Skeleton className="h-5 w-5 rounded-full" />
@@ -89,7 +89,7 @@ export default function WatchlistLoading() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </DashboardCard>
     </div>
   )
 }

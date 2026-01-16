@@ -342,7 +342,7 @@ export function ResetPasswordForm() {
               Your password has been successfully reset.
               You&apos;ll be redirected to sign in shortly.
             </p>
-            <Button variant="outline" className="mt-6" asChild>
+            <Button variant="outline-light" className="mt-6" asChild>
               <Link href="/login">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Sign in now

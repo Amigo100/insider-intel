@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { DashboardCard, CardContent } from '@/components/ui/card'
 
 interface ErrorProps {
   error: Error & { digest?: string }
@@ -19,7 +19,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
 
   return (
     <div className="flex min-h-[50vh] items-center justify-center">
-      <Card className="max-w-md">
+      <DashboardCard className="max-w-md">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
@@ -46,7 +46,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </DashboardCard>
     </div>
   )
 }

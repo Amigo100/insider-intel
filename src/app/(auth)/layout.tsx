@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { TrendingUp, Quote, TrendingDown, Users, DollarSign } from 'lucide-react'
+import { Quote, TrendingUp, TrendingDown, Users, DollarSign } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 interface AuthLayoutProps {
   children: React.ReactNode
@@ -22,12 +22,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 w-fit">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 backdrop-blur">
-              <TrendingUp className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="light" size="lg" />
 
           {/* Main Content */}
           <div className="space-y-8">
@@ -92,12 +87,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Mobile Header (shown only on mobile) */}
         <header className="p-6 lg:hidden">
-          <Link href="/" className="flex items-center gap-2 w-fit">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="dark" size="md" />
         </header>
 
         {/* Main Content */}

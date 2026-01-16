@@ -312,7 +312,7 @@ export function LoginForm() {
         {/* Google Sign In */}
         <Button
           type="button"
-          variant="outline"
+          variant="outline-light"
           className="w-full"
           size="lg"
           onClick={handleGoogleLogin}

@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
 
 export default function InstitutionsLoading() {
   return (
@@ -15,7 +15,7 @@ export default function InstitutionsLoading() {
         <Skeleton className="h-10 w-full max-w-sm" />
 
         {/* Tab Content Skeleton - Institutions List */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <div className="flex items-center justify-between">
               <Skeleton className="h-5 w-32" />
@@ -50,7 +50,7 @@ export default function InstitutionsLoading() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
       </div>
 
       {/* New Positions Section Skeleton */}
@@ -62,7 +62,7 @@ export default function InstitutionsLoading() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
+            <DashboardCard key={i}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
@@ -80,7 +80,7 @@ export default function InstitutionsLoading() {
                   <Skeleton className="h-3 w-3/4" />
                 </div>
               </CardContent>
-            </Card>
+            </DashboardCard>
           ))}
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function InstitutionsLoading() {
       {/* Top Movements Section Skeleton */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Bought */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-40" />
           </CardHeader>
@@ -111,10 +111,10 @@ export default function InstitutionsLoading() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
 
         {/* Top Sold */}
-        <Card>
+        <DashboardCard>
           <CardHeader>
             <Skeleton className="h-5 w-40" />
           </CardHeader>
@@ -137,7 +137,7 @@ export default function InstitutionsLoading() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </DashboardCard>
       </div>
     </div>
   )

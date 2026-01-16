@@ -10,7 +10,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
+import { DashboardCard, CardInteractive, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { StatCard, StatsRow } from '@/components/dashboard/stats-card'
 import LiveIndicator from '@/components/dashboard/live-indicator'
@@ -46,6 +46,38 @@ function getGreeting(): string {
   if (hour < 12) return 'Good morning'
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
+}
+
+/**
+ * Format display name for greeting
+ * Priority: first name from full_name > cleaned username > capitalized fallback
+ */
+function formatDisplayName(fullName: string | null | undefined, email: string | null | undefined): string {
+  // If we have a full name, extract and return the first name
+  if (fullName && fullName.trim()) {
+    const firstName = fullName.trim().split(/\s+/)[0]
+    // Capitalize first letter, lowercase rest for consistency
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+  }
+
+  // Fall back to email username
+  if (email) {
+    const username = email.split('@')[0]
+
+    // Remove trailing numbers (e.g., "alexdeighton35" -> "alexdeighton")
+    const cleanedUsername = username.replace(/\d+$/, '')
+
+    // If we still have something after removing numbers, use it
+    if (cleanedUsername.length > 0) {
+      // Capitalize first letter
+      return cleanedUsername.charAt(0).toUpperCase() + cleanedUsername.slice(1)
+    }
+
+    // If username was all numbers or empty after cleaning, just capitalize what we have
+    return username.charAt(0).toUpperCase() + username.slice(1)
+  }
+
+  return 'there'
 }
 
 /**
@@ -224,7 +256,7 @@ export default async function DashboardPage() {
     getDashboardData(user.id),
   ])
 
-  const userName = profile?.full_name || user.email?.split('@')[0] || 'there'
+  const userName = formatDisplayName(profile?.full_name, user.email)
   const greeting = getGreeting()
 
   return (
@@ -275,7 +307,7 @@ export default async function DashboardPage() {
               href={`/company/${cluster.ticker}`}
               className="block"
             >
-              <Card className="border-l-4 border-l-emerald-500 bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70 transition-colors">
+              <CardInteractive className="border-l-4 border-l-emerald-500">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
@@ -293,7 +325,7 @@ export default async function DashboardPage() {
                     <ArrowRight className="h-5 w-5 text-slate-400" />
                   </div>
                 </CardContent>
-              </Card>
+              </CardInteractive>
             </Link>
           ))}
         </div>
@@ -314,7 +346,7 @@ export default async function DashboardPage() {
 
         <Suspense fallback={<TransactionTableSkeleton />}>
           {data.recentTransactions.length > 0 ? (
-            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+            <DashboardCard className="overflow-hidden">
               <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -394,19 +426,19 @@ export default async function DashboardPage() {
                     </tbody>
                   </table>
                 </div>
-            </div>
+            </DashboardCard>
           ) : (
-            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+            <DashboardCard>
               <EmptyState
                 icon={TrendingUp}
-                title="No recent transactions"
-                description="Check back later for new insider trading activity"
+                title="Your dashboard is ready"
+                description="As insiders buy and sell shares, transactions will appear here. Start by adding stocks to your watchlist to track activity for companies you care about."
                 action={{
-                  label: 'View all trades',
-                  href: '/insider-trades',
+                  label: 'Add stocks to watchlist',
+                  href: '/watchlist',
                 }}
               />
-            </div>
+            </DashboardCard>
           )}
         </Suspense>
       </section>
@@ -416,7 +448,7 @@ export default async function DashboardPage() {
 
 function TransactionTableSkeleton() {
   return (
-    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/70 rounded-xl border border-white/[0.08]">
+    <DashboardCard>
       <div className="divide-y divide-white/[0.06]">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 px-4 py-3">
@@ -434,6 +466,6 @@ function TransactionTableSkeleton() {
           </div>
         ))}
       </div>
-    </div>
+    </DashboardCard>
   )
 }

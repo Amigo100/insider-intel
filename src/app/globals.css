@@ -26,7 +26,7 @@
   --sidebar-background: 222.2 84% 4.9%;
   --sidebar-foreground: 210 40% 98%;
   --sidebar-muted: 217.2 32.6% 17.5%;
-  --sidebar-muted-foreground: 215 20.2% 65.1%;
+  --sidebar-muted-foreground: 215 20% 75%;
   --sidebar-accent: 217.2 32.6% 17.5%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
@@ -62,8 +62,8 @@
 
   /* Text colors */
   --text-primary: 210 40% 98%;
-  --text-secondary: 215 20.2% 65.1%;
-  --text-muted: 215 16.3% 46.9%;
+  --text-secondary: 215 20% 75%;
+  --text-muted: 215 16% 55%;
 }
 
 .dark {
@@ -78,7 +78,7 @@
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted-foreground: 215 20% 75%;
   --accent: 217.2 32.6% 17.5%;
   --accent-foreground: 210 40% 98%;
   --destructive: 0 62.8% 30.6%;
@@ -205,7 +205,7 @@ html {
 
 /* Focus visible styles for accessibility */
 :focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid hsl(199 89% 48% / 0.5);
   outline-offset: 2px;
 }
 

@@ -102,7 +102,7 @@ export function ForgotPasswordForm() {
             <p className="mt-4 text-xs text-muted-foreground">
               The link will expire in 1 hour. Didn&apos;t receive it? Check your spam folder.
             </p>
-            <Button variant="outline" className="mt-6" asChild>
+            <Button variant="outline-light" className="mt-6" asChild>
               <Link href="/login">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to sign in

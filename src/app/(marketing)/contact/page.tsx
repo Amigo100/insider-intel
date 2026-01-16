@@ -58,7 +58,7 @@ export default function ContactPage() {
             Check out our FAQ section for answers to common questions about our product,
             billing, and data.
           </p>
-          <Button className="mt-6" variant="outline" asChild>
+          <Button className="mt-6" variant="outline-light" asChild>
             <a href="/#faq">View FAQ</a>
           </Button>
         </div>

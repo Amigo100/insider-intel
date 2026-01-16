@@ -3,8 +3,9 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import * as Sentry from '@sentry/nextjs'
-import { AlertTriangle, RefreshCw, Home, TrendingUp } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 interface ErrorProps {
   error: Error & { digest?: string }
@@ -22,12 +23,7 @@ export default function RootError({ error, reset }: ErrorProps) {
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">InsiderIntel</span>
-          </Link>
+          <Logo variant="dark" size="md" />
         </div>
       </header>
 
@@ -48,7 +44,7 @@ export default function RootError({ error, reset }: ErrorProps) {
             </p>
           )}
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button variant="outline" asChild>
+            <Button variant="outline-light" asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
                 Go Home

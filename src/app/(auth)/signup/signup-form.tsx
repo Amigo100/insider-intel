@@ -199,7 +199,7 @@ export function SignupForm() {
             </p>
             <div className="mt-6 space-y-2 text-center">
               <Button
-                variant="outline"
+                variant="outline-light"
                 onClick={() => router.push('/login')}
               >
                 Back to sign in
@@ -435,7 +435,7 @@ export function SignupForm() {
         {/* Google Sign Up */}
         <Button
           type="button"
-          variant="outline"
+          variant="outline-light"
           className="w-full"
           size="lg"
           onClick={handleGoogleSignup}

@@ -1,7 +1,7 @@
 'use client'
 
 import { type LucideIcon } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { CardElevated, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 interface StatCardProps {
@@ -17,16 +17,17 @@ interface StatCardProps {
 }
 
 /**
- * Stat card for dashboard summary numbers
+ * StatCard - Dashboard summary numbers with optional change indicator
  *
- * Displays a metric with optional change indicator and icon
+ * Uses the standardized CardElevated component for consistent styling:
+ * 12px radius, subtle border, cyan glow on hover with lift effect.
  */
 export function StatCard({
   title,
   value,
   change,
   icon: Icon,
-  iconColor = 'text-muted-foreground',
+  iconColor = 'text-slate-300',
   className,
 }: StatCardProps) {
   const formatChange = (changeValue: number) => {
@@ -35,22 +36,11 @@ export function StatCard({
   }
 
   return (
-    <Card
-      className={cn(
-        'relative rounded-xl p-0',
-        'bg-gradient-to-br from-slate-800 to-slate-900',
-        'border border-white/[0.08]',
-        'transition-all duration-200',
-        'hover:-translate-y-0.5',
-        'hover:border-cyan-400/30',
-        'hover:shadow-[0_4px_20px_rgba(0,0,0,0.3),0_0_15px_rgba(34,211,238,0.1)]',
-        className
-      )}
-    >
+    <CardElevated className={cn('p-0', className)}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-slate-400">{title}</p>
+            <p className="text-sm font-medium text-slate-300">{title}</p>
             <p className="text-2xl font-bold tracking-tight text-white">
               {typeof value === 'number' ? value.toLocaleString() : value}
             </p>
@@ -79,12 +69,12 @@ export function StatCard({
                 iconColor
               )}
             >
-              <Icon className="h-5 w-5 text-slate-400" />
+              <Icon className="h-5 w-5 text-slate-300" />
             </div>
           )}
         </div>
       </CardContent>
-    </Card>
+    </CardElevated>
   )
 }
 
@@ -104,7 +94,7 @@ export function StatInline({
 }) {
   return (
     <div className={cn('flex items-baseline gap-2', className)}>
-      <span className="text-sm text-slate-400">{label}:</span>
+      <span className="text-sm text-slate-300">{label}:</span>
       <span className="font-semibold text-white">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </span>

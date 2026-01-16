@@ -44,7 +44,7 @@ export default function EmptyState({
       </div>
 
       <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-slate-400 max-w-md mb-8">{description}</p>
+      <p className="text-sm text-slate-300 max-w-md mb-8">{description}</p>
 
       {action && (
         action.href ? (
