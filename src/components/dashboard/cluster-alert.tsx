@@ -64,8 +64,8 @@ export function ClusterAlert({
             <div className="flex-1 min-w-0">
               {/* Header with icon */}
               <div className="flex items-center gap-2 mb-2">
-                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-emerald-500/10">
-                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-buy">
+                  <TrendingUp className="h-4 w-4 text-buy" />
                 </div>
                 <Badge variant="success" className="text-xs">
                   Cluster Buying
@@ -74,11 +74,11 @@ export function ClusterAlert({
 
               {/* Main message */}
               <p className="text-base font-semibold text-foreground">
-                <span className="text-emerald-600 dark:text-emerald-400">
+                <span className="text-buy">
                   {buyerCount} insiders
                 </span>{' '}
                 bought{' '}
-                <span className="text-emerald-600 dark:text-emerald-400">
+                <span className="text-buy">
                   {formatCurrency(totalValue)}
                 </span>{' '}
                 at{' '}
@@ -148,14 +148,14 @@ export function ClusterAlertCompact({
         )}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-emerald-500/10 shrink-0">
-            <TrendingUp className="h-4 w-4 text-emerald-600" />
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-buy shrink-0">
+            <TrendingUp className="h-4 w-4 text-buy" />
           </div>
           <div className="min-w-0">
             <p className="font-semibold truncate">
               <span className="font-bold">{ticker}</span>
               <span className="text-muted-foreground font-normal"> · </span>
-              <span className="text-emerald-600">{buyerCount} buyers</span>
+              <span className="text-buy">{buyerCount} buyers</span>
             </p>
             <p className="text-xs text-muted-foreground truncate">
               {formatCurrency(totalValue)} in {days} days
@@ -214,13 +214,13 @@ export function ClusterAlertFeatured({
               </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="text-2xl font-bold text-buy">
                 {buyerCount}
               </p>
               <p className="text-xs text-muted-foreground">Insiders</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="text-2xl font-bold text-buy">
                 {formatCurrency(totalValue)}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -245,7 +245,7 @@ export function ClusterAlertFeatured({
                     </span>
                   )}
                 </div>
-                <span className="font-mono text-emerald-600 shrink-0">
+                <span className="font-mono text-buy shrink-0">
                   {formatCurrency(insider.value)}
                 </span>
               </div>

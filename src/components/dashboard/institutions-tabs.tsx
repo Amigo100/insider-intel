@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Search, Building2, TrendingUp, TrendingDown, Loader2 } from 'lucide-react'
+import EmptyState from '@/components/dashboard/empty-state'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -225,7 +226,7 @@ function ByStockTab() {
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Institutions Buying</p>
-                  <p className="text-2xl font-bold text-emerald-600">
+                  <p className="text-2xl font-bold text-buy">
                     {activity.totalBuyers}
                   </p>
                 </CardContent>
@@ -233,7 +234,7 @@ function ByStockTab() {
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Institutions Selling</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-2xl font-bold text-sell">
                     {activity.totalSellers}
                   </p>
                 </CardContent>
@@ -303,9 +304,9 @@ function ByStockTab() {
                               <span
                                 className={
                                   holder.shares_change_percent > 0
-                                    ? 'text-emerald-600'
+                                    ? 'text-buy'
                                     : holder.shares_change_percent < 0
-                                      ? 'text-red-600'
+                                      ? 'text-sell'
                                       : 'text-muted-foreground'
                                 }
                               >
@@ -332,15 +333,11 @@ function ByStockTab() {
 
       {/* Initial state */}
       {!searchedTicker && !loading && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Building2 className="h-12 w-12 text-muted-foreground/50 mb-4" />
-            <p className="text-lg font-medium">Search for a stock</p>
-            <p className="text-sm text-muted-foreground">
-              Enter a ticker symbol to see institutional holders
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Building2}
+          title="Search for a stock"
+          description="Enter a ticker symbol above to see which hedge funds and institutions hold positions. Try AAPL, MSFT, or NVDA."
+        />
       )}
     </div>
   )
@@ -411,9 +408,11 @@ function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
               </Table>
             </div>
           ) : (
-            <p className="text-center py-8 text-muted-foreground">
-              No institutions found
-            </p>
+            <EmptyState
+              icon={Building2}
+              title="Search for an institution"
+              description="Enter an institution name to view their complete portfolio holdings and recent position changes."
+            />
           )}
         </CardContent>
       </Card>
@@ -510,7 +509,7 @@ export function TopMovementsSection({
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
+            <TrendingUp className="h-4 w-4 text-buy" />
             Most Bought by Institutions
           </CardTitle>
         </CardHeader>
@@ -535,7 +534,7 @@ export function TopMovementsSection({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-emerald-600">
+                    <p className="font-mono text-buy">
                       +{formatNumber(item.net_change)}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -555,7 +554,7 @@ export function TopMovementsSection({
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-red-500" />
+            <TrendingDown className="h-4 w-4 text-sell" />
             Most Sold by Institutions
           </CardTitle>
         </CardHeader>
@@ -580,7 +579,7 @@ export function TopMovementsSection({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-red-600">
+                    <p className="font-mono text-sell">
                       {formatNumber(item.net_change)}
                     </p>
                     <p className="text-xs text-muted-foreground">

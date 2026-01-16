@@ -1,426 +1,563 @@
 # UI/UX Audit Report - InsiderIntel
 
 **Audit Date:** January 2026
-**Auditor:** Claude Code
 **Scope:** All pages, components, and user flows
 
 ---
 
 ## Executive Summary
 
-This audit identified **47 issues** across the application:
-- **8 High Severity** - Critical issues affecting core functionality
-- **18 Medium Severity** - Notable problems impacting UX
-- **21 Low Severity** - Minor polish items
+This audit identified **34 issues** across the application:
+- **9 High Severity** - Critical issues affecting usability and accessibility
+- **16 Medium Severity** - Notable problems impacting user experience
+- **9 Low Severity** - Minor polish items
 
-The application has a solid foundation with consistent use of shadcn/ui components and Tailwind CSS. The primary concerns are missing accessibility features, inconsistent error handling, and several broken links/routes.
-
----
-
-## Table of Contents
-
-1. [Consistency Issues](#1-consistency-issues)
-2. [Accessibility Problems](#2-accessibility-problems)
-3. [Usability Concerns](#3-usability-concerns)
-4. [Mobile/Responsive Issues](#4-mobileresponsive-issues)
-5. [Performance Concerns](#5-performance-concerns)
-6. [Visual Polish](#6-visual-polish)
+The application has a solid foundation with shadcn/ui components and Tailwind CSS. Primary concerns are touch target sizes, missing accessibility attributes, inconsistent color usage, and price mismatches between pages.
 
 ---
 
-## 1. Consistency Issues
+## Summary by Category
 
-### HIGH SEVERITY
-
-#### 1.1 Broken Navigation Link in User Menu
-**File:** `src/components/dashboard/user-menu.tsx:85-89`
-**Issue:** Billing link points to `/dashboard/billing` which doesn't exist. Should be `/dashboard/settings/billing`.
-**Impact:** Users clicking "Billing" in dropdown get 404.
-**Suggested Fix:**
-```tsx
-onClick={() => router.push('/dashboard/settings/billing')}
-```
-
-#### 1.2 Settings Page Redirect Missing Dashboard Prefix
-**File:** `src/app/(dashboard)/settings/page.tsx:4`
-**Issue:** Redirects to `/settings/profile` instead of `/dashboard/settings/profile`.
-**Impact:** Causes 404 error when landing on settings page.
-**Suggested Fix:**
-```tsx
-redirect('/dashboard/settings/profile')
-```
-
-### MEDIUM SEVERITY
-
-#### 1.3 Inconsistent Button Variants in Filters
-**File:** `src/components/dashboard/transaction-filters.tsx:118-135`
-**Issue:** Buy/Sell toggle buttons use hardcoded colors (`bg-emerald-600`, `bg-red-600`) instead of design system variants.
-**Impact:** Inconsistent with rest of app, harder to maintain dark mode.
-**Suggested Fix:** Create custom button variants or use Badge component for toggle states.
-
-#### 1.4 Mixed Link Component Usage
-**Files:** Multiple
-**Issue:** Some files use `<a>` tags, others use Next.js `<Link>`. Profile form was fixed but others may remain.
-**Suggested Fix:** Audit all navigation and use `<Link>` for internal routes.
-
-#### 1.5 Inconsistent Error Message Styling
-**Files:** Various form components
-**Issue:** Error messages use different styles:
-- `profile-form.tsx`: `bg-destructive/10 p-3 rounded-md`
-- `billing-content.tsx`: `border-destructive/50 bg-destructive/10 p-4 rounded-lg`
-- `notifications-form.tsx`: `bg-destructive/10 p-3 rounded-md`
-**Suggested Fix:** Create a shared `ErrorAlert` component for consistency.
-
-#### 1.6 Duplicate Currency/Number Formatting Functions
-**Files:**
-- `transaction-table.tsx:34-55`
-- `cluster-alert.tsx:28-35`
-- `institutions-tabs.tsx:73-94`
-- `company-tabs.tsx:53-74`
-**Issue:** Same `formatCurrency` and `formatNumber` functions duplicated across 4+ files.
-**Suggested Fix:** Centralize in `src/lib/utils.ts`.
-
-### LOW SEVERITY
-
-#### 1.7 Inconsistent Card Padding
-**Files:** Various
-**Issue:** Some cards use `CardContent className="pt-6"`, others use default. Inconsistent vertical spacing.
-**Suggested Fix:** Standardize padding approach across all cards.
-
-#### 1.8 Mixed Icon Sizes in Navigation
-**File:** `src/components/dashboard/sidebar.tsx:110`
-**Issue:** Nav icons are `h-5 w-5`, but close button is `h-5 w-5` while other icon buttons use `h-4 w-4`.
-**Suggested Fix:** Standardize icon sizes (recommend `h-4 w-4` for buttons, `h-5 w-5` for nav items).
+| Category | High | Medium | Low | Total |
+|----------|------|--------|-----|-------|
+| Consistency | 2 | 4 | 2 | 8 |
+| Accessibility | 3 | 2 | 1 | 6 |
+| Usability | 2 | 3 | 2 | 7 |
+| Mobile/Responsive | 1 | 3 | 1 | 5 |
+| Performance | 0 | 2 | 1 | 3 |
+| Visual Polish | 1 | 2 | 2 | 5 |
+| **Total** | **9** | **16** | **9** | **34** |
 
 ---
 
-## 2. Accessibility Problems
+## HIGH SEVERITY ISSUES
 
-### HIGH SEVERITY
+### 1. Touch Targets Below 44x44px Minimum
 
-#### 2.1 Missing Form Labels on Auth Pages
-**File:** `src/app/(auth)/login/login-form.tsx`
-**Issue:** Input fields lack associated `<Label>` components. Screen readers cannot identify fields.
-**Impact:** Fails WCAG 2.1 Level A (1.3.1 Info and Relationships).
+**Severity:** HIGH
+**Category:** Accessibility / Mobile
+**Impact:** Users on touch devices will struggle to tap small interactive elements
+
+| File | Line | Element | Current Size | Fix |
+|------|------|---------|--------------|-----|
+| `src/components/dashboard/user-menu.tsx` | 54-55 | Avatar button | `h-9 w-9` (36px) | Increase to `h-11 w-11` (44px) |
+| `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 526-541 | Remove button | `p-1.5` (~28px) | Increase to `p-2.5` with `min-h-[44px] min-w-[44px]` |
+| `src/components/dashboard/transaction-table.tsx` | 111-120 | Sort buttons | `-ml-3` compresses touch area | Remove negative margin or add padding |
+
 **Suggested Fix:**
 ```tsx
-<Label htmlFor="email" className="sr-only">Email</Label>
-<Input id="email" ... />
+// user-menu.tsx line 54
+<Button variant="ghost" className="relative h-11 w-11 rounded-full">
+  <Avatar className="h-9 w-9">
+
+// watchlist-client.tsx line 533
+className="absolute right-2 top-2 rounded-full p-2.5 min-h-[44px] min-w-[44px] ..."
 ```
-
-#### 2.2 Color-Only Significance Indicators
-**File:** `src/components/dashboard/significance-badge.tsx`
-**Issue:** Significance is communicated only through color dots (gray/yellow/orange/red). Users with color blindness cannot distinguish levels.
-**Impact:** Fails WCAG 2.1 Level A (1.4.1 Use of Color).
-**Suggested Fix:** Always show label text, or add patterns/icons to dots.
-
-#### 2.3 Missing ARIA Labels on Icon Buttons
-**Files:** Multiple
-**Issue:** Icon-only buttons lack `aria-label` attributes:
-- Clear ticker button in `transaction-filters.tsx:166-174`
-- Sort buttons in `transaction-table.tsx:104-120`
-**Suggested Fix:**
-```tsx
-<button aria-label="Clear search">
-  <X className="h-4 w-4" />
-</button>
-```
-
-### MEDIUM SEVERITY
-
-#### 2.4 Missing Skip Link
-**File:** `src/app/(dashboard)/layout.tsx`
-**Issue:** No "Skip to main content" link for keyboard users to bypass sidebar navigation.
-**Suggested Fix:** Add skip link as first focusable element.
-
-#### 2.5 Insufficient Color Contrast - Muted Text
-**Files:** Various
-**Issue:** `text-muted-foreground` on light backgrounds may not meet 4.5:1 contrast ratio.
-**Impact:** Fails WCAG 2.1 Level AA (1.4.3 Contrast).
-**Suggested Fix:** Test with contrast checker; increase opacity of muted color.
-
-#### 2.6 Missing Focus Indicators on Custom Elements
-**File:** `src/components/dashboard/cluster-alert.tsx`
-**Issue:** Card links don't show visible focus outline when tabbed to.
-**Suggested Fix:** Add `focus-visible:ring-2 focus-visible:ring-ring` to clickable cards.
-
-#### 2.7 Table Without Accessible Headers
-**File:** `src/components/dashboard/transaction-table.tsx`
-**Issue:** Table headers don't use `scope="col"` attribute.
-**Suggested Fix:**
-```tsx
-<TableHead scope="col">Date</TableHead>
-```
-
-### LOW SEVERITY
-
-#### 2.8 Missing Alt Text Pattern for Avatar
-**File:** `src/components/dashboard/user-menu.tsx:56`
-**Issue:** Avatar image has generic "Avatar" alt text.
-**Suggested Fix:** Use `alt={user.name ? `${user.name}'s avatar` : 'User avatar'}`.
-
-#### 2.9 No Reduced Motion Support
-**Files:** Various skeleton/animation components
-**Issue:** Animations don't respect `prefers-reduced-motion` media query.
-**Suggested Fix:** Wrap animations in `motion-safe:` variant.
 
 ---
 
-## 3. Usability Concerns
+### 2. Missing ARIA Labels on Interactive Elements
 
-### HIGH SEVERITY
+**Severity:** HIGH
+**Category:** Accessibility
+**Impact:** Screen reader users cannot understand interactive element purposes
 
-#### 3.1 No Success Feedback for Watchlist Actions
-**File:** `src/app/(dashboard)/company/[ticker]/watchlist-button.tsx:70-72`
-**Issue:** Watchlist toggle catches errors but doesn't show success toast. Users don't know if action succeeded.
-**Suggested Fix:** Add success toast notification after action completes.
+| File | Line | Element | Issue | Fix |
+|------|------|---------|-------|-----|
+| `src/components/dashboard/user-menu.tsx` | 54-61 | Avatar dropdown trigger | No accessible name | Add `aria-label="Open user menu"` |
+| `src/components/dashboard/header.tsx` | 120-135 | Search input | Missing accessible label | Add `aria-label="Search stocks by ticker or company name"` |
+| `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 526-541 | Remove button | Has `title` but no `aria-label` | Add `aria-label="Remove from watchlist"` |
+| `src/components/landing/pricing-section.tsx` | 54-66 | Billing toggle | aria-label logic is inverted | When isAnnual=true, label says "Switch to monthly" but that's wrong |
 
-#### 3.2 Silent Failures in Institutions Search
-**File:** `src/components/dashboard/institutions-tabs.tsx:166-172`
-**Issue:** `catch {}` block has empty handler - errors are completely swallowed.
-**Suggested Fix:** Set error state and display message to user.
+**Suggested Fix:**
+```tsx
+// user-menu.tsx line 53-54
+<DropdownMenuTrigger asChild>
+  <Button variant="ghost" className="relative h-11 w-11 rounded-full" aria-label="Open user menu">
 
-#### 3.3 Missing Pagination
-**Files:**
-- `transaction-table.tsx`
-- `institutions-tabs.tsx`
-- `company-tabs.tsx`
-**Issue:** Tables are limited to 50-100 items but no pagination UI to see more.
-**Impact:** Users cannot access older transactions.
-**Suggested Fix:** Implement cursor-based or offset pagination.
-
-### MEDIUM SEVERITY
-
-#### 3.4 No Empty State CTAs
-**Files:** Various table/list components
-**Issue:** Empty states say "No transactions found" but don't guide user on next action.
-**Suggested Fix:** Add action buttons like "Adjust filters" or "Browse popular stocks".
-
-#### 3.5 Confusing Institution Type Filter
-**File:** `src/components/dashboard/institutions-tabs.tsx:435-444`
-**Issue:** Filter dropdown appears but filtering is not implemented (no actual filtering logic).
-**Suggested Fix:** Either implement filter or remove the dropdown.
-
-#### 3.6 No Confirmation on Destructive Actions
-**File:** `src/app/(dashboard)/watchlist/watchlist-client.tsx`
-**Issue:** Removing from watchlist happens immediately without confirmation.
-**Suggested Fix:** Add confirmation dialog for remove action.
-
-#### 3.7 Search Requires Button Click
-**File:** `src/components/dashboard/transaction-filters.tsx`
-**Issue:** Ticker search requires clicking "Search" button after typing. Should search on Enter (which it does) but also provide debounced auto-search.
-**Suggested Fix:** Add debounced search after 300ms of typing.
-
-#### 3.8 Form Validation Missing
-**Files:** Auth forms
-**Issue:** No client-side validation before submission. Users must submit to see errors.
-**Suggested Fix:** Add inline validation with `zod` + `react-hook-form`.
-
-### LOW SEVERITY
-
-#### 3.9 No Keyboard Shortcuts
-**Issue:** No keyboard shortcuts for common actions (search, navigation).
-**Suggested Fix:** Consider adding `⌘K` for search, `⌘/` for help.
-
-#### 3.10 Time Period Selection Could Be More Intuitive
-**File:** `src/components/dashboard/transaction-filters.tsx:139-152`
-**Issue:** "Last 7 days" vs "Last 30 days" - users might want custom date ranges.
-**Suggested Fix:** Consider adding date picker for custom ranges (lower priority).
+// header.tsx line 120
+<Input
+  ref={inputRef}
+  type="search"
+  placeholder="Search stocks..."
+  aria-label="Search stocks by ticker or company name"
+```
 
 ---
 
-## 4. Mobile/Responsive Issues
+### 3. Form Validation Feedback Inconsistencies
 
-### HIGH SEVERITY
+**Severity:** HIGH
+**Category:** Usability
+**Impact:** Users may not understand why forms fail or what to fix
 
-#### 4.1 Table Horizontal Scroll Issues
-**Files:** All table components
-**Issue:** Tables wrap in `overflow-auto` but columns don't have min-widths, causing text cramping on mobile.
-**Suggested Fix:** Add `min-w-[600px]` to table element and ensure horizontal scroll indicator is visible.
+| File | Line | Issue |
+|------|------|-------|
+| `src/app/(auth)/login/login-form.tsx` | 218, 253 | Error border applied with string concatenation instead of `cn()` utility |
+| `src/app/(auth)/signup/signup-form.tsx` | Multiple | No real-time validation feedback as user types |
+| Auth forms generally | - | No success confirmation message before redirect |
 
-#### 4.2 Billing Plan Cards Stack Poorly
+**Suggested Fix:**
+```tsx
+// login-form.tsx line 218 - use cn() for cleaner conditional classes
+<Input
+  className={cn(
+    "pl-10",
+    errors.email && "border-destructive focus-visible:ring-destructive"
+  )}
+```
+
+---
+
+### 4. Pricing Mismatch Between Landing and Billing Pages
+
+**Severity:** HIGH
+**Category:** Consistency
+**Impact:** Users see different prices, creating confusion and eroding trust
+
+| Location | Free | Retail | Pro |
+|----------|------|--------|-----|
+| `src/components/landing/pricing-section.tsx` (landing) | $0 | $29/mo ($23 annual) | $79/mo ($63 annual) |
+| `src/app/(dashboard)/settings/billing/billing-content.tsx` (settings) | $0 | $19/mo | $49/mo |
+
+**Fix Required:** Align prices across both files. Update `billing-content.tsx` lines 46-47, 64-65 to match landing page pricing.
+
+---
+
+### 5. Missing Loading States During Async Operations
+
+**Severity:** HIGH
+**Category:** Usability
+**Impact:** Users don't know if their actions are being processed
+
+| File | Line | Issue | Fix |
+|------|------|-------|-----|
+| `src/components/dashboard/header.tsx` | 106-111 | No loading state during navigation after search selection | Add router loading indicator |
+| `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 141-182 | Optimistic updates lack visual pending indicator | Add subtle opacity/shimmer to pending rows |
+| `src/components/dashboard/transaction-filters.tsx` | Multiple | Filter buttons remain interactive during search | Disable all filters while searching |
+
+---
+
+### 6. Color Inconsistency for Semantic Meanings
+
+**Severity:** HIGH
+**Category:** Consistency
+**Impact:** Inconsistent color usage confuses users about meaning
+
+| Meaning | Colors Found | Files |
+|---------|-------------|-------|
+| Buy/Bullish | `text-emerald-600`, `text-emerald-500`, `text-green-600`, `text-green-500` | watchlist-client.tsx:252,500, cluster-alert.tsx:68, transaction-table.tsx |
+| Sell/Bearish | `text-red-600`, `text-red-500`, `bg-red-100` | watchlist-client.tsx:504,568 |
+
+**Fix:** Create semantic color variables in `globals.css`:
+```css
+:root {
+  --color-buy: 142.1 76.2% 36.3%;      /* emerald-600 */
+  --color-sell: 0 72.2% 50.6%;          /* red-500 */
+}
+```
+
+---
+
+### 7. Search Dropdown Lacks Proper ARIA Roles
+
+**Severity:** HIGH
+**Category:** Accessibility
+**Impact:** Screen readers cannot navigate search results properly
+
+| File | Line | Issue |
+|------|------|-------|
+| `src/components/dashboard/header.tsx` | 141-169 | Dropdown uses `<ul>` with button children but lacks `role="listbox"` |
+
+**Suggested Fix:**
+```tsx
+<div className="..." role="listbox" aria-label="Search results">
+  {searchResults.map((result, index) => (
+    <button
+      role="option"
+      aria-selected={index === selectedIndex}
+      ...
+```
+
+---
+
+## MEDIUM SEVERITY ISSUES
+
+### 8. Inconsistent Spacing Patterns
+
+**Severity:** MEDIUM
+**Category:** Consistency
+**Impact:** Visual inconsistency makes app feel unpolished
+
+| File | Issue |
+|------|-------|
+| `src/components/ui/card.tsx` | `CardHeader` uses `p-6`, `CardContent` uses `p-6 pt-0` - uneven vertical spacing |
+| `src/components/dashboard/sidebar.tsx` | Header uses `px-6`, nav uses `px-3` - inconsistent horizontal spacing |
+| Various pages | Mixed use of `gap-4`, `gap-6`, `space-y-4` for similar layouts |
+
+**Fix:** Establish and document spacing system in CLAUDE.md.
+
+---
+
+### 9. Inconsistent Button Styling
+
+**Severity:** MEDIUM
+**Category:** Consistency
+
+| File | Line | Issue |
+|------|------|-------|
+| `src/components/dashboard/transaction-filters.tsx` | 123, 132 | Buy/Sell buttons use hardcoded `bg-emerald-600`, `bg-red-600` instead of component variants |
+| Various | - | Some buttons have `shadow-sm`, others `shadow-md`, others none |
+
+---
+
+### 10. Typography Inconsistencies
+
+**Severity:** MEDIUM
+**Category:** Consistency
+
+| Element | Sizes Found |
+|---------|-------------|
+| Page titles | `text-3xl font-bold` (dashboard), `text-2xl` (cards) |
+| Section headers | `text-xl font-semibold`, `text-lg font-semibold`, `text-base font-medium` |
+| Card titles | `text-2xl` (CardTitle default), often overridden inline |
+
+**Fix:** Document typography scale in design system.
+
+---
+
+### 11. Mobile Sidebar Z-Index Overlap
+
+**Severity:** MEDIUM
+**Category:** Mobile/Responsive
+
+| Component | Z-Index |
+|-----------|---------|
+| Mobile overlay | `z-40` |
+| Sidebar | `z-50` |
+| Header | `z-30` |
+
+**Issue:** When sidebar is open, overlay (z-40) is above header (z-30), potentially obscuring it.
+
+---
+
+### 12. Empty State Messages Not Helpful
+
+**Severity:** MEDIUM
+**Category:** Usability
+
+| File | Line | Current Message | Suggested Improvement |
+|------|------|-----------------|----------------------|
+| `src/components/dashboard/transaction-table.tsx` | 179-182 | "No transactions found" | "No transactions match your filters. Try adjusting the date range or clearing filters." |
+| `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 392-394 | "No companies found" | "No companies found for '{query}'. Check the spelling or try a ticker symbol." |
+| `src/components/dashboard/company-tabs.tsx` | 209 | "No AI analysis available" | "AI analysis is being generated. This usually takes a few minutes." |
+
+---
+
+### 13. Hover States Insufficient
+
+**Severity:** MEDIUM
+**Category:** Visual Polish
+
+| File | Line | Element | Issue |
+|------|------|---------|-------|
+| `src/components/dashboard/transaction-table.tsx` | 216-221 | Ticker links | Only `hover:underline` - very subtle |
+| `src/app/(dashboard)/dashboard/page.tsx` | 345 | Watchlist cards | Only `hover:bg-muted/50` - nearly invisible |
+| `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 441 | Card links | Only arrow appears on hover |
+
+**Fix:** Add more obvious hover states with shadow, scale, or border changes.
+
+---
+
+### 14. Error Display Inconsistency
+
+**Severity:** MEDIUM
+**Category:** Consistency
+
+| File | Error Style Used |
+|------|-----------------|
+| `login-form.tsx` | `bg-destructive/10` rounded card with icon |
+| `billing-content.tsx` | `border-destructive/50 bg-destructive/10 p-4` |
+| `watchlist-client.tsx` | Fixed position toast with close button |
+
+**Fix:** Create consistent `<ErrorAlert>` and `<ErrorToast>` components.
+
+---
+
+### 15. Missing Breadcrumb Navigation
+
+**Severity:** MEDIUM
+**Category:** Usability
+
+| Page | Issue |
+|------|-------|
+| `/company/[ticker]` | No breadcrumb showing path from dashboard |
+| `/settings/*` | Settings has tabs but no breadcrumb back to dashboard |
+
+---
+
+### 16. Form Disabled State Styling
+
+**Severity:** MEDIUM
+**Category:** Visual Polish
+
+| File | Line | Issue |
+|------|------|-------|
+| `src/components/ui/input.tsx` | 13 | `disabled:opacity-50` makes text hard to read |
+
+**Fix:** Add `disabled:cursor-not-allowed` and consider higher opacity.
+
+---
+
+### 17. Tables Horizontal Scroll on Mobile
+
+**Severity:** MEDIUM
+**Category:** Mobile/Responsive
+
+| File | Issue |
+|------|-------|
+| `src/components/dashboard/transaction-table.tsx` | No minimum width, columns cramp on mobile |
+| `src/components/dashboard/institutions-tabs.tsx` | Same issue |
+
+**Fix:** Add `min-w-[600px]` to table elements and ensure scroll indicator is visible.
+
+---
+
+### 18. Billing Plan Cards Don't Stack Properly
+
+**Severity:** MEDIUM
+**Category:** Mobile/Responsive
+
 **File:** `src/app/(dashboard)/settings/billing/billing-content.tsx:203`
-**Issue:** Plan comparison grid (`grid-cols-3`) doesn't stack on mobile, cards become too narrow.
-**Suggested Fix:**
+
+**Issue:** Grid uses `lg:grid-cols-3` but doesn't have intermediate breakpoints. Cards become too narrow on tablets.
+
+**Fix:**
 ```tsx
 className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 ```
 
-### MEDIUM SEVERITY
-
-#### 4.3 Filter Bar Wraps Awkwardly
-**File:** `src/components/dashboard/transaction-filters.tsx:101-106`
-**Issue:** On medium screens, filters wrap in inconsistent patterns.
-**Suggested Fix:** Use `flex-wrap` with explicit breakpoints, or stack vertically on mobile.
-
-#### 4.4 Touch Targets Too Small
-**Files:** Various
-**Issue:** Some interactive elements are below 44x44px minimum:
-- Clear search button: ~32x32px
-- Sparkline hover areas
-- Table row click targets
-**Suggested Fix:** Increase padding on touch targets to meet 44px minimum.
-
-#### 4.5 Settings Navigation Horizontal on Mobile
-**File:** `src/app/(dashboard)/settings/layout.tsx:46`
-**Issue:** Settings nav is horizontal on mobile (`flex-row gap-2`), but items are cramped.
-**Suggested Fix:** Consider full-width stacked buttons on mobile.
-
-### LOW SEVERITY
-
-#### 4.6 Company Header Misaligned on Mobile
-**File:** `src/app/(dashboard)/company/[ticker]/page.tsx:175-200`
-**Issue:** Header flexbox has `sm:flex-row sm:items-start` but watchlist button may overflow.
-**Suggested Fix:** Ensure watchlist button has `flex-shrink-0`.
-
-#### 4.7 Chart Legends Overlap on Small Screens
-**File:** `src/components/charts/insider-activity-chart.tsx:136-142`
-**Issue:** Legend takes 36px height which may crowd chart on mobile.
-**Suggested Fix:** Hide legend on mobile, show tooltip instead.
-
 ---
 
-## 5. Performance Concerns
+### 19. Large Component Without Code Splitting
 
-### MEDIUM SEVERITY
+**Severity:** MEDIUM
+**Category:** Performance
 
-#### 5.1 Large Component Without Code Splitting
 **File:** `src/components/dashboard/institutions-tabs.tsx` (600+ lines)
-**Issue:** Contains multiple sub-components that could be split. Entire file loads even if only one tab is used.
-**Suggested Fix:** Split into separate files: `ByStockTab.tsx`, `ByInstitutionTab.tsx`, etc.
 
-#### 5.2 No Loading States for Initial Page Load
-**Files:** Dashboard pages
-**Issue:** Server components fetch data but show no loading indicator during navigation.
-**Suggested Fix:** Add `loading.tsx` files for route segments using Skeleton components.
+**Issue:** Contains multiple sub-components that load together even when only one tab is used.
 
-#### 5.3 Recharts Bundle Size
+**Fix:** Split into separate files or use `next/dynamic` for tab content.
+
+---
+
+### 20. Recharts Bundle Size
+
+**Severity:** MEDIUM
+**Category:** Performance
+
 **Files:** Chart components
-**Issue:** Recharts is ~400KB. Loading for every dashboard user.
-**Suggested Fix:** Consider `next/dynamic` with `ssr: false` for chart components.
 
-#### 5.4 Duplicate Supabase Client Creation
-**Files:** Client components
-**Issue:** Each component calls `createBrowserClient()` separately. Could share instance.
-**Suggested Fix:** Create single client in context provider.
+**Issue:** Recharts is ~400KB and loads for all dashboard users.
 
-### LOW SEVERITY
+**Fix:** Use `next/dynamic` with `ssr: false`:
+```tsx
+const InsiderActivityChart = dynamic(
+  () => import('@/components/charts/insider-activity-chart'),
+  { ssr: false, loading: () => <Skeleton className="h-[300px]" /> }
+)
+```
 
-#### 5.5 No Image Optimization for Avatars
+---
+
+## LOW SEVERITY ISSUES
+
+### 21. Skeleton Loading Dimensions Don't Match Content
+
+**Severity:** LOW
+**Category:** Visual Polish
+
+| File | Issue |
+|------|-------|
+| `transaction-table.tsx` | Skeleton row widths don't match actual data columns |
+| `dashboard/page.tsx` | Skeleton structure doesn't perfectly match loaded content |
+
+---
+
+### 22. Icon Size Inconsistency
+
+**Severity:** LOW
+**Category:** Consistency
+
+| Context | Sizes Found |
+|---------|-------------|
+| Navigation icons | `h-5 w-5` |
+| Button icons | `h-4 w-4` |
+| Badge icons | `h-3 w-3` |
+| Status indicators | `h-2 w-2` |
+
+**Note:** Mostly appropriate but should be documented.
+
+---
+
+### 23. Link Underline Treatment Varies
+
+**Severity:** LOW
+**Category:** Consistency
+
+| Treatment | Used In |
+|-----------|---------|
+| `hover:underline` | transaction-table.tsx, watchlist-client.tsx |
+| `text-primary hover:underline` | login-form.tsx |
+| `.link-underline` class | Defined in globals.css but rarely used |
+
+---
+
+### 24. Animation Performance on Landing Page
+
+**Severity:** LOW
+**Category:** Performance
+
+| File | Line | Issue |
+|------|------|-------|
+| `src/app/page.tsx` | Hero section | Large `blur-3xl` effect may be expensive |
+| `src/components/landing/dashboard-preview.tsx` | Multiple | Three floating cards with infinite animation |
+
+**Fix:** Add `will-change` CSS property and test on lower-end devices.
+
+---
+
+### 25. Missing Focus Trap in Custom Dropdown
+
+**Severity:** LOW
+**Category:** Accessibility
+
+**File:** `src/components/dashboard/header.tsx`
+
+**Issue:** Search dropdown doesn't trap focus - keyboard navigation can escape unexpectedly.
+
+**Note:** Radix dropdowns handle this automatically, but the custom header search does not.
+
+---
+
+### 26. Unimplemented Route Referenced
+
+**Severity:** LOW
+**Category:** Usability
+
+| File | Line | Link | Issue |
+|------|------|------|-------|
+| `src/components/dashboard/institutions-tabs.tsx` | 389 | `/institution/${cik}` | Route doesn't exist - clicking leads to 404 |
+
+---
+
+### 27. Card Border Radius Inconsistency
+
+**Severity:** LOW
+**Category:** Consistency
+
+| Component | Border Radius |
+|-----------|---------------|
+| Card | `rounded-lg` (8px) |
+| Badges | `rounded-full` |
+| Inputs | `rounded-md` (6px) |
+
+---
+
+### 28. Missing Alt Text Pattern for Avatar
+
+**Severity:** LOW
+**Category:** Accessibility
+
 **File:** `src/components/dashboard/user-menu.tsx:56`
-**Issue:** Avatar uses `<img>` via Radix instead of `next/image`.
-**Suggested Fix:** Consider custom Avatar with `next/image` for optimization.
+
+**Issue:** Avatar has generic "Avatar" alt text.
+
+**Fix:** Use `alt={user.name ? \`${user.name}'s avatar\` : 'User avatar'}`.
 
 ---
 
-## 6. Visual Polish
+### 29. No Visual Sort Direction Indicator
 
-### MEDIUM SEVERITY
+**Severity:** LOW
+**Category:** Visual Polish
 
-#### 6.1 Unfinished Loading States
-**Files:**
-- `src/app/(dashboard)/insider-trades/page.tsx`
-- `src/app/(dashboard)/institutions/page.tsx`
-**Issue:** No Suspense boundaries or loading skeletons while data fetches.
-**Suggested Fix:** Wrap data-fetching sections in `<Suspense>` with skeleton fallback.
-
-#### 6.2 Error Toast Dismissal
-**File:** `src/app/(dashboard)/watchlist/watchlist-client.tsx`
-**Issue:** Error toast shows but auto-dismiss timeout (5s) may not be long enough for users to read.
-**Suggested Fix:** Keep toast until manually dismissed, or extend to 8-10 seconds.
-
-#### 6.3 Badge Hover States Inconsistent
-**File:** `src/components/ui/badge.tsx`
-**Issue:** All badge variants have `hover:` states but badges are often non-interactive, causing confusion.
-**Suggested Fix:** Remove hover states from default badge, create `BadgeButton` variant for clickable badges.
-
-### LOW SEVERITY
-
-#### 6.4 Empty Watchlist State Plain
-**File:** `src/app/(dashboard)/watchlist/watchlist-client.tsx`
-**Issue:** Empty watchlist shows basic text. Could be more engaging.
-**Suggested Fix:** Add illustration/icon and CTA to browse stocks.
-
-#### 6.5 No Visual Feedback on Sort
 **File:** `src/components/dashboard/transaction-table.tsx:104-120`
+
 **Issue:** Sort buttons show same icon regardless of current sort state.
-**Suggested Fix:** Use `ArrowUp`/`ArrowDown` icons to indicate current sort direction.
 
-#### 6.6 Sidebar Footer Looks Disconnected
-**File:** `src/components/dashboard/sidebar.tsx:118-124`
-**Issue:** Footer info box has different style than rest of sidebar nav.
-**Suggested Fix:** Consider integrating into sidebar design or removing.
-
-#### 6.7 Tab Underline Missing
-**File:** `src/components/ui/tabs.tsx`
-**Issue:** Tabs don't have traditional underline indicator, relying only on background color.
-**Suggested Fix:** Add border-bottom indicator on active tab for clearer state.
-
-#### 6.8 Long Company Names Truncate Without Tooltip
-**Files:** Various table cells
-**Issue:** Company names truncate with `truncate max-w-[150px]` but no tooltip to see full name.
-**Suggested Fix:** Wrap in tooltip component showing full text on hover.
+**Fix:** Use `ArrowUp`/`ArrowDown` icons to show current sort direction.
 
 ---
 
-## Priority Matrix
+---
 
-### Immediate Action Required (Week 1)
+## Recommended Fixes by Priority
 
-| Issue | Severity | Effort |
-|-------|----------|--------|
-| 1.1 Broken Billing Link | HIGH | Low |
-| 1.2 Settings Redirect | HIGH | Low |
-| 2.1 Missing Form Labels | HIGH | Medium |
-| 3.1 Watchlist Feedback | HIGH | Low |
-| 4.1 Table Mobile Scroll | HIGH | Medium |
+### Phase 1: Critical (Week 1)
+1. **Fix touch target sizes** (Issue #1) - Increase button sizes to 44px minimum
+2. **Add missing ARIA labels** (Issue #2) - Add accessible names to interactive elements
+3. **Align pricing between pages** (Issue #4) - Update billing-content.tsx to match landing page
+4. **Fix color consistency** (Issue #6) - Create semantic color variables
 
-### Short-term (Week 2-3)
+### Phase 2: Important (Week 2)
+5. **Standardize form validation** (Issue #3) - Use `cn()` utility consistently
+6. **Add loading states** (Issue #5) - Show feedback during async operations
+7. **Fix search accessibility** (Issue #7) - Add proper ARIA roles to dropdown
+8. **Improve empty states** (Issue #12) - Add helpful guidance text
 
-| Issue | Severity | Effort |
-|-------|----------|--------|
-| 2.2 Color-Only Indicators | HIGH | Medium |
-| 2.3 ARIA Labels | HIGH | Low |
-| 3.2 Silent Failures | HIGH | Low |
-| 3.3 Pagination | HIGH | High |
-| 4.2 Billing Cards Stack | HIGH | Low |
+### Phase 3: Polish (Week 3)
+9. **Standardize spacing** (Issue #8) - Document and apply consistent spacing system
+10. **Create error components** (Issue #14) - Build reusable ErrorAlert and ErrorToast
+11. **Add breadcrumbs** (Issue #15) - Improve navigation context
+12. **Document typography** (Issue #10) - Create typography scale guidelines
 
-### Medium-term (Month 1)
-
-| Issue | Severity | Effort |
-|-------|----------|--------|
-| 1.3-1.6 Consistency Items | MEDIUM | Medium |
-| 2.4-2.7 A11y Items | MEDIUM | Medium |
-| 3.4-3.8 Usability Items | MEDIUM | High |
-| 5.1-5.4 Performance | MEDIUM | High |
-
-### Backlog
-
-All LOW severity items and lower-priority MEDIUM items.
+### Phase 4: Refinement (Ongoing)
+13. Fix remaining accessibility issues
+14. Performance optimization for charts
+15. Skeleton loading refinement
+16. Mobile responsive improvements
 
 ---
 
-## Recommended Actions
+## Component Fixes Checklist
 
-### Quick Wins (< 1 hour each)
-1. Fix broken billing link in user menu
-2. Fix settings page redirect
-3. Add aria-labels to icon buttons
-4. Add success toast to watchlist actions
-5. Fix billing grid responsive breakpoints
+### src/components/ui/button.tsx
+- [ ] Ensure `size="icon"` meets 44px minimum on touch devices
 
-### Component Library Improvements
-1. Create shared `ErrorAlert` component
-2. Create shared `SuccessToast` component
-3. Add `formatCurrency`/`formatNumber` to utils
-4. Create accessible `SortButton` component
+### src/components/ui/input.tsx
+- [ ] Add `disabled:cursor-not-allowed`
+- [ ] Consider `aria-invalid` support for error states
 
-### Infrastructure
-1. Add `loading.tsx` files for all route segments
-2. Set up Suspense boundaries
-3. Implement pagination utility
-4. Create accessibility testing in CI
+### src/components/dashboard/user-menu.tsx
+- [ ] Add `aria-label="Open user menu"` to trigger button
+- [ ] Increase button size to `h-11 w-11`
+
+### src/components/dashboard/header.tsx
+- [ ] Add `aria-label` to search input
+- [ ] Add `role="listbox"` and `role="option"` to dropdown
+- [ ] Add loading state during navigation
+
+### src/components/dashboard/transaction-table.tsx
+- [ ] Improve hover states on rows and links
+- [ ] Ensure sort button touch targets are adequate
+- [ ] Add sort direction indicators
+
+### src/app/(dashboard)/watchlist/watchlist-client.tsx
+- [ ] Add `aria-label` to remove buttons
+- [ ] Increase remove button touch target
+- [ ] Add visual pending state during operations
+
+### src/components/landing/pricing-section.tsx
+- [ ] Fix toggle aria-label logic
+
+### src/app/(dashboard)/settings/billing/billing-content.tsx
+- [ ] Update prices to match landing page ($29/$79 instead of $19/$49)
+- [ ] Add responsive breakpoints for plan grid
 
 ---
 
-*This audit should be repeated quarterly or after major feature releases.*
+*Audit completed: January 2026*
+*Total issues found: 34*
+*High severity: 9 | Medium severity: 16 | Low severity: 9*

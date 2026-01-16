@@ -43,7 +43,7 @@ const plans = [
   {
     id: 'retail',
     name: 'Retail',
-    price: '$19',
+    price: '$29',
     period: 'per month',
     description: 'Perfect for active individual investors',
     icon: Sparkles,
@@ -61,7 +61,7 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '$49',
+    price: '$79',
     period: 'per month',
     description: 'For professionals who need comprehensive data',
     icon: Building2,

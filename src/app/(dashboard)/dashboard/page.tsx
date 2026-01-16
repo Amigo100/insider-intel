@@ -1,30 +1,27 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import {
   TrendingUp,
-  AlertCircle,
-  Star,
+  Users,
   ArrowRight,
-  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { StatsRow } from '@/components/dashboard/stats-card'
+import LiveIndicator from '@/components/dashboard/live-indicator'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { InsiderTransactionWithDetails } from '@/types/database'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
   description: 'Your personalized insider trading dashboard with recent activity, watchlist, and market insights.',
 }
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { StatCard } from '@/components/dashboard/stat-card'
-import { TransactionTable } from '@/components/dashboard/transaction-table'
-import { TransactionCardCompact } from '@/components/dashboard/transaction-card'
-import {
-  ClusterAlert,
-} from '@/components/dashboard/cluster-alert'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { InsiderTransactionWithDetails } from '@/types/database'
 
 interface ClusterData {
   companyId: string
@@ -32,12 +29,34 @@ interface ClusterData {
   companyName: string
   buyerCount: number
   totalValue: number
+  daysSpan: number
   insiders: {
     name: string
     title: string | null
     value: number
     transactionDate: string
   }[]
+}
+
+/**
+ * Get time-appropriate greeting
+ */
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+/**
+ * Format currency value for display
+ */
+function formatCurrency(value: number): string {
+  const absValue = Math.abs(value)
+  if (absValue >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`
+  if (absValue >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
+  if (absValue >= 1_000) return `$${(value / 1_000).toFixed(0)}K`
+  return `$${value.toFixed(0)}`
 }
 
 async function getDashboardData(userId: string) {
@@ -47,6 +66,9 @@ async function getDashboardData(userId: string) {
     // Get date range for queries
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -64,60 +86,52 @@ async function getDashboardData(userId: string) {
       .select('*', { count: 'exact', head: true })
       .gte('filed_at', today.toISOString())
 
-    // Fetch high significance transactions (score > 0.7)
-    const { data: notableTransactions } = await supabase
-      .from('v_recent_insider_transactions')
-      .select('*')
-      .gt('ai_significance_score', 0.7)
-      .gte('filed_at', thirtyDaysAgo.toISOString())
-      .order('ai_significance_score', { ascending: false })
-      .limit(5)
-
-    // Fetch user's watchlist with company details
+    // Fetch user's watchlist company IDs
     const { data: watchlistItems } = await supabase
       .from('watchlist_items')
-      .select(`
-        id,
-        company_id,
-        created_at,
-        companies (
-          id,
-          ticker,
-          name,
-          sector
-        )
-      `)
+      .select('company_id')
       .eq('user_id', userId)
-      .limit(6)
 
-    // Fetch watchlist alerts (recent activity on watched stocks)
     const watchlistCompanyIds = watchlistItems?.map((item) => item.company_id) || []
-    let watchlistAlerts: InsiderTransactionWithDetails[] = []
 
+    // Fetch watchlist activity count
+    let watchlistActivityCount = 0
     if (watchlistCompanyIds.length > 0) {
-      const { data } = await supabase
-        .from('v_recent_insider_transactions')
-        .select('*')
+      const { count } = await supabase
+        .from('insider_transactions')
+        .select('*', { count: 'exact', head: true })
         .in('company_id', watchlistCompanyIds)
         .gte('filed_at', thirtyDaysAgo.toISOString())
-        .order('filed_at', { ascending: false })
-        .limit(10)
 
-      watchlistAlerts = (data || []) as InsiderTransactionWithDetails[]
+      watchlistActivityCount = count || 0
     }
 
-    // Build cluster data from purchases
+    // Calculate net buy volume from recent purchases
     const { data: purchases } = await supabase
       .from('v_recent_insider_transactions')
       .select('*')
       .eq('transaction_type', 'P')
       .gte('filed_at', thirtyDaysAgo.toISOString())
-      .order('filed_at', { ascending: false })
 
+    const { data: sales } = await supabase
+      .from('v_recent_insider_transactions')
+      .select('*')
+      .eq('transaction_type', 'S')
+      .gte('filed_at', thirtyDaysAgo.toISOString())
+
+    const buyVolume = (purchases || []).reduce((sum, tx) => sum + (tx.total_value || 0), 0)
+    const sellVolume = (sales || []).reduce((sum, tx) => sum + (tx.total_value || 0), 0)
+    const netBuyVolume = buyVolume - sellVolume
+
+    // Build cluster data from purchases (7-day window for clusters)
     const clusterMap = new Map<string, ClusterData>()
 
     for (const txn of purchases || []) {
       if (!txn.company_id || !txn.ticker || !txn.company_name || !txn.insider_name || !txn.transaction_date) continue
+
+      const txnDate = new Date(txn.transaction_date)
+      if (txnDate < sevenDaysAgo) continue
+
       const existing = clusterMap.get(txn.company_id)
 
       if (existing) {
@@ -141,6 +155,7 @@ async function getDashboardData(userId: string) {
           companyName: txn.company_name,
           buyerCount: 1,
           totalValue: txn.total_value || 0,
+          daysSpan: 7,
           insiders: [
             {
               name: txn.insider_name,
@@ -161,20 +176,17 @@ async function getDashboardData(userId: string) {
     return {
       recentTransactions: (recentTransactions || []) as InsiderTransactionWithDetails[],
       todayCount: todayCount || 0,
-      notableTransactions: (notableTransactions || []) as InsiderTransactionWithDetails[],
-      watchlistItems: watchlistItems || [],
-      watchlistAlerts,
+      watchlistActivityCount,
+      netBuyVolume,
       clusters,
     }
   } catch (error) {
-    // Return empty data on error to prevent page crash
     console.error('Error fetching dashboard data:', error)
     return {
       recentTransactions: [] as InsiderTransactionWithDetails[],
       todayCount: 0,
-      notableTransactions: [] as InsiderTransactionWithDetails[],
-      watchlistItems: [],
-      watchlistAlerts: [] as InsiderTransactionWithDetails[],
+      watchlistActivityCount: 0,
+      netBuyVolume: 0,
       clusters: [],
     }
   }
@@ -189,7 +201,6 @@ async function getUserProfile(userId: string) {
     .eq('id', userId)
     .single()
 
-  // Return null if profile doesn't exist (trigger may not have run)
   if (error) {
     return null
   }
@@ -214,180 +225,188 @@ export default async function DashboardPage() {
   ])
 
   const userName = profile?.full_name || user.email?.split('@')[0] || 'there'
-  const today = format(new Date(), 'EEEE, MMMM d, yyyy')
-
-  const hasNotableActivity =
-    data.clusters.length > 0 || data.notableTransactions.length > 0
+  const greeting = getGreeting()
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {userName}
-        </h1>
-        <p className="text-muted-foreground">{today}</p>
+      {/* Header Section */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            {greeting}, {userName}
+          </h1>
+          <p className="text-slate-400">
+            Here&apos;s what&apos;s happening with insider trades today
+          </p>
+        </div>
+        <LiveIndicator />
       </div>
 
-      {/* Quick Stats Row */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          title="Trades Today"
-          value={data.todayCount}
-          icon={TrendingUp}
-          iconColor="text-blue-500"
-        />
-        <StatCard
-          title="Notable Signals"
-          value={data.notableTransactions.length}
-          icon={AlertCircle}
-          iconColor="text-orange-500"
-        />
-        <StatCard
-          title="Watchlist Alerts"
-          value={data.watchlistAlerts.length}
-          icon={Star}
-          iconColor="text-yellow-500"
-        />
-      </div>
+      {/* Stats Row */}
+      <StatsRow
+        stats={[
+          {
+            label: "Today's Trades",
+            value: data.todayCount.toString(),
+          },
+          {
+            label: 'Cluster Alerts',
+            value: data.clusters.length.toString(),
+          },
+          {
+            label: 'Watchlist Activity',
+            value: data.watchlistActivityCount.toString(),
+          },
+          {
+            label: 'Net Buy Volume',
+            value: formatCurrency(data.netBuyVolume),
+            changeType: data.netBuyVolume >= 0 ? 'positive' : 'negative',
+          },
+        ]}
+      />
 
-      {/* Notable Activity Section */}
-      {hasNotableActivity && (
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Notable Activity</h2>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/insider-trades?filter=notable">
-                View all
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {/* Cluster Alerts */}
-            {data.clusters.length > 0 && (
-              <div className="space-y-3">
-                {data.clusters.slice(0, 2).map((cluster) => (
-                  <ClusterAlert
-                    key={cluster.companyId}
-                    ticker={cluster.ticker}
-                    companyName={cluster.companyName}
-                    insiders={cluster.insiders}
-                    totalValue={cluster.totalValue}
-                    days={30}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* High Significance Transactions */}
-            {data.notableTransactions.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-medium">
-                    High Significance Transactions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {data.notableTransactions.slice(0, 3).map((txn) => (
-                    <TransactionCardCompact key={txn.id} transaction={txn} />
-                  ))}
+      {/* Cluster Alert Banner */}
+      {data.clusters.length > 0 && (
+        <div className="space-y-3">
+          {data.clusters.slice(0, 2).map((cluster) => (
+            <Link
+              key={cluster.companyId}
+              href={`/company/${cluster.ticker}`}
+              className="block"
+            >
+              <Card className="border-l-4 border-l-emerald-500 bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70 transition-colors">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                      <Users className="h-5 w-5 text-emerald-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-white">
+                        {cluster.buyerCount} insiders bought {formatCurrency(cluster.totalValue)} of{' '}
+                        <span className="text-emerald-400">{cluster.ticker}</span> in {cluster.daysSpan} days
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        Cluster buying detected
+                      </p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-slate-400" />
+                  </div>
                 </CardContent>
               </Card>
-            )}
-          </div>
-        </section>
+            </Link>
+          ))}
+        </div>
       )}
 
-      {/* Recent Insider Trades */}
+      {/* Recent Transactions Table */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Recent Insider Trades</h2>
+          <h2 className="text-xl font-semibold text-white">Recent Insider Transactions</h2>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/insider-trades">
-              View all
+              View all transactions
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
         </div>
 
         <Suspense fallback={<TransactionTableSkeleton />}>
-          <TransactionTable transactions={data.recentTransactions} />
+          {data.recentTransactions.length > 0 ? (
+            <Card className="bg-slate-800/50 border-slate-700/50">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-700/50">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Company
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Insider
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Type
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Value
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Time
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700/50">
+                      {data.recentTransactions.slice(0, 8).map((transaction) => {
+                        const isBuy = transaction.transaction_type === 'P'
+                        const isSell = transaction.transaction_type === 'S'
+
+                        return (
+                          <tr
+                            key={transaction.id}
+                            className="hover:bg-slate-700/30 transition-colors"
+                          >
+                            <td className="px-4 py-3">
+                              <Link
+                                href={`/company/${transaction.ticker}`}
+                                className="font-semibold text-white hover:underline"
+                              >
+                                {transaction.ticker}
+                              </Link>
+                              <p className="text-xs text-slate-400 truncate max-w-[150px]">
+                                {transaction.company_name}
+                              </p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="font-medium text-slate-200 truncate max-w-[150px]">
+                                {transaction.insider_name}
+                              </p>
+                              <p className="text-xs text-slate-400 truncate max-w-[150px]">
+                                {transaction.insider_title || 'Insider'}
+                              </p>
+                            </td>
+                            <td className="px-4 py-3">
+                              {isBuy ? (
+                                <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+                                  <ArrowUpRight className="mr-1 h-3 w-3" />
+                                  BUY
+                                </Badge>
+                              ) : isSell ? (
+                                <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 font-medium">
+                                  <ArrowDownRight className="mr-1 h-3 w-3" />
+                                  SELL
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary">
+                                  {transaction.transaction_type}
+                                </Badge>
+                              )}
+                            </td>
+                            <td className={`px-4 py-3 text-right font-mono font-semibold ${isBuy ? 'text-emerald-400' : isSell ? 'text-red-400' : 'text-slate-200'}`}>
+                              {formatCurrency(transaction.total_value || 0)}
+                            </td>
+                            <td className="px-4 py-3 text-right text-sm text-slate-400">
+                              {formatDistanceToNow(new Date(transaction.filed_at), { addSuffix: true })}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-slate-800/50 border-slate-700/50">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <TrendingUp className="h-12 w-12 text-slate-600 mb-4" />
+                <p className="text-lg font-medium text-white">No recent transactions</p>
+                <p className="text-sm text-slate-400">
+                  Check back later for new insider trading activity
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </Suspense>
-      </section>
-
-      {/* Watchlist Section */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Your Watchlist</h2>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/watchlist">
-              Manage
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-
-        {data.watchlistItems.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {data.watchlistItems.map((item: any) => {
-              const company = item.companies
-              const recentActivity = data.watchlistAlerts.filter(
-                (a) => a.company_id === item.company_id
-              )
-
-              return (
-                <Link
-                  key={item.id}
-                  href={`/company/${company.ticker}`}
-                >
-                  <Card className="transition-colors hover:bg-muted/50">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-bold">{company.ticker}</p>
-                          <p className="text-sm text-muted-foreground truncate max-w-[150px]">
-                            {company.name}
-                          </p>
-                        </div>
-                        {recentActivity.length > 0 && (
-                          <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
-                        )}
-                      </div>
-                      {recentActivity.length > 0 ? (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {recentActivity.length} transaction
-                          {recentActivity.length !== 1 ? 's' : ''} in last 30 days
-                        </p>
-                      ) : (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          No recent activity
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
-              )
-            })}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Star className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-lg font-medium">No stocks in your watchlist</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Add stocks to track insider trading activity
-              </p>
-              <Button asChild>
-                <Link href="/watchlist">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add stocks
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </section>
     </div>
   )
@@ -395,18 +414,26 @@ export default async function DashboardPage() {
 
 function TransactionTableSkeleton() {
   return (
-    <div className="rounded-md border">
-      <div className="p-4 space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-20 ml-auto" />
-          </div>
-        ))}
-      </div>
-    </div>
+    <Card className="bg-slate-800/50 border-slate-700/50">
+      <CardContent className="p-0">
+        <div className="divide-y divide-slate-700/50">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 px-4 py-3">
+              <div>
+                <Skeleton className="h-4 w-16 bg-slate-700/50" />
+                <Skeleton className="mt-1 h-3 w-24 bg-slate-700/50" />
+              </div>
+              <div className="flex-1">
+                <Skeleton className="h-4 w-28 bg-slate-700/50" />
+                <Skeleton className="mt-1 h-3 w-20 bg-slate-700/50" />
+              </div>
+              <Skeleton className="h-6 w-16 rounded-full bg-slate-700/50" />
+              <Skeleton className="h-4 w-20 bg-slate-700/50" />
+              <Skeleton className="h-4 w-16 bg-slate-700/50" />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }

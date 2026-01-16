@@ -71,7 +71,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         {/* Logo */}
         <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-emerald-400" />
+            <TrendingUp className="h-6 w-6 text-emerald-400" aria-hidden="true" />
             <span className="text-lg font-bold">InsiderIntel</span>
           </Link>
           <Button
@@ -79,8 +79,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             size="icon"
             className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent"
             onClick={onToggle}
+            aria-label="Close menu"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" aria-hidden="true" />
           </Button>
         </div>
 
@@ -101,13 +102,13 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   }
                 }}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    ? 'bg-slate-700/50 text-white border-l-2 border-emerald-500'
+                    : 'text-slate-400 hover:bg-slate-700/30 hover:text-slate-200'
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-5 w-5" aria-hidden="true" />
                 {item.title}
               </Link>
             )

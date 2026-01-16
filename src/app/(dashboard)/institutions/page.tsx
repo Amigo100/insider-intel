@@ -5,6 +5,7 @@ import {
   NewPositionsSection,
   TopMovementsSection,
 } from '@/components/dashboard/institutions-tabs'
+import LiveIndicator from '@/components/dashboard/live-indicator'
 
 export const metadata: Metadata = {
   title: 'Institutional Holdings',
@@ -152,12 +153,15 @@ export default async function InstitutionsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-white">
           Institutional Holdings
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-slate-400">
           Track 13F filings and institutional ownership changes
         </p>
+        <div className="mt-2">
+          <LiveIndicator text="13F filings updated quarterly from SEC EDGAR" />
+        </div>
       </div>
 
       {/* Tabs */}

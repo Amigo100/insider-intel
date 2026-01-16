@@ -104,18 +104,21 @@ export function TransactionTable({
   const SortButton = ({
     field,
     children,
+    label,
   }: {
     field: SortField
     children: React.ReactNode
+    label: string
   }) => (
     <Button
       variant="ghost"
       size="sm"
       className="-ml-3 h-8 data-[state=open]:bg-accent"
       onClick={() => handleSort(field)}
+      aria-label={`Sort by ${label}, currently ${sortField === field ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'unsorted'}`}
     >
       {children}
-      <ArrowUpDown className="ml-2 h-4 w-4" />
+      <ArrowUpDown className="ml-2 h-4 w-4" aria-hidden="true" />
     </Button>
   )
 
@@ -190,64 +193,78 @@ export function TransactionTable({
         <TableHeader>
           <TableRow>
             <TableHead>
-              <SortButton field="filed_at">Date</SortButton>
+              <SortButton field="filed_at" label="date">Date</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="ticker">Company</SortButton>
+              <SortButton field="ticker" label="company">Company</SortButton>
             </TableHead>
             <TableHead>Insider</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Shares</TableHead>
             <TableHead className="text-right">
-              <SortButton field="total_value">Value</SortButton>
+              <SortButton field="total_value" label="value">Value</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="ai_significance_score">Significance</SortButton>
+              <SortButton field="ai_significance_score" label="significance">Significance</SortButton>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedTransactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell className="whitespace-nowrap">
-                {format(new Date(transaction.filed_at), 'MMM d, yyyy')}
-              </TableCell>
-              <TableCell>
-                <Link
-                  href={`/company/${transaction.ticker}`}
-                  className="font-medium hover:underline"
+          {sortedTransactions.map((transaction) => {
+            const isBuy = transaction.transaction_type === 'P'
+            const isSell = transaction.transaction_type === 'S'
+
+            return (
+              <TableRow
+                key={transaction.id}
+                className="hover:bg-slate-800/50 transition-colors"
+              >
+                <TableCell className="whitespace-nowrap">
+                  {format(new Date(transaction.filed_at), 'MMM d, yyyy')}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={`/company/${transaction.ticker}`}
+                    className="font-semibold text-white hover:underline"
+                  >
+                    {transaction.ticker}
+                  </Link>
+                  <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                    {transaction.company_name}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  <p className="font-medium truncate max-w-[150px]">
+                    {transaction.insider_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                    {transaction.insider_title || 'Insider'}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  <TransactionTypeBadge type={transaction.transaction_type} />
+                </TableCell>
+                <TableCell className="text-right font-mono">
+                  {formatNumber(transaction.shares)}
+                </TableCell>
+                <TableCell
+                  className={cn(
+                    'text-right font-mono font-semibold',
+                    isBuy && 'text-buy',
+                    isSell && 'text-sell'
+                  )}
                 >
-                  {transaction.ticker}
-                </Link>
-                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                  {transaction.company_name}
-                </p>
-              </TableCell>
-              <TableCell>
-                <p className="font-medium truncate max-w-[150px]">
-                  {transaction.insider_name}
-                </p>
-                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                  {transaction.insider_title || 'Insider'}
-                </p>
-              </TableCell>
-              <TableCell>
-                <TransactionTypeBadge type={transaction.transaction_type} />
-              </TableCell>
-              <TableCell className="text-right font-mono">
-                {formatNumber(transaction.shares)}
-              </TableCell>
-              <TableCell className="text-right font-mono">
-                {formatCurrency(transaction.total_value)}
-              </TableCell>
-              <TableCell>
-                <SignificanceBadge
-                  score={transaction.ai_significance_score}
-                  showLabel
-                />
-              </TableCell>
-            </TableRow>
-          ))}
+                  {formatCurrency(transaction.total_value)}
+                </TableCell>
+                <TableCell>
+                  <SignificanceBadge
+                    score={transaction.ai_significance_score}
+                    showLabel
+                  />
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>
@@ -255,22 +272,36 @@ export function TransactionTable({
 }
 
 function TransactionTypeBadge({ type }: { type: string }) {
-  const isPurchase = type === 'P'
-  const isSale = type === 'S'
+  // Custom styled badges for BUY and SELL
+  if (type === 'P') {
+    return (
+      <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+        <ArrowUpRight className="mr-1 h-3 w-3" aria-hidden="true" />
+        BUY
+      </Badge>
+    )
+  }
 
-  const config = {
-    P: { label: 'BUY', variant: 'success' as const, Icon: ArrowUpRight },
-    S: { label: 'SELL', variant: 'destructive' as const, Icon: ArrowDownRight },
-    A: { label: 'Award', variant: 'secondary' as const, Icon: null },
-    D: { label: 'Disposition', variant: 'secondary' as const, Icon: null },
-    G: { label: 'Gift', variant: 'secondary' as const, Icon: null },
-    M: { label: 'Exercise', variant: 'secondary' as const, Icon: null },
-  }[type] || { label: type, variant: 'secondary' as const, Icon: null }
+  if (type === 'S') {
+    return (
+      <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 font-medium">
+        <ArrowDownRight className="mr-1 h-3 w-3" aria-hidden="true" />
+        SELL
+      </Badge>
+    )
+  }
+
+  // Secondary badges for other transaction types
+  const labelMap: Record<string, string> = {
+    A: 'Award',
+    D: 'Disposition',
+    G: 'Gift',
+    M: 'Exercise',
+  }
 
   return (
-    <Badge variant={config.variant}>
-      {config.Icon && <config.Icon className="mr-1 h-3 w-3" />}
-      {config.label}
+    <Badge variant="secondary">
+      {labelMap[type] || type}
     </Badge>
   )
 }

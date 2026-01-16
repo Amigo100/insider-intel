@@ -121,6 +121,10 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           ref={inputRef}
           type="search"
           placeholder="Search stocks..."
+          aria-label="Search stocks by ticker or company name"
+          aria-expanded={showResults && searchResults.length > 0}
+          aria-controls="search-results"
+          aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
           className="pl-9 pr-4"
           value={searchQuery}
           onChange={(e) => {
@@ -140,12 +144,20 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
 
         {/* Search Results Dropdown */}
         {showResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 rounded-md border bg-popover shadow-lg">
+          <div
+            id="search-results"
+            role="listbox"
+            aria-label="Search results"
+            className="absolute top-full left-0 right-0 mt-1 rounded-md border bg-popover shadow-lg"
+          >
             <ul className="py-1">
               {searchResults.map((result, index) => (
                 <li key={result.ticker}>
                   <button
+                    id={`search-result-${index}`}
                     type="button"
+                    role="option"
+                    aria-selected={index === selectedIndex}
                     className={cn(
                       'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-accent',
                       index === selectedIndex && 'bg-accent'
@@ -160,7 +172,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
                       {result.name}
                     </span>
                     {result.has_recent_activity && (
-                      <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+                      <span className="flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
                     )}
                   </button>
                 </li>

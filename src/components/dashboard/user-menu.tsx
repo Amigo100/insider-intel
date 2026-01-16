@@ -51,9 +51,9 @@ export function UserMenu({ user }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+        <Button variant="ghost" className="relative h-11 w-11 rounded-full" aria-label="Open user menu">
           <Avatar className="h-9 w-9">
-            {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="Avatar" />}
+            {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name ? `${user.name}'s avatar` : 'User avatar'} />}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {getInitials()}
             </AvatarFallback>
@@ -78,14 +78,14 @@ export function UserMenu({ user }: UserMenuProps) {
           className="cursor-pointer"
           onClick={() => router.push('/settings')}
         >
-          <User className="mr-2 h-4 w-4" />
+          <User className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => router.push('/settings/billing')}
         >
-          <CreditCard className="mr-2 h-4 w-4" />
+          <CreditCard className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Billing</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -93,7 +93,7 @@ export function UserMenu({ user }: UserMenuProps) {
           className="cursor-pointer text-destructive focus:text-destructive"
           onClick={handleSignOut}
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -22,9 +22,10 @@ InsiderIntel is a web application that tracks and analyzes SEC insider trading f
 1. **Insider Trade Tracking** - Real-time Form 4 filing data with filtering by ticker, transaction type, and date range
 2. **Institutional Holdings** - 13F filing data showing which institutions hold what stocks
 3. **AI-Powered Context** - Claude-generated explanations of why trades might be significant
-4. **Watchlist** - Personal watchlist to track specific companies
-5. **Email Notifications** - Daily digests, weekly summaries, and instant alerts
-6. **Subscription Tiers** - Free, Retail ($9.99/mo), and Pro ($29.99/mo) plans
+4. **Cluster Detection** - Identifies when multiple insiders buy/sell the same stock within a time window
+5. **Watchlist** - Personal watchlist to track specific companies with activity alerts
+6. **Email Notifications** - Daily digests, weekly summaries, and instant alerts for watched stocks
+7. **Subscription Tiers** - Free, Retail ($9.99/mo), and Pro ($29.99/mo) plans
 
 ---
 
@@ -37,14 +38,14 @@ InsiderIntel is a web application that tracks and analyzes SEC insider trading f
 | Next.js | 16.1.2 | React framework with App Router |
 | React | 19.2.3 | UI library |
 | TypeScript | 5.x | Type safety |
-| Tailwind CSS | 4.x | Styling |
+| Tailwind CSS | 4.x | Styling with HSL color variables |
 
 ### Backend & Data
 
 | Technology | Purpose |
 |------------|---------|
-| Supabase | PostgreSQL database + authentication |
-| Supabase SSR | Server-side auth with cookies |
+| Supabase | PostgreSQL database + authentication + RLS |
+| Supabase SSR | Server-side auth with cookies (`@supabase/ssr`) |
 
 ### External Services
 
@@ -58,23 +59,28 @@ InsiderIntel is a web application that tracks and analyzes SEC insider trading f
 
 ### Key Libraries
 
-| Library | Purpose |
-|---------|---------|
-| `@radix-ui/*` | Accessible UI primitives (dropdown, tabs, etc.) |
-| `lucide-react` | Icon library |
-| `recharts` | Data visualization charts |
-| `date-fns` | Date formatting |
-| `zod` | Schema validation |
-| `pino` | Structured logging |
-| `class-variance-authority` | Component variant styling |
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@anthropic-ai/sdk` | ^0.71.2 | Anthropic Claude API client |
+| `@radix-ui/*` | Various | Accessible UI primitives (dropdown, tabs, switch, etc.) |
+| `@sentry/nextjs` | ^8.47.0 | Error tracking and performance monitoring |
+| `lucide-react` | ^0.562.0 | Icon library |
+| `recharts` | ^3.6.0 | Data visualization charts |
+| `date-fns` | ^4.1.0 | Date formatting and manipulation |
+| `zod` | ^4.3.5 | Schema validation |
+| `pino` | ^9.14.0 | Structured logging |
+| `stripe` | ^17.5.0 | Stripe SDK for payments |
+| `resend` | ^4.1.2 | Email service client |
+| `class-variance-authority` | ^0.7.1 | Component variant styling |
+| `clsx` + `tailwind-merge` | - | Conditional class merging |
 
 ### Hosting Setup
 
 - **Platform**: Vercel
 - **Cron Jobs**: Vercel Cron (defined in `vercel.json`)
-  - `/api/cron/generate-context` - Every 6 hours (AI context generation)
-  - `/api/cron/send-daily-digest` - Daily at 1 PM UTC
-  - `/api/cron/send-weekly-summary` - Mondays at 2 PM UTC
+  - `/api/cron/generate-context` - Every 6 hours (`0 */6 * * *`) - AI context generation
+  - `/api/cron/send-daily-digest` - Daily at 1 PM UTC (`0 13 * * *`)
+  - `/api/cron/send-weekly-summary` - Mondays at 2 PM UTC (`0 14 * * 1`)
 
 ---
 
@@ -84,25 +90,64 @@ InsiderIntel is a web application that tracks and analyzes SEC insider trading f
 
 ```
 src/app/
-├── (auth)/                    # Auth route group (no layout nesting)
-│   ├── login/page.tsx         # /login - Email + Google OAuth
-│   ├── signup/page.tsx        # /signup - Registration
-│   ├── forgot-password/page.tsx # /forgot-password
-│   └── reset-password/page.tsx  # /reset-password
+├── (auth)/                    # Auth route group (shared layout)
+│   ├── layout.tsx             # Auth pages layout
+│   ├── login/
+│   │   ├── page.tsx           # /login
+│   │   └── login-form.tsx     # Client component
+│   ├── signup/
+│   │   ├── page.tsx           # /signup
+│   │   └── signup-form.tsx
+│   ├── forgot-password/
+│   │   ├── page.tsx           # /forgot-password
+│   │   └── forgot-password-form.tsx
+│   └── reset-password/
+│       ├── page.tsx           # /reset-password
+│       └── reset-password-form.tsx
 │
-├── (dashboard)/               # Dashboard route group (shared layout)
-│   ├── layout.tsx             # Dashboard shell wrapper
-│   ├── dashboard/page.tsx     # /dashboard - Main overview
-│   ├── insider-trades/page.tsx # /dashboard/insider-trades
-│   ├── institutions/page.tsx  # /dashboard/institutions
-│   ├── watchlist/page.tsx     # /dashboard/watchlist
-│   ├── company/[ticker]/page.tsx # /dashboard/company/AAPL
+├── (dashboard)/               # Dashboard route group (protected, shared layout)
+│   ├── layout.tsx             # Dashboard shell with sidebar
+│   ├── loading.tsx            # Dashboard loading skeleton
+│   ├── error.tsx              # Dashboard error boundary
+│   ├── dashboard/
+│   │   ├── page.tsx           # /dashboard - Main overview
+│   │   └── loading.tsx
+│   ├── insider-trades/
+│   │   ├── page.tsx           # /insider-trades - Transaction list
+│   │   └── loading.tsx
+│   ├── institutions/
+│   │   ├── page.tsx           # /institutions - Institutional holdings
+│   │   └── loading.tsx
+│   ├── watchlist/
+│   │   ├── page.tsx           # /watchlist - User's watched stocks
+│   │   ├── watchlist-client.tsx
+│   │   └── loading.tsx
+│   ├── company/[ticker]/
+│   │   ├── page.tsx           # /company/:ticker - Company details
+│   │   ├── watchlist-button.tsx
+│   │   ├── loading.tsx
+│   │   └── not-found.tsx
 │   └── settings/
-│       ├── page.tsx           # /dashboard/settings
 │       ├── layout.tsx         # Settings sub-navigation
-│       ├── profile/page.tsx   # /dashboard/settings/profile
-│       ├── billing/page.tsx   # /dashboard/settings/billing
-│       └── notifications/page.tsx # /dashboard/settings/notifications
+│       ├── page.tsx           # /settings (redirects to profile)
+│       ├── loading.tsx
+│       ├── profile/
+│       │   ├── page.tsx       # /settings/profile
+│       │   └── profile-form.tsx
+│       ├── billing/
+│       │   ├── page.tsx       # /settings/billing
+│       │   └── billing-content.tsx
+│       └── notifications/
+│           ├── page.tsx       # /settings/notifications
+│           └── notifications-form.tsx
+│
+├── (marketing)/               # Marketing route group (public)
+│   ├── layout.tsx             # Marketing layout (no sidebar)
+│   ├── about/page.tsx         # /about
+│   ├── contact/page.tsx       # /contact
+│   ├── terms/page.tsx         # /terms
+│   ├── privacy/page.tsx       # /privacy
+│   └── disclaimer/page.tsx    # /disclaimer
 │
 ├── auth/
 │   └── callback/route.ts      # OAuth callback handler
@@ -114,8 +159,8 @@ src/app/
 │   │   └── company/[ticker]/route.ts # GET /api/insider/company/:ticker
 │   │
 │   ├── institutional/
-│   │   ├── new-positions/route.ts # GET /api/institutional/new-positions
-│   │   ├── holders/[ticker]/route.ts # GET /api/institutional/holders/:ticker
+│   │   ├── new-positions/route.ts     # GET /api/institutional/new-positions
+│   │   ├── holders/[ticker]/route.ts  # GET /api/institutional/holders/:ticker
 │   │   ├── activity/[ticker]/route.ts # GET /api/institutional/activity/:ticker
 │   │   └── institution/[cik]/route.ts # GET /api/institutional/institution/:cik
 │   │
@@ -131,26 +176,28 @@ src/app/
 │   │   └── instant-alert/route.ts # POST - Trigger instant alert
 │   │
 │   └── cron/
-│       ├── generate-context/route.ts # AI context generation
-│       ├── send-daily-digest/route.ts # Daily email digest
+│       ├── generate-context/route.ts    # AI context generation
+│       ├── send-daily-digest/route.ts   # Daily email digest
 │       └── send-weekly-summary/route.ts # Weekly summary
 │
-├── page.tsx                   # / - Landing page (redirects to /dashboard)
+├── page.tsx                   # / - Landing page
+├── layout.tsx                 # Root layout
 ├── error.tsx                  # Global error boundary
 ├── not-found.tsx              # 404 page
-└── global-error.tsx           # Root error boundary (Sentry)
+├── global-error.tsx           # Root error boundary (Sentry)
+└── globals.css                # Global styles and CSS variables
 ```
 
-### Key Components
+### Components
 
 ```
 src/components/
 ├── ui/                        # Radix-based primitives (shadcn/ui style)
-│   ├── button.tsx             # Button with variants
-│   ├── card.tsx               # Card container
+│   ├── button.tsx             # Button with variants (default, outline, ghost, etc.)
+│   ├── card.tsx               # Card, CardHeader, CardTitle, CardContent
 │   ├── input.tsx              # Form input
 │   ├── select.tsx             # Dropdown select
-│   ├── table.tsx              # Data table
+│   ├── table.tsx              # Data table components
 │   ├── tabs.tsx               # Tab navigation
 │   ├── badge.tsx              # Status badges
 │   ├── skeleton.tsx           # Loading skeletons
@@ -162,22 +209,34 @@ src/components/
 │
 ├── dashboard/
 │   ├── sidebar.tsx            # Main navigation sidebar
-│   ├── header.tsx             # Page headers
+│   ├── header.tsx             # Page headers with breadcrumbs
 │   ├── dashboard-shell.tsx    # Layout wrapper with sidebar state
 │   ├── user-menu.tsx          # User dropdown (avatar + logout)
-│   ├── stat-card.tsx          # Statistics display cards
-│   ├── transaction-card.tsx   # Individual transaction display
+│   ├── stat-card.tsx          # Statistics display cards with icons
+│   ├── transaction-card.tsx   # Individual transaction display (+ Compact variant)
 │   ├── transaction-table.tsx  # Transaction list table
-│   ├── transaction-filters.tsx # Filter controls
-│   ├── significance-badge.tsx # AI significance indicator
-│   ├── cluster-alert.tsx      # Cluster trading alerts
-│   ├── company-tabs.tsx       # Company detail tabs
+│   ├── transaction-filters.tsx # Filter controls (type, date range)
+│   ├── significance-badge.tsx # AI significance indicator (high/medium/low)
+│   ├── cluster-alert.tsx      # Cluster trading alert cards
+│   ├── company-tabs.tsx       # Company detail tabs (Overview, Insiders, etc.)
 │   └── institutions-tabs.tsx  # Institutional data tabs
 │
-└── charts/
-    ├── trend-sparkline.tsx    # Inline trend charts
-    ├── insider-activity-chart.tsx # Activity over time
-    └── holdings-pie-chart.tsx # Holdings distribution
+├── landing/
+│   ├── dashboard-preview.tsx  # Hero section mock dashboard
+│   ├── feature-cards.tsx      # Feature highlight cards
+│   ├── pricing-section.tsx    # Pricing tier comparison
+│   ├── faq-section.tsx        # FAQ accordion
+│   ├── testimonials.tsx       # User testimonials
+│   ├── live-activity-feed.tsx # Animated activity feed
+│   └── trust-badges.tsx       # Trust indicators
+│
+├── charts/
+│   ├── trend-sparkline.tsx    # Inline trend charts
+│   ├── insider-activity-chart.tsx # Activity over time (recharts)
+│   └── holdings-pie-chart.tsx # Holdings distribution pie chart
+│
+└── auth/
+    └── password-strength.tsx  # Password strength indicator
 ```
 
 ### Library Modules
@@ -185,24 +244,24 @@ src/components/
 ```
 lib/
 ├── supabase/
-│   ├── client.ts              # Browser Supabase client
-│   ├── server.ts              # Server Supabase client
-│   └── middleware.ts          # Middleware helper
+│   ├── client.ts              # Browser Supabase client (createBrowserClient)
+│   ├── server.ts              # Server Supabase client (createServerClient)
+│   └── middleware.ts          # Middleware helper (updateSession)
 │
 ├── db/
-│   ├── insider-transactions.ts # Transaction CRUD operations
-│   └── institutional-holdings.ts # Holdings CRUD operations
+│   ├── insider-transactions.ts # Transaction queries (getRecentTransactions, etc.)
+│   └── institutional-holdings.ts # Holdings queries
 │
 ├── ai/
-│   └── claude-client.ts       # Anthropic API wrapper
+│   └── claude-client.ts       # Anthropic API wrapper for context generation
 │
 ├── edgar/
 │   ├── client.ts              # SEC EDGAR API client
 │   └── 13f-client.ts          # 13F filing parser
 │
 ├── email/
-│   ├── resend-client.ts       # Resend client
-│   ├── send-email.ts          # Email sending functions
+│   ├── resend-client.ts       # Resend client singleton
+│   ├── send-email.ts          # Email sending functions (sendDailyDigest, etc.)
 │   └── templates/
 │       ├── index.ts           # Template exports
 │       ├── daily-digest.ts    # Daily digest HTML/text
@@ -210,13 +269,30 @@ lib/
 │       └── weekly-summary.ts  # Weekly summary HTML/text
 │
 ├── openfigi/
-│   └── client.ts              # CUSIP lookup with caching
+│   └── client.ts              # CUSIP lookup with caching (7-day TTL)
 │
 ├── auth/
-│   └── cron.ts                # Cron job authentication
+│   └── cron.ts                # Cron job authentication (verifyCronSecret)
 │
-├── logger.ts                  # Pino structured logging
+├── logger.ts                  # Pino structured logging with module loggers
 └── sentry.ts                  # Sentry initialization
+```
+
+### Other Important Files
+
+```
+/
+├── middleware.ts              # Auth middleware (protects dashboard routes)
+├── instrumentation.ts         # Sentry instrumentation
+├── vercel.json                # Vercel config with cron schedules
+├── sentry.client.config.ts    # Sentry browser config
+├── sentry.server.config.ts    # Sentry server config
+├── sentry.edge.config.ts      # Sentry edge config
+├── types/
+│   ├── supabase.ts            # Generated Supabase types (Database interface)
+│   └── database.ts            # Custom type aliases
+├── TODO.md                    # Development task tracking
+└── SETUP.md                   # Setup instructions and SQL scripts
 ```
 
 ---
@@ -230,12 +306,15 @@ lib/
 |-------|-----|-------------|
 | `--background` | 0 0% 100% | White background |
 | `--foreground` | 222.2 84% 4.9% | Near-black text |
-| `--primary` | 222.2 47.4% 11.2% | Dark blue |
+| `--primary` | 222.2 47.4% 11.2% | Dark blue (buttons, links) |
+| `--primary-foreground` | 210 40% 98% | White text on primary |
 | `--secondary` | 210 40% 96.1% | Light gray |
 | `--muted` | 210 40% 96.1% | Muted backgrounds |
-| `--accent` | 210 40% 96.1% | Accent color |
-| `--destructive` | 0 84.2% 60.2% | Red for errors |
+| `--muted-foreground` | 215.4 16.3% 46.9% | Gray text |
+| `--accent` | 210 40% 96.1% | Accent backgrounds |
+| `--destructive` | 0 84.2% 60.2% | Red for errors/danger |
 | `--border` | 214.3 31.8% 91.4% | Light gray borders |
+| `--ring` | 222.2 84% 4.9% | Focus ring color |
 
 #### Dark Mode
 | Token | HSL | Description |
@@ -244,41 +323,84 @@ lib/
 | `--foreground` | 210 40% 98% | Near-white text |
 | `--primary` | 210 40% 98% | Light primary |
 | `--secondary` | 217.2 32.6% 17.5% | Dark gray |
+| `--muted` | 217.2 32.6% 17.5% | Muted dark |
+| `--border` | 217.2 32.6% 17.5% | Dark borders |
 
-#### Sidebar (Always Dark)
+#### Sidebar (Always Dark - slate-900 base)
 | Token | HSL |
 |-------|-----|
 | `--sidebar-background` | 222.2 84% 4.9% |
 | `--sidebar-foreground` | 210 40% 98% |
+| `--sidebar-muted` | 217.2 32.6% 17.5% |
 | `--sidebar-accent` | 217.2 32.6% 17.5% |
+
+#### Semantic Colors (Used in components)
+| Color | Tailwind | Usage |
+|-------|----------|-------|
+| Emerald | `emerald-500/600` | Buy transactions, positive changes, success states |
+| Red | `red-500/600` | Sell transactions, negative changes, errors |
+| Orange | `orange-500` | High significance indicator |
+| Yellow | `yellow-500` | Medium significance, watchlist stars |
+| Blue | `blue-500` | Informational, links |
 
 ### Typography
 
 - **Font Family**: Geist Sans (`--font-geist-sans`) with system-ui fallback
 - **Monospace**: Geist Mono (`--font-geist-mono`)
-- **Border Radius**: 0.5rem base (`--radius`)
+- **Border Radius**: 0.5rem base (`--radius`), with sm/md/lg/xl variants
 
 ### Component Library
 
 Uses **shadcn/ui patterns** built on Radix UI primitives:
 - Components are in `src/components/ui/`
-- Styled with Tailwind + `class-variance-authority` for variants
-- `cn()` utility for conditional class merging (clsx + tailwind-merge)
+- Styled with Tailwind + `class-variance-authority` (cva) for variants
+- `cn()` utility function for conditional class merging (clsx + tailwind-merge)
+- Example: `<Button variant="outline" size="sm">`
 
 ### Layout Patterns
 
-1. **Dashboard Layout**: Fixed sidebar (64px width) + main content area
-   - Sidebar collapses to overlay on mobile (<1024px)
-   - Main content has `lg:ml-64` offset
+1. **Dashboard Layout**: Fixed sidebar (w-64) + scrollable main content
+   - Sidebar: Always dark theme (slate-900), collapsible on mobile
+   - Main content: `lg:pl-64` offset, responsive padding
+   - Header: Sticky with user menu dropdown
 
-2. **Settings Layout**: Nested tabs with vertical navigation on left
+2. **Auth Layout**: Centered card on gradient background
+   - No sidebar, minimal chrome
+   - Card-based forms with consistent spacing
 
-3. **Cards**: Used extensively for data display
-   - `Card`, `CardHeader`, `CardTitle`, `CardContent` components
+3. **Marketing Layout**: Full-width sections with navigation
+   - Public pages (about, terms, privacy, etc.)
+   - Shared header/footer
 
-4. **Tables**: For transaction lists with sortable columns
+4. **Settings Layout**: Nested tabs with vertical navigation
+   - Profile, Billing, Notifications sections
+   - Left sidebar navigation within settings
 
-5. **Loading States**: Skeleton components for async data
+5. **Card-Based UI**: Used extensively for data display
+   - `Card`, `CardHeader`, `CardTitle`, `CardContent`, `CardDescription`
+   - Consistent padding (p-4 or p-6)
+   - Hover states with subtle lift effect
+
+6. **Tables**: For transaction lists with sortable columns
+   - Responsive: hide columns on mobile
+   - Row hover states
+   - Significance badges inline
+
+7. **Loading States**: Skeleton components for async data
+   - Matching dimensions to content
+   - Pulse animation
+
+### Animation Classes (defined in globals.css)
+
+| Class | Effect |
+|-------|--------|
+| `.animate-float` | Vertical floating animation (4s loop) |
+| `.animate-fade-in-up` | Fade in with upward motion |
+| `.animate-fade-in` | Simple fade in |
+| `.animate-scale-in` | Scale from 0.95 to 1 |
+| `.animate-pulse-glow` | Pulsing glow effect |
+| `.hover-lift` | Lift on hover with shadow |
+| `.scroll-animate` | Scroll-triggered animation |
 
 ---
 
@@ -286,12 +408,12 @@ Uses **shadcn/ui patterns** built on Radix UI primitives:
 
 ### Database Schema (Key Tables)
 
-```
+```sql
 companies
 ├── id (uuid, PK)
 ├── ticker (text, unique)
 ├── name (text)
-├── cik (text)
+├── cik (text)              -- SEC CIK number
 ├── sector (text)
 ├── industry (text)
 └── market_cap (bigint)
@@ -303,21 +425,22 @@ insiders
 
 insider_transactions
 ├── id (uuid, PK)
-├── company_id (uuid, FK)
-├── insider_id (uuid, FK)
-├── accession_number (text, unique)
-├── filed_at (timestamp)
+├── company_id (uuid, FK → companies)
+├── insider_id (uuid, FK → insiders)
+├── accession_number (text, unique)  -- SEC filing ID
+├── filed_at (timestamptz)
 ├── transaction_date (date)
-├── transaction_type (text) -- P, S, A, D, G, M
+├── transaction_type (text)  -- P (Purchase), S (Sale), A, D, G, M
 ├── shares (bigint)
 ├── price_per_share (numeric)
 ├── total_value (numeric)
 ├── insider_title (text)
 ├── is_director (boolean)
 ├── is_officer (boolean)
-├── ai_context (text)
-├── ai_significance_score (numeric)
-└── ai_generated_at (timestamp)
+├── is_ten_percent_owner (boolean)
+├── ai_context (text)               -- Claude-generated context
+├── ai_significance_score (numeric) -- 0.0 to 1.0
+└── ai_generated_at (timestamptz)
 
 institutions
 ├── id (uuid, PK)
@@ -325,9 +448,17 @@ institutions
 ├── name (text)
 └── institution_type (text)
 
+institutional_filings
+├── id (uuid, PK)
+├── institution_id (uuid, FK)
+├── accession_number (text, unique)
+├── report_date (date)
+├── filed_at (timestamptz)
+└── total_value (bigint)
+
 institutional_holdings
 ├── id (uuid, PK)
-├── filing_id (uuid)
+├── filing_id (uuid, FK → institutional_filings)
 ├── institution_id (uuid, FK)
 ├── company_id (uuid, FK)
 ├── report_date (date)
@@ -337,115 +468,154 @@ institutional_holdings
 ├── is_new_position (boolean)
 └── is_closed_position (boolean)
 
-profiles
-├── id (uuid, PK) -- matches auth.users.id
+profiles (RLS enabled)
+├── id (uuid, PK)              -- matches auth.users.id
 ├── email (text)
 ├── full_name (text)
-├── subscription_tier (text) -- free, retail, pro
+├── subscription_tier (text)   -- 'free', 'retail', 'pro'
 ├── stripe_customer_id (text)
-├── notification_daily_digest (boolean)
-├── notification_instant_alerts (boolean)
-└── notification_weekly_summary (boolean)
+├── notification_daily_digest (boolean, default true)
+├── notification_instant_alerts (boolean, default false)
+└── notification_weekly_summary (boolean, default true)
 
-watchlist
+watchlist_items (RLS enabled)
 ├── id (uuid, PK)
-├── user_id (uuid, FK)
-└── company_id (uuid, FK)
+├── user_id (uuid, FK → auth.users)
+├── company_id (uuid, FK → companies)
+└── created_at (timestamptz)
 ```
 
 ### Database Views
 
-- `v_recent_insider_transactions` - Joins transactions with company and insider names
+```sql
+-- v_recent_insider_transactions
+-- Joins transactions with company and insider names for efficient queries
+SELECT
+  it.*,
+  c.ticker,
+  c.name as company_name,
+  i.name as insider_name
+FROM insider_transactions it
+JOIN companies c ON it.company_id = c.id
+JOIN insiders i ON it.insider_id = i.id
+ORDER BY it.filed_at DESC;
 
-### Data Flow: DB → API → Frontend
+-- v_institutional_holdings (similar join pattern)
+```
+
+### Data Flow: SEC EDGAR → Database → API → Frontend
 
 ```
-1. SEC EDGAR → lib/edgar/client.ts → lib/db/insider-transactions.ts → Supabase
-                                                                        ↓
-2. Supabase → src/app/api/insider/recent/route.ts → JSON Response
-                                                        ↓
-3. JSON → src/app/(dashboard)/insider-trades/page.tsx → React Components
+1. Data Ingestion (Cron jobs or manual)
+   SEC EDGAR API → lib/edgar/client.ts → lib/db/*.ts → Supabase
+
+2. AI Enrichment (Cron: /api/cron/generate-context)
+   Supabase → lib/ai/claude-client.ts → Update ai_context column
+
+3. API Layer
+   Request → src/app/api/*/route.ts → lib/db/*.ts → Supabase → JSON Response
+
+4. Frontend Rendering
+   Page (Server Component) → API fetch → Data → React Components
 ```
 
 ### Authentication Flow
 
 ```
-1. User visits /login
-   ├── Email/Password → Supabase Auth → Session Cookie
-   └── Google OAuth → /auth/callback → Session Cookie
+1. User visits /login or /signup
+   ├── Email/Password → supabase.auth.signInWithPassword() → Session Cookie
+   └── Google OAuth → supabase.auth.signInWithOAuth() → /auth/callback → Session Cookie
 
 2. Middleware (middleware.ts) runs on every request:
-   ├── Checks session via supabase.auth.getUser()
-   ├── Public routes (/, /login, /signup) → Allow
+   ├── Creates Supabase client with request cookies
+   ├── Calls supabase.auth.getUser() to validate session
+   ├── Public routes (/, /about, /login, /signup, etc.) → Allow
    ├── Auth routes + logged in → Redirect to /dashboard
-   └── Dashboard routes + not logged in → Redirect to /login?redirectTo=...
+   └── Protected routes (/dashboard/*) + not logged in → Redirect to /login
 
-3. Dashboard layout checks auth again server-side
-   └── Fetches user profile for name/avatar
+3. Dashboard layout checks auth server-side:
+   └── Fetches user profile for personalization
 
-4. Logout: signOut() clears session cookies
+4. Logout: supabase.auth.signOut() → Clears session cookies → Redirect to /
 ```
 
 ### Key User Journeys
 
-1. **View Recent Trades**
+1. **View Recent Trades** (Dashboard)
    ```
-   /dashboard → API: /api/insider/recent → Display in TransactionTable
+   /dashboard → Server Component fetches from v_recent_insider_transactions
+   → Renders StatCards + TransactionTable + ClusterAlerts
    ```
 
 2. **Add to Watchlist**
    ```
-   Click star icon → POST /api/watchlist → Optimistic UI update
+   /company/:ticker → Click star → POST /api/watchlist → Optimistic UI update
+   → Supabase insert to watchlist_items
    ```
 
 3. **Upgrade Subscription**
    ```
-   /dashboard/settings/billing → POST /api/stripe/checkout → Stripe Checkout
-   → Webhook updates profiles.subscription_tier
+   /settings/billing → Click "Upgrade to Pro"
+   → POST /api/stripe/checkout → Redirect to Stripe Checkout
+   → Payment success → Stripe webhook → Update profiles.subscription_tier
+   → Redirect back with success message
    ```
 
 4. **Company Deep Dive**
    ```
-   Click ticker → /dashboard/company/AAPL → Parallel API calls:
-   ├── /api/insider/company/AAPL
-   └── /api/institutional/holders/AAPL
+   Click ticker → /company/:ticker → Server Component makes parallel fetches:
+   ├── GET /api/insider/company/:ticker (insider transactions)
+   └── GET /api/institutional/holders/:ticker (institutional holders)
+   → Renders CompanyTabs with Overview, Insiders, Institutions tabs
+   ```
+
+5. **Daily Email Digest**
+   ```
+   Vercel Cron (1 PM UTC) → /api/cron/send-daily-digest
+   → Query users with notification_daily_digest = true
+   → Query their watchlist activity
+   → Generate email via lib/email/templates/daily-digest.ts
+   → Send via Resend
    ```
 
 ---
 
 ## 6. Known Issues / TODO
 
-### Remaining Tasks (from TODO.md)
+### Remaining Tasks
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Subscription tier enforcement | HIGH | Not implemented |
+| Subscription tier enforcement (feature gating) | HIGH | Not implemented |
 | Rate limiting on API routes | MEDIUM | Not implemented |
 | Health check endpoint | MEDIUM | Not implemented |
-| API key authentication for external access | LOW | Not implemented |
+| Post-login redirect (`redirectTo` param) | LOW | Partially implemented |
 
 ### Incomplete Features
 
 1. **Subscription Tier Enforcement**
    - Currently all features accessible regardless of tier
-   - Need to restrict instant alerts to Retail+, advanced features to Pro
+   - Need to restrict: instant alerts to Retail+, advanced analytics to Pro
+   - Check `profiles.subscription_tier` in API routes and UI
 
-2. **Post-Login Redirect**
-   - `redirectTo` param is set in middleware
-   - Login form now reads it (recently fixed)
-   - OAuth callback now supports it (recently fixed)
+2. **Data Ingestion Pipeline**
+   - SEC EDGAR client exists but no automated data fetching cron
+   - Manual data seeding via `npm run seed`
+   - Consider adding scheduled ingestion
 
 ### Performance Concerns
 
-1. **No rate limiting** - API routes could be abused
-2. **Bulk transaction inserts** - Currently one-by-one (see `bulkInsertTransactions`)
-3. **No pagination** - Large result sets limited by `limit` param only
+1. **No rate limiting** - API routes vulnerable to abuse
+2. **No cursor-based pagination** - Large result sets limited by `limit` param only
+3. **View queries** - May need indexing for large datasets
+4. **Client bundle** - Monitor with `@next/bundle-analyzer`
 
 ### Known Technical Debt
 
-1. **Console logging** - Mostly migrated to Pino, some edge cases may remain
-2. **Error handling** - Some API routes return generic 500 errors
-3. **Type safety** - Some `as` type assertions in database code
+1. **Type assertions** - Some `as` type casts in database code where Supabase types are incomplete
+2. **Error handling** - Some API routes return generic 500 errors; could be more specific
+3. **Missing tests** - No unit or integration tests currently
+4. **Hardcoded CUSIP mappings** - Fallback in `lib/openfigi/client.ts` for ~60 common securities
 
 ---
 
@@ -453,84 +623,109 @@ watchlist
 
 ### Why Supabase?
 
-- **PostgreSQL** - Reliable, full-featured relational DB
-- **Built-in Auth** - Email, OAuth, magic links out of the box
-- **Row Level Security** - Database-level access control
-- **Real-time** - Future capability for live updates
-- **Trade-off**: Vendor lock-in, limited to PostgreSQL features
+- **PostgreSQL** - Reliable, full-featured relational DB with JSON support
+- **Built-in Auth** - Email, OAuth, magic links with secure session handling
+- **Row Level Security (RLS)** - Database-level access control for multi-tenant data
+- **Real-time** - Future capability for live updates (websocket subscriptions)
+- **Generated Types** - TypeScript types from database schema
+- **Trade-off**: Vendor lock-in, PostgreSQL-specific features
 
 ### Why Next.js App Router?
 
-- **Server Components** - Reduce client JS bundle
-- **Route Groups** - Clean separation of auth vs dashboard layouts
-- **Server Actions** - Future use for form submissions
-- **Trade-off**: Newer, some patterns still evolving
+- **Server Components** - Reduce client JS bundle, fetch data server-side
+- **Route Groups** - Clean separation: `(auth)`, `(dashboard)`, `(marketing)`
+- **Layouts** - Nested layouts for consistent UI shells
+- **Server Actions** - Future use for form mutations
+- **Trade-off**: Newer patterns, some hydration complexity
 
 ### Why Radix UI / shadcn Patterns?
 
-- **Accessibility** - ARIA compliant out of the box
-- **Unstyled** - Full control over appearance
-- **Copy-paste** - Own the code, no npm dependency for components
-- **Trade-off**: More initial setup than pre-built libraries
+- **Accessibility** - ARIA compliant, keyboard navigation out of the box
+- **Unstyled primitives** - Full control over appearance with Tailwind
+- **Copy-paste ownership** - Components in repo, not npm dependency
+- **Trade-off**: More initial setup, manual updates
 
 ### Why Pino for Logging?
 
-- **Performance** - Fastest Node.js logger
-- **Structured** - JSON output for log aggregation
-- **Module loggers** - Easy to filter by source
-- **Trade-off**: JSON logs harder to read in development (use pino-pretty)
+- **Performance** - Fastest Node.js logger (important for serverless)
+- **Structured JSON** - Easy integration with log aggregators (Datadog, etc.)
+- **Module loggers** - `logger.api`, `logger.db`, `logger.ai` for filtering
+- **Trade-off**: JSON logs less readable in dev (use `pino-pretty`)
 
 ### Why Claude for AI Context?
 
-- **Quality** - Strong reasoning for financial context
-- **API simplicity** - Straightforward completion API
-- **Trade-off**: Cost per API call, rate limits
+- **Quality** - Strong reasoning for financial context generation
+- **API simplicity** - Straightforward Messages API
+- **Consistency** - Same model family as this development context
+- **Trade-off**: Cost per API call, rate limits, latency
 
 ### Why Vercel Cron vs External Scheduler?
 
-- **Simplicity** - Defined in vercel.json
-- **No extra service** - Part of Vercel deployment
-- **Trade-off**: Limited to hourly granularity, no complex scheduling
+- **Simplicity** - Defined in `vercel.json`, deployed automatically
+- **No extra service** - No separate scheduler to manage
+- **Trade-off**: Limited to predefined schedules, max 1-hour granularity on free tier
+
+### Why Stripe for Payments?
+
+- **Industry standard** - Well-documented, reliable
+- **Hosted checkout** - PCI compliance handled by Stripe
+- **Customer portal** - Self-service subscription management
+- **Trade-off**: Transaction fees, Stripe-specific integration
 
 ### Data Architecture Decisions
 
-1. **Separate insider vs institutional data** - Different SEC filings, different update frequencies
-2. **AI context stored on transaction** - Avoid re-generating, searchable
+1. **Separate insider vs institutional data** - Different SEC filings (Form 4 vs 13F), different update frequencies
+2. **AI context stored on transaction** - Avoid re-generating, searchable, cached
 3. **Denormalized views** - `v_recent_insider_transactions` for query performance
-4. **Watchlist per user** - Simple join table, no complex permissions
+4. **Watchlist per user (RLS)** - Simple join table, user can only see their own
+5. **CUSIP lookup with caching** - 7-day TTL to minimize OpenFIGI API calls
 
 ### Security Decisions
 
-1. **Cron routes use Bearer token** - `CRON_SECRET` required in production
-2. **Stripe webhooks bypass auth** - Verified via webhook signature
-3. **RLS on profiles/watchlist** - Users can only access own data
-4. **No API keys for frontend** - All API routes are session-authenticated
+1. **Cron routes use Bearer token** - `CRON_SECRET` required in Authorization header
+2. **Stripe webhooks verified** - Signature verification via `constructEventAsync`
+3. **RLS on user data** - `profiles`, `watchlist_items` restricted to owner
+4. **No API keys for frontend** - All routes are session-authenticated
+5. **Service role key server-only** - Never exposed to client
 
 ---
 
 ## 8. Environment Variables Reference
 
 ```bash
-# Required
+# === Required ===
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...          # Server-only, never expose
+
+# AI
 ANTHROPIC_API_KEY=sk-ant-...
-STRIPE_SECRET_KEY=sk_live_...
+
+# Payments
+STRIPE_SECRET_KEY=sk_live_...             # or sk_test_... for testing
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_RETAIL_PRICE_ID=price_...
 STRIPE_PRO_PRICE_ID=price_...
-RESEND_API_KEY=re_...
-CRON_SECRET=<random-string>
 
-# Optional
-OPENFIGI_API_KEY=<api-key>
+# Email
+RESEND_API_KEY=re_...
 EMAIL_FROM=InsiderIntel <notifications@insiderintel.com>
-LOG_LEVEL=info
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@sentry.io/xxx
+
+# Security
+CRON_SECRET=<random-32-char-string>
+
+# === Optional ===
+OPENFIGI_API_KEY=<api-key>                # Higher rate limits for CUSIP lookup
+LOG_LEVEL=info                            # trace, debug, info, warn, error
+
+# Error Tracking
+NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
 SENTRY_ORG=your-org
 SENTRY_PROJECT=insider-intel
-NEXT_PUBLIC_APP_URL=https://insiderintel.com
+SENTRY_AUTH_TOKEN=sntrys_...              # For source maps upload
+
+# App
+NEXT_PUBLIC_APP_URL=https://insiderintel.com  # Used in emails, OAuth callbacks
 ```
 
 ---
@@ -540,31 +735,63 @@ NEXT_PUBLIC_APP_URL=https://insiderintel.com
 ### Adding a New API Route
 
 1. Create `src/app/api/[name]/route.ts`
-2. Import `logger` from `@/lib/logger`
-3. Use `try/catch` with `log.error()` for errors
-4. Return `NextResponse.json()` with appropriate status
-5. Add cache headers if data is cacheable
+2. Import logger: `import { logger } from '@/lib/logger'`
+3. Create module logger: `const log = logger.api` (or appropriate module)
+4. Wrap handler in try/catch with `log.error()` for errors
+5. Return `NextResponse.json()` with appropriate status codes
+6. Add cache headers if data is cacheable: `'Cache-Control': 's-maxage=300'`
 
 ### Adding a New Dashboard Page
 
 1. Create `src/app/(dashboard)/[name]/page.tsx`
 2. Page is automatically protected by middleware
 3. Use server component for initial data fetch
-4. Create client components for interactivity
+4. Add `loading.tsx` for loading skeleton
+5. Create client components in same folder for interactivity
+6. Update sidebar navigation in `src/components/dashboard/sidebar.tsx`
 
-### Modifying the Database
+### Modifying the Database Schema
 
-1. Update schema in Supabase dashboard
-2. Regenerate types: copy from Supabase → `types/supabase.ts`
-3. Update `types/database.ts` with new types
-4. Update relevant `lib/db/*.ts` functions
+1. Make changes in Supabase Dashboard (SQL Editor)
+2. Regenerate types: Database → API Docs → Copy TypeScript types
+3. Paste into `types/supabase.ts`
+4. Update helper types in `types/database.ts` if needed
+5. Update relevant `lib/db/*.ts` functions
+6. If adding views, document in `SETUP.md`
 
 ### Adding Email Templates
 
 1. Create template in `lib/email/templates/[name].ts`
-2. Export `html` and `text` versions
-3. Add send function to `lib/email/send-email.ts`
-4. Create trigger route if needed
+2. Export `html()` and `text()` functions with typed parameters
+3. Add to `lib/email/templates/index.ts` exports
+4. Create send function in `lib/email/send-email.ts`
+5. Create cron route if scheduled, or API route if triggered
+
+### Running Locally
+
+```bash
+npm install
+npm run dev          # Start Next.js dev server (http://localhost:3000)
+npm run build        # Production build
+npm run lint         # ESLint check
+npm run seed         # Seed database with sample data
+```
+
+### Testing Cron Jobs Locally
+
+```bash
+# Call cron endpoint with Authorization header
+curl -X GET http://localhost:3000/api/cron/generate-context \
+  -H "Authorization: Bearer your-cron-secret"
+```
+
+### Testing Stripe Webhooks Locally
+
+```bash
+# Install Stripe CLI, then:
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+# Use the webhook signing secret from the CLI output
+```
 
 ---
 

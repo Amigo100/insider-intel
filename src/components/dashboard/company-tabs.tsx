@@ -107,7 +107,7 @@ export function CompanyTabs({
             title="YTD Buys"
             value={formatCurrency(stats.ytdBuyValue)}
             icon={TrendingUp}
-            iconColor="text-emerald-500"
+            iconColor="text-buy"
             change={{
               value: stats.ytdBuys,
               label: 'transactions',
@@ -117,7 +117,7 @@ export function CompanyTabs({
             title="YTD Sells"
             value={formatCurrency(stats.ytdSellValue)}
             icon={TrendingDown}
-            iconColor="text-red-500"
+            iconColor="text-sell"
             change={{
               value: stats.ytdSells,
               label: 'transactions',
@@ -127,7 +127,7 @@ export function CompanyTabs({
             title="Net Change"
             value={formatCurrency(Math.abs(netChange))}
             icon={netChange >= 0 ? TrendingUp : TrendingDown}
-            iconColor={netChange >= 0 ? 'text-emerald-500' : 'text-red-500'}
+            iconColor={netChange >= 0 ? 'text-buy' : 'text-sell'}
           />
         </div>
 
@@ -251,19 +251,19 @@ export function CompanyTabs({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">New Positions</span>
-                <span className="font-medium text-emerald-600">
+                <span className="font-medium text-buy">
                   {holders.filter((h) => h.is_new_position).length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Increased</span>
-                <span className="font-medium text-emerald-600">
+                <span className="font-medium text-buy">
                   {holders.filter((h) => (h.shares_change || 0) > 0).length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Decreased</span>
-                <span className="font-medium text-red-600">
+                <span className="font-medium text-sell">
                   {holders.filter((h) => (h.shares_change || 0) < 0).length}
                 </span>
               </div>
@@ -320,9 +320,9 @@ export function CompanyTabs({
                             <span
                               className={
                                 holder.shares_change > 0
-                                  ? 'text-emerald-600'
+                                  ? 'text-buy'
                                   : holder.shares_change < 0
-                                    ? 'text-red-600'
+                                    ? 'text-sell'
                                     : 'text-muted-foreground'
                               }
                             >

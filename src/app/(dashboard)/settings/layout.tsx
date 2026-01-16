@@ -34,8 +34,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Settings</h1>
+        <p className="text-slate-400">
           Manage your account settings and preferences
         </p>
       </div>
@@ -55,8 +55,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-secondary text-secondary-foreground'
-                      : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                      ? 'bg-slate-800/50 text-white border border-slate-700/50'
+                      : 'text-slate-400 hover:bg-slate-800/30 hover:text-white'
                   )}
                 >
                   <Icon className="h-4 w-4" />

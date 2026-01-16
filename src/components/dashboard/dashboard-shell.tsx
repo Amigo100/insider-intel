@@ -19,7 +19,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-900">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
@@ -29,7 +29,11 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
         <Header user={user} onMenuToggle={toggleSidebar} />
 
         {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8">
+          <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-4 md:p-6">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )

@@ -18,6 +18,8 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import EmptyState from '@/components/dashboard/empty-state'
+import LiveIndicator from '@/components/dashboard/live-indicator'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -249,9 +251,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
       case 'bullish':
-        return <TrendingUp className="h-4 w-4 text-green-500" />
+        return <TrendingUp className="h-4 w-4 text-buy" />
       case 'bearish':
-        return <TrendingDown className="h-4 w-4 text-red-500" />
+        return <TrendingDown className="h-4 w-4 text-sell" />
       default:
         return <Minus className="h-4 w-4 text-muted-foreground" />
     }
@@ -277,13 +279,16 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Watchlist</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-white">Your Watchlist</h1>
+          <p className="text-slate-400">
             {meta.count} of {meta.limit} stocks
             {meta.tier === 'free' && (
               <span className="ml-2 text-xs">(Free tier)</span>
             )}
           </p>
+          <div className="mt-2">
+            <LiveIndicator text="Activity monitored in real-time" />
+          </div>
         </div>
 
         {/* Upgrade prompt at limit */}
@@ -312,9 +317,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
       )}
 
       {/* Add Stock Search */}
-      <Card>
+      <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
-          <CardTitle className="text-lg">Add Stock</CardTitle>
+          <CardTitle className="text-lg text-white">Add Stock</CardTitle>
         </CardHeader>
         <CardContent>
           <div ref={searchRef} className="relative">
@@ -410,19 +415,11 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
       {/* Empty State */}
       {watchlist.length === 0 ? (
-        <Card className="py-12">
-          <CardContent className="flex flex-col items-center text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-              <Star className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <h2 className="mt-6 text-xl font-semibold">Start tracking stocks</h2>
-            <p className="mt-2 max-w-md text-muted-foreground">
-              Add companies to your watchlist to monitor insider trading
-              activity and get personalized insights. Use the search above to
-              find stocks by ticker or name.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Star}
+          title="Start tracking stocks"
+          description="Add companies to your watchlist to monitor insider trading activity and get personalized insights. Use the search above to find stocks by ticker or company name."
+        />
       ) : (
         <>
           {/* Watchlist Cards Grid */}
@@ -434,7 +431,7 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                 <Card
                   key={item.id}
                   className={cn(
-                    'group relative transition-opacity',
+                    'group relative transition-opacity bg-slate-800/50 border-slate-700/50',
                     isRemoving && 'opacity-50'
                   )}
                 >
@@ -497,11 +494,11 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                               30-day activity:
                             </span>
                             <span>
-                              <span className="text-green-600">
+                              <span className="text-buy">
                                 {item.stats.recentBuys} buys
                               </span>
                               {' / '}
-                              <span className="text-red-600">
+                              <span className="text-sell">
                                 {item.stats.recentSells} sells
                               </span>
                             </span>
@@ -530,8 +527,8 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                       handleRemove(item.id)
                     }}
                     disabled={isRemoving}
-                    className="absolute right-2 top-2 rounded-full p-1.5 opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
-                    title="Remove from watchlist"
+                    className="absolute right-1 top-1 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
+                    aria-label="Remove from watchlist"
                   >
                     {isRemoving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -546,9 +543,9 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
 
           {/* Activity Feed */}
           {activity.length > 0 && (
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Clock className="h-5 w-5" />
                   Recent Watchlist Activity
                 </CardTitle>
@@ -564,8 +561,8 @@ export function WatchlistClient({ initialData }: WatchlistClientProps) {
                         className={cn(
                           'flex h-8 w-8 items-center justify-center rounded-full',
                           transaction.transaction_type === 'P'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-red-100 text-red-600'
+                            ? 'bg-buy text-buy'
+                            : 'bg-sell text-sell'
                         )}
                       >
                         {transaction.transaction_type === 'P' ? (

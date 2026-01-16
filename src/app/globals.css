@@ -30,6 +30,18 @@
   --sidebar-accent: 217.2 32.6% 17.5%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
+
+  /* Semantic transaction colors */
+  --color-buy: 142.1 76.2% 36.3%;
+  --color-buy-muted: 142.1 70% 45%;
+  --color-sell: 0 72.2% 50.6%;
+  --color-sell-muted: 0 65% 55%;
+
+  /* Dark theme background scale */
+  --bg-deepest: 222.2 84% 4.9%;
+  --bg-deep: 217.2 32.6% 17.5%;
+  --bg-surface: 215.3 25% 27%;
+  --bg-surface-hover: 215 20.2% 35%;
 }
 
 .dark {
@@ -53,6 +65,12 @@
   --input: 217.2 32.6% 17.5%;
   --ring: 212.7 26.8% 83.9%;
 }
+
+/* ===== SEMANTIC TRANSACTION UTILITIES ===== */
+.text-buy { color: hsl(var(--color-buy)); }
+.text-sell { color: hsl(var(--color-sell)); }
+.bg-buy { background-color: hsl(var(--color-buy) / 0.15); }
+.bg-sell { background-color: hsl(var(--color-sell) / 0.15); }
 
 @theme inline {
   --color-background: hsl(var(--background));

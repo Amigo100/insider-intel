@@ -24,8 +24,8 @@ export function SignificanceBadge({
 }: SignificanceBadgeProps) {
   if (score === null || score === undefined) {
     return (
-      <div className={cn('flex items-center gap-1.5', className)}>
-        <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+      <div className={cn('flex items-center gap-1.5', className)} role="status" aria-label="Significance: Not available">
+        <span className="h-2.5 w-2.5 rounded-full bg-gray-300" aria-hidden="true" />
         {showLabel && (
           <span className="text-xs text-muted-foreground">N/A</span>
         )}
@@ -54,12 +54,14 @@ export function SignificanceBadge({
     return 'text-red-600'
   }
 
+  const label = getLabel()
+
   return (
-    <div className={cn('flex items-center gap-1.5', className)}>
-      <span className={cn('h-2.5 w-2.5 rounded-full', getColorClass())} />
+    <div className={cn('flex items-center gap-1.5', className)} role="status" aria-label={`Significance: ${label}`}>
+      <span className={cn('h-2.5 w-2.5 rounded-full', getColorClass())} aria-hidden="true" />
       {showLabel && (
         <span className={cn('text-xs font-medium', getTextColorClass())}>
-          {getLabel()}
+          {label}
         </span>
       )}
     </div>
@@ -83,8 +85,10 @@ export function SignificanceIndicator({
           'flex items-center gap-2 rounded-md bg-gray-100 px-3 py-1.5',
           className
         )}
+        role="status"
+        aria-label="Significance: Not analyzed"
       >
-        <span className="h-3 w-3 rounded-full bg-gray-300" />
+        <span className="h-3 w-3 rounded-full bg-gray-300" aria-hidden="true" />
         <span className="text-sm text-muted-foreground">Not analyzed</span>
       </div>
     )
@@ -129,8 +133,10 @@ export function SignificanceIndicator({
         config.bgClass,
         className
       )}
+      role="status"
+      aria-label={`Significance: ${config.label}`}
     >
-      <span className={cn('h-3 w-3 rounded-full', config.dotClass)} />
+      <span className={cn('h-3 w-3 rounded-full', config.dotClass)} aria-hidden="true" />
       <span className={cn('text-sm font-medium', config.textClass)}>
         {config.label}
       </span>

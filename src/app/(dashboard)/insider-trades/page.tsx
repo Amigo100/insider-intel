@@ -3,9 +3,73 @@ import { Suspense } from 'react'
 import { logger } from '@/lib/logger'
 import { TransactionFilters, ResultsSummary } from '@/components/dashboard/transaction-filters'
 import { TransactionTable } from '@/components/dashboard/transaction-table'
+import { StatsRow } from '@/components/dashboard/stats-card'
+import LiveIndicator from '@/components/dashboard/live-indicator'
+import { InsiderTradesEmptyState } from './empty-state-client'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { InsiderTransactionWithDetails } from '@/types/database'
+
+/**
+ * Calculate summary statistics from transactions
+ */
+function calculateStats(transactions: InsiderTransactionWithDetails[]) {
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  let todayCount = 0
+  let weekCount = 0
+  let buyVolume = 0
+  let sellVolume = 0
+  const uniqueTickers = new Set<string>()
+
+  for (const tx of transactions) {
+    const filedDate = new Date(tx.filed_at)
+    const value = tx.total_value || 0
+
+    // Count today's trades
+    if (filedDate >= todayStart) {
+      todayCount++
+    }
+
+    // Count this week's trades
+    if (filedDate >= weekStart) {
+      weekCount++
+    }
+
+    // Calculate net buy volume (P = Purchase, S = Sale)
+    if (tx.transaction_type === 'P') {
+      buyVolume += value
+    } else if (tx.transaction_type === 'S') {
+      sellVolume += value
+    }
+
+    // Track unique companies
+    if (tx.ticker) {
+      uniqueTickers.add(tx.ticker)
+    }
+  }
+
+  const netVolume = buyVolume - sellVolume
+
+  // Format currency for display
+  const formatVolume = (value: number) => {
+    const absValue = Math.abs(value)
+    if (absValue >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`
+    if (absValue >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
+    if (absValue >= 1_000) return `$${(value / 1_000).toFixed(0)}K`
+    return `$${value.toFixed(0)}`
+  }
+
+  return {
+    todayCount: todayCount.toString(),
+    weekCount: weekCount.toString(),
+    netVolume: formatVolume(netVolume),
+    netVolumeType: netVolume >= 0 ? 'positive' : 'negative' as const,
+    activeCompanies: uniqueTickers.size.toString(),
+  }
+}
 
 export const metadata: Metadata = {
   title: 'Insider Trades',
@@ -90,15 +154,31 @@ export default async function InsiderTradesPage({ searchParams }: PageProps) {
     ticker: params.ticker,
   }
 
+  // Calculate stats from transactions
+  const stats = calculateStats(transactions)
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Insider Transactions</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Insider Transactions</h1>
+        <p className="text-slate-400">
           Track insider buying and selling activity across all SEC filings
         </p>
+        <div className="mt-2">
+          <LiveIndicator />
+        </div>
       </div>
+
+      {/* Stats Summary */}
+      <StatsRow
+        stats={[
+          { label: "Today's Trades", value: stats.todayCount },
+          { label: 'This Week', value: stats.weekCount },
+          { label: 'Net Buy Volume', value: stats.netVolume, changeType: stats.netVolumeType },
+          { label: 'Active Companies', value: stats.activeCompanies },
+        ]}
+      />
 
       {/* Filters */}
       <Suspense fallback={<FiltersSkeleton />}>
@@ -121,14 +201,7 @@ export default async function InsiderTradesPage({ searchParams }: PageProps) {
       )}
 
       {/* No Results */}
-      {transactions.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border py-12">
-          <p className="text-lg font-medium">No transactions found</p>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your filters or check back later
-          </p>
-        </div>
-      )}
+      {transactions.length === 0 && <InsiderTradesEmptyState />}
     </div>
   )
 }
@@ -165,45 +238,45 @@ function LoadMoreButton({
 
 function FiltersSkeleton() {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
-      <Skeleton className="h-10 w-36" />
-      <Skeleton className="h-10 w-32" />
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-10 w-20" />
+    <div className="flex flex-col gap-4 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 sm:flex-row sm:items-center">
+      <Skeleton className="h-10 w-36 bg-slate-700/50" />
+      <Skeleton className="h-10 w-32 bg-slate-700/50" />
+      <Skeleton className="h-10 w-48 bg-slate-700/50" />
+      <Skeleton className="h-10 w-20 bg-slate-700/50" />
     </div>
   )
 }
 
 function TableSkeleton() {
   return (
-    <div className="rounded-md border">
-      <div className="border-b p-4">
+    <div className="rounded-md border border-slate-700/50 bg-slate-800/50">
+      <div className="border-b border-slate-700/50 p-4">
         <div className="flex items-center gap-4">
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-12" />
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-16 bg-slate-700/50" />
+          <Skeleton className="h-4 w-24 bg-slate-700/50" />
+          <Skeleton className="h-4 w-20 bg-slate-700/50" />
+          <Skeleton className="h-4 w-12 bg-slate-700/50" />
+          <Skeleton className="h-4 w-16 bg-slate-700/50" />
+          <Skeleton className="h-4 w-20 bg-slate-700/50" />
+          <Skeleton className="h-4 w-24 bg-slate-700/50" />
         </div>
       </div>
       <div className="p-4 space-y-4">
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4">
-            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-20 bg-slate-700/50" />
             <div>
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="mt-1 h-3 w-24" />
+              <Skeleton className="h-4 w-16 bg-slate-700/50" />
+              <Skeleton className="mt-1 h-3 w-24 bg-slate-700/50" />
             </div>
             <div>
-              <Skeleton className="h-4 w-28" />
-              <Skeleton className="mt-1 h-3 w-20" />
+              <Skeleton className="h-4 w-28 bg-slate-700/50" />
+              <Skeleton className="mt-1 h-3 w-20 bg-slate-700/50" />
             </div>
-            <Skeleton className="h-5 w-12 rounded-full" />
-            <Skeleton className="h-4 w-16 ml-auto" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-5 w-12 rounded-full bg-slate-700/50" />
+            <Skeleton className="h-4 w-16 ml-auto bg-slate-700/50" />
+            <Skeleton className="h-4 w-20 bg-slate-700/50" />
+            <Skeleton className="h-4 w-16 bg-slate-700/50" />
           </div>
         ))}
       </div>
