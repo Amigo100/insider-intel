@@ -111,12 +111,12 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-700/50 bg-slate-900 px-4 sm:px-6">
       <MobileMenuButton onClick={onMenuToggle} />
 
       {/* Search */}
       <div ref={searchRef} className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
         <Input
           ref={inputRef}
           type="search"
@@ -125,7 +125,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           aria-expanded={showResults && searchResults.length > 0}
           aria-controls="search-results"
           aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
-          className="pl-9 pr-4"
+          className="pl-9 pr-4 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-400 focus:border-slate-600"
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value)
@@ -139,7 +139,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           onKeyDown={handleKeyDown}
         />
         {isSearching && (
-          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" aria-hidden="true" />
         )}
 
         {/* Search Results Dropdown */}
@@ -148,7 +148,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
             id="search-results"
             role="listbox"
             aria-label="Search results"
-            className="absolute top-full left-0 right-0 mt-1 rounded-md border bg-popover shadow-lg"
+            className="absolute top-full left-0 right-0 mt-1 rounded-md border border-slate-700/50 bg-slate-800 shadow-lg"
           >
             <ul className="py-1">
               {searchResults.map((result, index) => (
@@ -159,16 +159,16 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
                     role="option"
                     aria-selected={index === selectedIndex}
                     className={cn(
-                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-accent',
-                      index === selectedIndex && 'bg-accent'
+                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-700/50',
+                      index === selectedIndex && 'bg-slate-700/50'
                     )}
                     onClick={() => navigateToCompany(result.ticker)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
-                    <span className="font-semibold text-foreground">
+                    <span className="font-semibold text-white">
                       {result.ticker}
                     </span>
-                    <span className="flex-1 truncate text-muted-foreground">
+                    <span className="flex-1 truncate text-slate-400">
                       {result.name}
                     </span>
                     {result.has_recent_activity && (
@@ -183,8 +183,8 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
 
         {/* No results message */}
         {showResults && searchResults.length === 0 && searchQuery.length >= 1 && !isSearching && (
-          <div className="absolute top-full left-0 right-0 mt-1 rounded-md border bg-popover p-3 shadow-lg">
-            <p className="text-sm text-muted-foreground">No companies found</p>
+          <div className="absolute top-full left-0 right-0 mt-1 rounded-md border border-slate-700/50 bg-slate-800 p-3 shadow-lg">
+            <p className="text-sm text-slate-400">No companies found</p>
           </div>
         )}
       </div>

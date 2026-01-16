@@ -43,7 +43,7 @@ export function PricingSection() {
           </p>
 
           {/* Annual/Monthly Toggle */}
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-8 flex items-center justify-center gap-3">
             <span
               className={`text-sm font-medium transition-colors ${
                 !isAnnual ? 'text-foreground' : 'text-muted-foreground'
@@ -53,14 +53,16 @@ export function PricingSection() {
             </span>
             <button
               onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative h-7 w-14 rounded-full transition-colors ${
+              className={`relative h-7 w-12 rounded-full transition-colors flex-shrink-0 ${
                 isAnnual ? 'bg-primary' : 'bg-muted'
               }`}
               aria-label={isAnnual ? 'Switch to monthly billing' : 'Switch to annual billing'}
+              role="switch"
+              aria-checked={isAnnual}
             >
               <span
-                className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                  isAnnual ? 'translate-x-8' : 'translate-x-1'
+                className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                  isAnnual ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>
@@ -71,11 +73,9 @@ export function PricingSection() {
             >
               Annual
             </span>
-            {isAnnual && (
-              <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                Save 20%
-              </Badge>
-            )}
+            <Badge variant="secondary" className={`bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 transition-opacity ${isAnnual ? 'opacity-100' : 'opacity-0'}`}>
+              Save 20%
+            </Badge>
           </div>
         </div>
 
