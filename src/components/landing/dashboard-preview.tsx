@@ -17,7 +17,7 @@ import {
 
 /**
  * Realistic dashboard mockup for the landing page hero section.
- * Uses fake but believable data to show visitors what they'll get.
+ * Uses hardcoded dark theme colors to match the actual app appearance.
  */
 export function DashboardPreview() {
   return (
@@ -27,18 +27,18 @@ export function DashboardPreview() {
         perspective: '1000px',
       }}
     >
-      {/* Floating notification cards - decorative */}
+      {/* Floating notification cards - decorative (dark themed) */}
       <FloatingCard
         className="absolute -left-4 top-20 z-10 hidden lg:block"
         delay={0}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-emerald-100 flex items-center justify-center">
-            <ArrowUpRight className="h-3 w-3 text-emerald-600" />
+          <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
           </div>
           <div>
-            <p className="text-xs font-medium">CEO at NVDA</p>
-            <p className="text-[10px] text-muted-foreground">Bought $1.2M</p>
+            <p className="text-xs font-medium text-white">CEO at NVDA</p>
+            <p className="text-[10px] text-slate-400">Bought $1.2M</p>
           </div>
         </div>
       </FloatingCard>
@@ -48,12 +48,12 @@ export function DashboardPreview() {
         delay={1}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-emerald-100 flex items-center justify-center">
-            <Users className="h-3 w-3 text-emerald-600" />
+          <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <Users className="h-3 w-3 text-emerald-400" />
           </div>
           <div>
-            <p className="text-xs font-medium">Cluster Alert</p>
-            <p className="text-[10px] text-muted-foreground">3 insiders at AAPL</p>
+            <p className="text-xs font-medium text-white">Cluster Alert</p>
+            <p className="text-[10px] text-slate-400">3 insiders at AAPL</p>
           </div>
         </div>
       </FloatingCard>
@@ -63,32 +63,32 @@ export function DashboardPreview() {
         delay={2}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-red-100 flex items-center justify-center">
-            <ArrowDownRight className="h-3 w-3 text-red-600" />
+          <div className="h-6 w-6 rounded-full bg-red-500/20 flex items-center justify-center">
+            <ArrowDownRight className="h-3 w-3 text-red-400" />
           </div>
           <div>
-            <p className="text-xs font-medium">CFO at META</p>
-            <p className="text-[10px] text-muted-foreground">Sold $890K</p>
+            <p className="text-xs font-medium text-white">CFO at META</p>
+            <p className="text-[10px] text-slate-400">Sold $890K</p>
           </div>
         </div>
       </FloatingCard>
-      {/* Main container with 3D transform */}
+      {/* Main container with 3D transform - dark themed */}
       <div
-        className="rounded-xl border bg-card shadow-2xl overflow-hidden"
+        className="rounded-xl border border-slate-700/50 bg-slate-900 shadow-2xl overflow-hidden"
         style={{
           transform: 'rotateY(-5deg) rotateX(2deg)',
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Browser chrome */}
-        <div className="flex items-center gap-2 border-b bg-muted/50 px-4 py-3">
+        {/* Browser chrome - dark themed */}
+        <div className="flex items-center gap-2 border-b border-slate-700/50 bg-slate-800/50 px-4 py-3">
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
             <div className="h-3 w-3 rounded-full bg-green-500" />
           </div>
           <div className="flex-1 flex justify-center">
-            <div className="flex items-center gap-2 rounded-md bg-background/80 px-3 py-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 rounded-md bg-slate-700/50 px-3 py-1 text-xs text-slate-400">
               <Search className="h-3 w-3" />
               <span>app.insiderintel.com/dashboard</span>
             </div>
@@ -96,10 +96,10 @@ export function DashboardPreview() {
           <div className="w-16" /> {/* Spacer for symmetry */}
         </div>
 
-        {/* Dashboard content */}
+        {/* Dashboard content - dark themed */}
         <div className="flex min-h-[400px] sm:min-h-[450px]">
           {/* Sidebar - hidden on mobile */}
-          <aside className="hidden w-52 flex-shrink-0 border-r bg-slate-900 p-4 md:block">
+          <aside className="hidden w-52 flex-shrink-0 border-r border-slate-700/50 bg-slate-900 p-4 md:block">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-8">
               <TrendingUp className="h-5 w-5 text-cyan-400" />
@@ -119,14 +119,14 @@ export function DashboardPreview() {
             </nav>
           </aside>
 
-          {/* Main content */}
-          <main className="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 sm:p-6 overflow-hidden">
+          {/* Main content - dark themed */}
+          <main className="flex-1 bg-slate-800/30 p-4 sm:p-6 overflow-hidden">
             {/* Header */}
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
+              <h2 className="text-lg font-bold text-white sm:text-xl">
                 Good morning, Alex
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+              <p className="text-xs text-slate-400 sm:text-sm">
                 Here&apos;s what&apos;s happening with insider trades today
               </p>
             </div>
@@ -160,33 +160,33 @@ export function DashboardPreview() {
               />
             </div>
 
-            {/* Cluster Alert Banner */}
-            <div className="mb-6 rounded-lg border border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-100/50 p-3 sm:p-4 dark:from-emerald-950/50 dark:to-emerald-900/30 dark:border-emerald-800">
+            {/* Cluster Alert Banner - dark themed */}
+            <div className="mb-6 rounded-lg border border-emerald-800 bg-gradient-to-r from-emerald-950/50 to-emerald-900/30 p-3 sm:p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10">
-                  <Users className="h-4 w-4 text-emerald-600" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
+                  <Users className="h-4 w-4 text-emerald-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
-                    <span className="text-emerald-600">3 insiders</span> bought{' '}
-                    <span className="text-emerald-600">$2.4M</span> at{' '}
+                  <p className="text-xs sm:text-sm font-semibold text-white">
+                    <span className="text-emerald-400">3 insiders</span> bought{' '}
+                    <span className="text-emerald-400">$2.4M</span> at{' '}
                     <span className="font-bold">NVDA</span> in 7 days
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-xs text-slate-400 truncate">
                     NVIDIA Corporation - Cluster buying detected
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Transaction table */}
-            <div className="rounded-lg border bg-white dark:bg-slate-800/50 overflow-hidden">
-              <div className="border-b px-3 sm:px-4 py-2 sm:py-3">
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
+            {/* Transaction table - dark themed */}
+            <div className="rounded-lg border border-slate-700/50 bg-slate-800/50 overflow-hidden">
+              <div className="border-b border-slate-700/50 px-3 sm:px-4 py-2 sm:py-3">
+                <h3 className="text-xs sm:text-sm font-semibold text-white">
                   Recent Insider Transactions
                 </h3>
               </div>
-              <div className="divide-y">
+              <div>
                 <TransactionRow
                   ticker="AAPL"
                   company="Apple Inc."
@@ -289,19 +289,19 @@ function StatCard({
     <div
       className={`rounded-lg border p-3 sm:p-4 ${
         highlight
-          ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
-          : 'bg-white dark:bg-slate-800/50'
+          ? 'border-emerald-800 bg-emerald-950/30'
+          : 'border-slate-700/50 bg-slate-800/50'
       }`}
     >
-      <p className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+      <p className="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-wide">
         {label}
       </p>
-      <p className="mt-1 text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">
+      <p className="mt-1 text-lg sm:text-2xl font-bold text-white">
         {value}
       </p>
       <p
         className={`mt-1 text-[10px] sm:text-xs font-medium ${
-          trend === 'up' ? 'text-emerald-600' : 'text-red-600'
+          trend === 'up' ? 'text-emerald-400' : 'text-red-400'
         }`}
       >
         {trend === 'up' ? '↑' : '↓'} {change}
@@ -330,18 +330,18 @@ function TransactionRow({
   significance: 'high' | 'medium' | 'low'
 }) {
   return (
-    <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+    <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-700/50 last:border-b-0 hover:bg-slate-700/20 transition-colors">
       {/* Ticker & Company */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
+          <span className="font-bold text-white text-xs sm:text-sm">
             {ticker}
           </span>
           <span
             className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium ${
               type === 'buy'
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'bg-red-500/20 text-red-400'
             }`}
           >
             {type === 'buy' ? (
@@ -352,27 +352,27 @@ function TransactionRow({
             {type === 'buy' ? 'BUY' : 'SELL'}
           </span>
         </div>
-        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+        <p className="text-[10px] sm:text-xs text-slate-400 truncate">
           {company}
         </p>
       </div>
 
       {/* Insider - hidden on small screens */}
       <div className="hidden sm:block min-w-0 flex-1">
-        <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+        <p className="text-xs sm:text-sm font-medium text-slate-300 truncate">
           {insider}
         </p>
-        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-[10px] sm:text-xs text-slate-400">
           {title}
         </p>
       </div>
 
       {/* Value */}
       <div className="text-right">
-        <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
+        <p className="text-xs sm:text-sm font-semibold text-white">
           {value}
         </p>
-        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-[10px] sm:text-xs text-slate-400">
           {time}
         </p>
       </div>
@@ -385,7 +385,7 @@ function TransactionRow({
               ? 'bg-orange-500'
               : significance === 'medium'
                 ? 'bg-yellow-500'
-                : 'bg-slate-300'
+                : 'bg-slate-500'
           }`}
           title={`${significance} significance`}
         />
@@ -395,7 +395,7 @@ function TransactionRow({
 }
 
 /**
- * Floating card component with animation
+ * Floating card component with animation - dark themed
  */
 function FloatingCard({
   children,
@@ -408,7 +408,7 @@ function FloatingCard({
 }) {
   return (
     <div
-      className={`rounded-lg border bg-card p-3 shadow-lg animate-float ${className}`}
+      className={`rounded-lg border border-slate-700/50 bg-slate-800 p-3 shadow-lg animate-float ${className}`}
       style={{
         animationDelay: `${delay * 0.5}s`,
       }}

@@ -189,8 +189,8 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
         )}
       </div>
 
-      {/* Right side - User menu */}
-      <div className="flex items-center gap-4">
+      {/* Right side - User menu (pushed to far right) */}
+      <div className="ml-auto flex items-center gap-4">
         <UserMenu user={user} />
       </div>
     </header>

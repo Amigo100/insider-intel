@@ -122,14 +122,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-white/[0.06] p-4">
-          <div className="rounded-lg bg-slate-800/50 p-3">
-            <p className="text-xs text-slate-400">
-              Data updated hourly from SEC EDGAR filings
-            </p>
-          </div>
-        </div>
       </aside>
     </>
   )

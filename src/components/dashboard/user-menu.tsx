@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { User, CreditCard, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getDisplayName } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,15 +33,19 @@ export function UserMenu({ user }: UserMenuProps) {
     router.refresh()
   }
 
+  // Get display name using utility
+  const displayName = getDisplayName(user, '')
+
   // Get initials for avatar fallback
   const getInitials = () => {
-    if (user.name) {
-      return user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+    // Use display name if available, otherwise fall back to email initial
+    if (displayName) {
+      // Split on spaces to get first letters of each word
+      const parts = displayName.split(' ')
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase()
+      }
+      return displayName.slice(0, 2).toUpperCase()
     }
     if (user.email) {
       return user.email[0].toUpperCase()
@@ -63,8 +68,8 @@ export function UserMenu({ user }: UserMenuProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            {user.name && (
-              <p className="text-sm font-medium leading-none">{user.name}</p>
+            {displayName && (
+              <p className="text-sm font-medium leading-none">{displayName}</p>
             )}
             {user.email && (
               <p className="text-xs leading-none text-muted-foreground">

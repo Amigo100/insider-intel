@@ -16,6 +16,7 @@ import { StatCard, StatsRow } from '@/components/dashboard/stats-card'
 import LiveIndicator from '@/components/dashboard/live-indicator'
 import EmptyState from '@/components/dashboard/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getDisplayName } from '@/lib/utils'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
 export const metadata: Metadata = {
@@ -48,37 +49,6 @@ function getGreeting(): string {
   return 'Good evening'
 }
 
-/**
- * Format display name for greeting
- * Priority: first name from full_name > cleaned username > capitalized fallback
- */
-function formatDisplayName(fullName: string | null | undefined, email: string | null | undefined): string {
-  // If we have a full name, extract and return the first name
-  if (fullName && fullName.trim()) {
-    const firstName = fullName.trim().split(/\s+/)[0]
-    // Capitalize first letter, lowercase rest for consistency
-    return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
-  }
-
-  // Fall back to email username
-  if (email) {
-    const username = email.split('@')[0]
-
-    // Remove trailing numbers (e.g., "alexdeighton35" -> "alexdeighton")
-    const cleanedUsername = username.replace(/\d+$/, '')
-
-    // If we still have something after removing numbers, use it
-    if (cleanedUsername.length > 0) {
-      // Capitalize first letter
-      return cleanedUsername.charAt(0).toUpperCase() + cleanedUsername.slice(1)
-    }
-
-    // If username was all numbers or empty after cleaning, just capitalize what we have
-    return username.charAt(0).toUpperCase() + username.slice(1)
-  }
-
-  return 'there'
-}
 
 /**
  * Format currency value for display
@@ -256,7 +226,7 @@ export default async function DashboardPage() {
     getDashboardData(user.id),
   ])
 
-  const userName = formatDisplayName(profile?.full_name, user.email)
+  const userName = getDisplayName({ name: profile?.full_name, email: user.email })
   const greeting = getGreeting()
 
   return (

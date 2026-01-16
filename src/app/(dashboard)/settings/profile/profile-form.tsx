@@ -5,12 +5,29 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { clientLogger } from '@/lib/client-logger'
-import { Loader2, Check } from 'lucide-react'
+import { Loader2, Check, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+
+/**
+ * Check if a name needs to be set (empty or looks like email-derived)
+ */
+function needsDisplayName(name: string | null | undefined): boolean {
+  if (!name || !name.trim()) return true
+
+  const trimmed = name.trim()
+
+  // If it has spaces, it's likely a real name
+  if (trimmed.includes(' ')) return false
+
+  // If it looks like an email username pattern (all lowercase, possibly with separators)
+  if (/^[a-z0-9._-]+$/.test(trimmed)) return true
+
+  return false
+}
 
 interface ProfileFormProps {
   initialData: {
@@ -112,6 +129,23 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       </div>
       <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Display Name Encouragement Banner */}
+          {needsDisplayName(initialData.fullName) && (
+            <div className="rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-4 flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-500/20">
+                <User className="h-4 w-4 text-cyan-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Add your display name
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Set your name below so we can personalize your dashboard greeting and make the app feel more like home.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Display Name */}
           <div className="space-y-2">
             <Label htmlFor="fullName" className="text-slate-300 text-sm font-medium">
@@ -121,7 +155,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder="Enter your name (e.g., Alex Smith)"
               className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400/50 focus:ring-cyan-400/20"
             />
             <p className="text-xs text-slate-500">
@@ -182,10 +216,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               type="submit"
               disabled={isSaving || !hasChanges}
               className={cn(
-                'min-w-[140px]',
+                'min-w-[140px] transition-all duration-200',
                 hasChanges && !isSaving
-                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400 hover:shadow-[0_4px_20px_rgba(34,211,238,0.4)]'
+                  : 'bg-slate-700/50 text-slate-500 cursor-not-allowed opacity-60'
               )}
             >
               {isSaving ? (
@@ -203,8 +237,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               )}
             </Button>
             {!hasChanges && !saveSuccess && (
-              <span className="text-sm text-slate-500">
-                No changes to save
+              <span className="text-xs text-slate-500 italic">
+                Make changes above to enable saving
               </span>
             )}
           </div>
