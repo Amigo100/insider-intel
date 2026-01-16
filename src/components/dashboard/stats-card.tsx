@@ -21,12 +21,13 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl p-5',
+        'relative rounded-xl p-5',
         'bg-gradient-to-br from-slate-800 to-slate-900',
         'border border-white/[0.08]',
         'transition-all duration-200',
-        'hover:border-cyan-400/30 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3),0_0_20px_rgba(34,211,238,0.08)]',
         'hover:-translate-y-0.5',
+        'hover:border-cyan-400/30',
+        'hover:shadow-[0_4px_20px_rgba(0,0,0,0.3),0_0_15px_rgba(34,211,238,0.1)]',
         className
       )}
     >

@@ -112,10 +112,10 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           onClick={() => handleTypeChange('all')}
           disabled={isPending}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
             type === 'all'
-              ? 'bg-white/10 text-white border border-white/20'
-              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+              ? 'bg-white/10 text-white border-white/20'
+              : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-white'
           )}
         >
           All
@@ -125,10 +125,10 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           onClick={() => handleTypeChange('P')}
           disabled={isPending}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
             type === 'P'
-              ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/30'
-              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+              ? 'bg-emerald-400/20 text-emerald-400 border-emerald-400/30'
+              : 'bg-transparent text-slate-400 border-transparent hover:bg-emerald-400/10 hover:text-emerald-400'
           )}
         >
           Buys
@@ -138,10 +138,10 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
           onClick={() => handleTypeChange('S')}
           disabled={isPending}
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
             type === 'S'
-              ? 'bg-red-400/20 text-red-400 border border-red-400/30'
-              : 'bg-transparent text-slate-400 border border-transparent hover:bg-white/5 hover:text-white'
+              ? 'bg-red-400/20 text-red-400 border-red-400/30'
+              : 'bg-transparent text-slate-400 border-transparent hover:bg-red-400/10 hover:text-red-400'
           )}
         >
           Sells
@@ -154,7 +154,7 @@ export function TransactionFilters({ className }: TransactionFiltersProps) {
         onValueChange={(value) => handleDaysChange(value as TimePeriod)}
         disabled={isPending}
       >
-        <SelectTrigger className="w-[130px]">
+        <SelectTrigger className="min-w-[140px]">
           <SelectValue placeholder="Time period" />
         </SelectTrigger>
         <SelectContent>

@@ -38,7 +38,7 @@ export default function EmptyState({
       {/* Cyan glowing icon container */}
       <div className="relative mb-6">
         <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl" />
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-slate-800 border border-white/[0.08]">
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-cyan-400/10 border border-cyan-400/20">
           <Icon className="h-10 w-10 text-cyan-400" aria-hidden="true" />
         </div>
       </div>
