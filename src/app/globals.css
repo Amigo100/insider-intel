@@ -67,12 +67,22 @@
   /* Negative: Vibrant red for SELL signals */
   --signal-negative: 0 100% 66%;
   --signal-negative-muted: 0 80% 60%;
+  /* Warning: Amber-yellow for warnings */
+  --signal-warning: 45 100% 51%;    /* #FFB300 */
+  /* Neutral: Info blue */
+  --signal-neutral: 210 70% 56%;    /* #4A90D9 */
 
   /* ===== BLOOMBERG ACCENT (Actions Only) ===== */
+  --accent-primary: 36 100% 56%;      /* #FFA028 - Bloomberg amber */
+  --accent-primary-hover: 36 100% 65%; /* #FFB04D - Hover state */
+  --accent-primary-muted: 36 100% 56%; /* For subtle backgrounds with opacity */
+  --accent-secondary: 45 76% 54%;      /* #D4AF37 - Premium/gold */
+  --accent-info: 210 70% 56%;          /* #4A90D9 - Links, info */
+
+  /* Legacy mappings */
   --accent-amber: 36 100% 56%;
   --accent-amber-hover: 36 100% 65%;
   --accent-amber-muted: 36 100% 56%;
-  --accent-info: 210 70% 56%;
 
   /* ===== LEGACY MAPPINGS (for backwards compatibility) ===== */
   --color-buy: 145 100% 39%;
@@ -90,12 +100,15 @@
   /* ===== BORDER SCALE ===== */
   --border-default: 0 0% 20%;
   --border-subtle: 0 0% 16%;
+  --border-focus: 36 100% 56%;     /* #FFA028 - Focus rings (amber) */
+  --border-glass: 0 0% 100%;       /* rgba(255, 255, 255, 0.08) - Glassmorphism borders */
 
   /* ===== TEXT SCALE ===== */
   --text-primary: 0 0% 96%;
   --text-secondary: 0 0% 83%;
   --text-tertiary: 0 0% 63%;
   --text-muted: 0 0% 45%;
+  --text-disabled: 0 0% 32%;       /* #525252 - Disabled text */
 
   /* ===== GLASSMORPHISM ===== */
   --glass-bg: 0 0% 10%;
