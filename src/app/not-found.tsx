@@ -26,7 +26,7 @@ export default function NotFound() {
             might have been moved, deleted, or never existed in the first place.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button variant="outline-light" asChild>
+            <Button variant="outline" asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
                 Go Home
@@ -46,13 +46,13 @@ export default function NotFound() {
               trading data.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Button variant="outline-light" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/insider-trades">Insider Trades</Link>
               </Button>
-              <Button variant="outline-light" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/institutions">Institutions</Link>
               </Button>
-              <Button variant="outline-light" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/watchlist">Watchlist</Link>
               </Button>
             </div>

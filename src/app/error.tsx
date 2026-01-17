@@ -44,7 +44,7 @@ export default function RootError({ error, reset }: ErrorProps) {
             </p>
           )}
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button variant="outline-light" asChild>
+            <Button variant="outline" asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
                 Go Home
