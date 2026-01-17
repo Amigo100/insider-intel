@@ -15,7 +15,6 @@ import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { StatCard, StatsRow, StatCardSkeleton } from '@/components/dashboard/stats-card'
-import { DateRangeSelector, type DateRange, getDateFromRange } from '@/components/dashboard/date-range-selector'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
@@ -50,14 +49,14 @@ function formatCurrency(value: number): string {
   return `$${value.toFixed(0)}`
 }
 
-async function getDashboardData(userId: string, dateRange: DateRange = '7d') {
+async function getDashboardData(userId: string) {
   try {
     const supabase = await createClient()
 
-    // Get date range for queries
-    const rangeStart = getDateFromRange(dateRange)
+    // Get date range for queries (7 days)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const rangeStart = sevenDaysAgo
 
     // Fetch recent transactions for table
     const { data: recentTransactions } = await supabase
@@ -193,7 +192,7 @@ export default async function DashboardPage() {
     return null
   }
 
-  const data = await getDashboardData(user.id, '7d')
+  const data = await getDashboardData(user.id)
 
   return (
     <div className="space-y-6">
@@ -207,7 +206,6 @@ export default async function DashboardPage() {
         >
           Dashboard
         </h1>
-        <DateRangeSelector defaultValue="7d" />
       </div>
 
       {/* Metrics Row */}
