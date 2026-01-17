@@ -41,8 +41,19 @@ import { cn } from '@/lib/utils'
  * - Glassmorphic backdrop
  */
 
+type CommandItem = {
+  id: string
+  label: string
+  description?: string
+  href?: string
+  action?: string
+  icon: React.ComponentType<{ className?: string }>
+  category: 'navigation' | 'ticker' | 'action' | 'recent'
+  shortcut?: string
+}
+
 // Navigation items
-const navigationItems = [
+const navigationItems: CommandItem[] = [
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'navigation' },
   { id: 'insider-trades', label: 'Insider Trades', href: '/insider-trades', icon: UserCheck, category: 'navigation' },
   { id: 'institutions', label: 'Institutions', href: '/institutions', icon: Building2, category: 'navigation' },
@@ -54,13 +65,13 @@ const navigationItems = [
 ]
 
 // Action items
-const actionItems = [
+const actionItems: CommandItem[] = [
   { id: 'add-watchlist', label: 'Add to Watchlist', action: 'add-to-watchlist', icon: Plus, category: 'action', shortcut: '⌘⇧W' },
   { id: 'export-csv', label: 'Export to CSV', action: 'export-csv', icon: FileDown, category: 'action', shortcut: '⌘⇧E' },
 ]
 
 // Sample tickers for demo (in production, this would be fetched)
-const sampleTickers = [
+const sampleTickers: CommandItem[] = [
   { id: 'AAPL', label: 'AAPL', description: 'Apple Inc.', href: '/company/AAPL', icon: TrendingUp, category: 'ticker' },
   { id: 'MSFT', label: 'MSFT', description: 'Microsoft Corporation', href: '/company/MSFT', icon: TrendingUp, category: 'ticker' },
   { id: 'GOOGL', label: 'GOOGL', description: 'Alphabet Inc.', href: '/company/GOOGL', icon: TrendingUp, category: 'ticker' },
@@ -68,17 +79,6 @@ const sampleTickers = [
   { id: 'NVDA', label: 'NVDA', description: 'NVIDIA Corporation', href: '/company/NVDA', icon: TrendingUp, category: 'ticker' },
   { id: 'TSLA', label: 'TSLA', description: 'Tesla, Inc.', href: '/company/TSLA', icon: TrendingUp, category: 'ticker' },
 ]
-
-type CommandItem = {
-  id: string
-  label: string
-  description?: string
-  href?: string
-  action?: string
-  icon: React.ComponentType<{ className?: string }>
-  category: 'navigation' | 'ticker' | 'action' | 'recent'
-  shortcut?: string
-}
 
 interface CommandPaletteContextType {
   isOpen: boolean
