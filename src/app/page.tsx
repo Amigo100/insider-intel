@@ -108,7 +108,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost-light" size="sm" asChild className="hidden sm:flex">
+            <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
               <Link href="/login">Sign In</Link>
             </Button>
             <Link
