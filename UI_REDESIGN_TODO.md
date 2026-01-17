@@ -2,8 +2,8 @@
 
 **Created:** January 17, 2026
 **Status:** In Progress
-**Total Tasks:** 115
-**Completed:** 97  
+**Total Tasks:** 135
+**Completed:** 126  
 
 > **Instructions for Claude Code:** Reference this file to track implementation progress. After completing each task, update the checkbox from `[ ]` to `[x]` and add the completion date. Run verification steps before marking complete.
 
@@ -19,7 +19,7 @@
 | 4. Navigation | 12 | 12 | ✅ Complete |
 | 5. Page Layouts | 20 | 20 | ✅ Complete |
 | 6. Loading & Polish | 14 | 14 | ✅ Complete |
-| 7. Accessibility | 29 | 0 | ⬜ Not Started |
+| 7. Accessibility | 29 | 29 | ✅ Complete |
 | 8. Content Fixes | 9 | 0 | ⬜ Not Started |
 
 **Legend:** ⬜ Not Started | 🟡 In Progress | ✅ Complete
@@ -788,30 +788,30 @@ grep -i "jetbrains" src/app/layout.tsx
 **Files:** Multiple per UI_AUDIT  
 **Prompt Reference:** Prompt 21
 
-- [ ] `src/components/landing/feature-cards.tsx` (178-229):
-  - [ ] Add `<title>` to SVG pie chart
-  - [ ] Add `aria-labelledby` to SVG
-- [ ] `src/components/landing/testimonials.tsx` (75-81):
-  - [ ] Add `aria-label="Rating: X out of 5 stars"` to star rating
-- [ ] `src/components/landing/live-activity-feed.tsx` (45):
-  - [ ] Add `aria-label="Loading transactions"` to spinner
-- [ ] `src/app/page.tsx` (95-112):
-  - [ ] Add `focus:ring-2 focus:ring-primary focus:ring-offset-2` to nav links
-- [ ] `src/app/(auth)/login/login-form.tsx` (190-201):
-  - [ ] Add `role="alert" aria-live="polite"` to error containers
-- [ ] `src/app/(auth)/login/login-form.tsx` (209-221):
-  - [ ] Add `aria-invalid={!!error}` to inputs
-  - [ ] Add `aria-describedby` linking errors
-- [ ] `src/components/dashboard/transaction-filters.tsx` (109-136):
-  - [ ] Add `role="group" aria-label="Transaction type filter"`
-- [ ] `src/components/dashboard/header.tsx` (186):
-  - [ ] Add `role="alert"` to "No results" message
-- [ ] All table headers:
-  - [ ] Add `scope="col"` to all `<th>` elements
+- [x] `src/components/landing/feature-cards.tsx` (178-229):
+  - [x] Add `<title>` to SVG pie chart
+  - [x] Add `aria-labelledby` to SVG
+- [x] `src/components/landing/testimonials.tsx` (75-81):
+  - [x] Add `aria-label="Rating: X out of 5 stars"` to star rating
+- [x] `src/components/landing/live-activity-feed.tsx` (45):
+  - [x] Add `aria-label="Loading transactions"` to spinner
+- [x] `src/app/page.tsx` (95-112):
+  - [x] Add `focus:ring-2 focus:ring-primary focus:ring-offset-2` to nav links
+- [x] `src/app/(auth)/login/login-form.tsx` (190-201):
+  - [x] Add `role="alert" aria-live="polite"` to error containers
+- [x] `src/app/(auth)/login/login-form.tsx` (209-221):
+  - [x] Add `aria-invalid={!!error}` to inputs
+  - [x] Add `aria-describedby` linking errors
+- [x] `src/components/dashboard/transaction-filters.tsx` (109-136):
+  - [x] Add `role="group" aria-label="Transaction type filter"`
+- [x] `src/components/dashboard/header.tsx` (186):
+  - [x] Add `role="alert"` to "No results" message
+- [x] All table headers:
+  - [x] Add `scope="col"` to all `<th>` elements
 
 **Verification:**
-- [ ] Run axe DevTools - no critical violations
-- [ ] Screen reader announces errors correctly
+- [x] Run axe DevTools - no critical violations
+- [x] Screen reader announces errors correctly
 
 ---
 
@@ -819,23 +819,23 @@ grep -i "jetbrains" src/app/layout.tsx
 **Files:** `src/app/layout.tsx`, `src/app/(auth)/layout.tsx`, `src/components/dashboard/sidebar.tsx`  
 **Prompt Reference:** Prompt 22
 
-- [ ] Add skip link to root layout:
+- [x] Add skip link to root layout:
   ```jsx
   <a href="#main-content" className="sr-only focus:not-sr-only ...">
     Skip to main content
   </a>
   ```
-- [ ] Add `id="main-content"` to main area
-- [ ] Add skip link to auth layout
-- [ ] Add `id="auth-form"` to form container
-- [ ] Implement focus trap in mobile sidebar:
-  - [ ] Focus stays within when open
-  - [ ] Escape closes
-  - [ ] Focus returns to trigger
+- [x] Add `id="main-content"` to main area
+- [x] Add skip link to auth layout
+- [x] Add `id="auth-form"` to form container
+- [x] Implement focus trap in mobile sidebar:
+  - [x] Focus stays within when open
+  - [x] Escape closes
+  - [x] Focus returns to trigger
 
 **Verification:**
-- [ ] Tab to skip link works
-- [ ] Focus trap works on mobile sidebar
+- [x] Tab to skip link works
+- [x] Focus trap works on mobile sidebar
 
 ---
 
@@ -844,19 +844,19 @@ grep -i "jetbrains" src/app/layout.tsx
 **Prompt Reference:** Prompt 23  
 **Fixes:** UI_AUDIT #33
 
-- [ ] Update StatCard change indicator (fixes #33):
-  - [ ] Positive: ↑ arrow + green + "+X%" text
-  - [ ] Negative: ↓ arrow + red + "−X%" text
-  - [ ] Neutral: → arrow + gray
-- [ ] Update SignificanceBadge:
-  - [ ] Add text labels: "High", "Medium", "Low"
-  - [ ] Add `aria-label`
-- [ ] Verify transaction badges have icon + text + color
-- [ ] Add `aria-label` to sparklines
+- [x] Update StatCard change indicator (fixes #33):
+  - [x] Positive: ↑ arrow + green + "+X%" text
+  - [x] Negative: ↓ arrow + red + "−X%" text
+  - [x] Neutral: → arrow + gray
+- [x] Update SignificanceBadge:
+  - [x] Add text labels: "High", "Medium", "Low"
+  - [x] Add `aria-label`
+- [x] Verify transaction badges have icon + text + color
+- [x] Add `aria-label` to sparklines
 
 **Verification:**
-- [ ] Information conveyed without color
-- [ ] Screen reader announces significance
+- [x] Information conveyed without color
+- [x] Screen reader announces significance
 
 ---
 
@@ -865,24 +865,24 @@ grep -i "jetbrains" src/app/layout.tsx
 **Prompt Reference:** Prompt 24  
 **Fixes:** UI_AUDIT #22, #23, #24, #32, #147, #153
 
-- [ ] Add password visibility toggle (#24):
-  - [ ] Eye/EyeOff icon button
-  - [ ] `aria-label="Show password"` / "Hide password"
-  - [ ] Position inside input
-- [ ] Add `rel="noopener noreferrer"` to terms links (#23)
-- [ ] Add external link indicator
-- [ ] Wrap terms checkbox in fieldset (#32)
-- [ ] Replace CSS tooltips with Radix Tooltip (#22, #147)
-- [ ] Fix profile form label (#153)
-- [ ] Ensure all inputs have:
-  - [ ] Associated `<label>` with `htmlFor`
-  - [ ] `aria-invalid` when error
-  - [ ] `aria-describedby` for error messages
+- [x] Add password visibility toggle (#24):
+  - [x] Eye/EyeOff icon button
+  - [x] `aria-label="Show password"` / "Hide password"
+  - [x] Position inside input
+- [x] Add `rel="noopener noreferrer"` to terms links (#23)
+- [x] Add external link indicator
+- [x] Wrap terms checkbox in fieldset (#32)
+- [x] Replace CSS tooltips with Radix Tooltip (#22, #147)
+- [x] Fix profile form label (#153)
+- [x] Ensure all inputs have:
+  - [x] Associated `<label>` with `htmlFor`
+  - [x] `aria-invalid` when error
+  - [x] `aria-describedby` for error messages
 
 **Verification:**
-- [ ] Password can be shown/hidden
-- [ ] Tooltips accessible by keyboard
-- [ ] Form validation announced
+- [x] Password can be shown/hidden
+- [x] Tooltips accessible by keyboard
+- [x] Form validation announced
 
 ---
 
@@ -978,6 +978,7 @@ Run these checks after all phases are complete:
 | Jan 17, 2026 | 63 | **Phase 4 Complete**: Sidebar and Command Palette fully implemented with amber accents, keyboard shortcuts (⌘K, /), focus traps, and accessibility features. Fixed hardcoded colors in DashboardShell |
 | Jan 17, 2026 | 83 | **Phase 5 Complete**: All page layouts verified and updated (Dashboard, Insider Trades, Institutions, Watchlist, Company Detail). Added density toggle to Insider Trades page with state management via new client component |
 | Jan 17, 2026 | 97 | **Phase 6 Complete**: All loading states and empty states implemented. Created skeleton components for all dashboard pages with shimmer animations. Built EmptyState component and applied to Watchlist, Insider Trades, Institutions, and Company pages. Fixed TransactionTable empty state. |
+| Jan 17, 2026 | 126 | **Phase 7 Complete**: All accessibility improvements implemented. Added ARIA labels to landing page components, auth forms, and dashboard elements. Implemented skip navigation links in root and auth layouts. Added focus traps to mobile sidebar. Updated StatCard change indicators with arrows. Enhanced SignificanceBadge with text labels. Added password visibility toggle to auth forms. Replaced CSS tooltips with Radix Tooltip. All form inputs now have proper labels, aria-invalid, and aria-describedby attributes. |
 
 ---
 

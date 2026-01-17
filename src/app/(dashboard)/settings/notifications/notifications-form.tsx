@@ -169,7 +169,7 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400" role="alert">
               {error}
             </div>
           )}

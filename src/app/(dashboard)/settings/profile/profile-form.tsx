@@ -156,6 +156,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your name (e.g., Alex Smith)"
+              autoComplete="name"
               className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400/50 focus:ring-cyan-400/20"
             />
             <p className="text-xs text-slate-500">

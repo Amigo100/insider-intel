@@ -113,7 +113,7 @@ export default function LandingPage() {
             </Button>
             <Link
               href="/signup"
-              className="bg-slate-900 text-white font-medium px-4 py-2 text-sm rounded-lg hover:bg-slate-800 transition-colors"
+              className="bg-slate-900 text-white font-medium px-4 py-2 text-sm rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
             >
               Get Started
             </Link>
@@ -156,14 +156,14 @@ export default function LandingPage() {
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row animate-fade-in-up animate-delay-200">
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
                 >
                   Start Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   href="#features"
-                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
                 >
                   See How It Works
                 </Link>
@@ -277,7 +277,7 @@ export default function LandingPage() {
             <div className="mt-12 sm:mt-16 text-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
               >
                 Get Started Now
                 <ChevronRight className="ml-2 h-4 w-4" />
@@ -309,14 +309,14 @@ export default function LandingPage() {
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 font-semibold px-6 py-3 rounded-lg shadow-[0_4px_14px_rgba(34,211,238,0.4)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
                 >
                   Start Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   href="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200"
+                  className="w-full sm:w-auto inline-flex items-center justify-center border-2 border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-lg hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))] focus-visible:ring-offset-2"
                 >
                   Sign In
                 </Link>
