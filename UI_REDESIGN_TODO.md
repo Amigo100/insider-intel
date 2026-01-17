@@ -3,7 +3,7 @@
 **Created:** January 17, 2026
 **Status:** In Progress
 **Total Tasks:** 115
-**Completed:** 83  
+**Completed:** 97  
 
 > **Instructions for Claude Code:** Reference this file to track implementation progress. After completing each task, update the checkbox from `[ ]` to `[x]` and add the completion date. Run verification steps before marking complete.
 
@@ -18,7 +18,7 @@
 | 3. Data Tables | 15 | 15 | ✅ Complete |
 | 4. Navigation | 12 | 12 | ✅ Complete |
 | 5. Page Layouts | 20 | 20 | ✅ Complete |
-| 6. Loading & Polish | 14 | 0 | ⬜ Not Started |
+| 6. Loading & Polish | 14 | 14 | ✅ Complete |
 | 7. Accessibility | 29 | 0 | ⬜ Not Started |
 | 8. Content Fixes | 9 | 0 | ⬜ Not Started |
 
@@ -723,62 +723,62 @@ grep -i "jetbrains" src/app/layout.tsx
 ## Phase 6: Loading & Polish
 
 ### 6.1 Loading States
-**Files:** All `loading.tsx` files in `(dashboard)` route group  
+**Files:** All `loading.tsx` files in `(dashboard)` route group
 **Prompt Reference:** Prompt 19
 
-- [ ] `src/app/(dashboard)/dashboard/loading.tsx`:
-  - [ ] 4 skeleton metric cards
-  - [ ] Skeleton content grid
-  - [ ] Skeleton table (5 rows)
-- [ ] `src/app/(dashboard)/insider-trades/loading.tsx`:
-  - [ ] Skeleton filter bar
-  - [ ] Skeleton results summary
-  - [ ] Skeleton table (10 rows)
-- [ ] `src/app/(dashboard)/institutions/loading.tsx`:
-  - [ ] Skeleton tabs
-  - [ ] Skeleton filter bar
-  - [ ] Skeleton table (8 rows)
-- [ ] `src/app/(dashboard)/watchlist/loading.tsx`:
-  - [ ] Skeleton grid (6 cards)
-  - [ ] Skeleton activity feed
-- [ ] `src/app/(dashboard)/company/[ticker]/loading.tsx`:
-  - [ ] Skeleton header
-  - [ ] Skeleton metrics
-  - [ ] Skeleton tabs
-  - [ ] Skeleton content
-- [ ] `src/app/(dashboard)/settings/loading.tsx`:
-  - [ ] Skeleton nav
-  - [ ] Skeleton form fields
+- [x] `src/app/(dashboard)/dashboard/loading.tsx`:
+  - [x] 4 skeleton metric cards
+  - [x] Skeleton content grid
+  - [x] Skeleton table (5 rows)
+- [x] `src/app/(dashboard)/insider-trades/loading.tsx`:
+  - [x] Skeleton filter bar
+  - [x] Skeleton results summary
+  - [x] Skeleton table (10 rows)
+- [x] `src/app/(dashboard)/institutions/loading.tsx`:
+  - [x] Skeleton tabs
+  - [x] Skeleton filter bar
+  - [x] Skeleton table (8 rows)
+- [x] `src/app/(dashboard)/watchlist/loading.tsx`:
+  - [x] Skeleton grid (6 cards)
+  - [x] Skeleton activity feed
+- [x] `src/app/(dashboard)/company/[ticker]/loading.tsx`:
+  - [x] Skeleton header
+  - [x] Skeleton metrics
+  - [x] Skeleton tabs
+  - [x] Skeleton content
+- [x] `src/app/(dashboard)/settings/loading.tsx`:
+  - [x] Skeleton nav
+  - [x] Skeleton form fields
 
 **Verification:**
-- [ ] All pages show skeletons on load
-- [ ] No spinners anywhere
-- [ ] No layout shift when content loads
+- [x] All pages show skeletons on load
+- [x] No spinners anywhere
+- [x] No layout shift when content loads
 
 ---
 
 ### 6.2 Empty States
-**Files:** Create `src/components/ui/empty-state.tsx`, update pages  
-**Prompt Reference:** Prompt 20  
+**Files:** Create `src/components/ui/empty-state.tsx`, update pages
+**Prompt Reference:** Prompt 20
 **Fixes:** UI_AUDIT #152
 
-- [ ] Create EmptyState component:
-  - [ ] Props: icon, title, description, action, secondaryText
-  - [ ] Centered layout
-  - [ ] Icon: 64px, text-muted
-  - [ ] Title: 18px, font-weight 600
-  - [ ] Description: 14px, text-secondary, max-width 400px
-  - [ ] Action: primary button
-- [ ] Implement empty states:
-  - [ ] Watchlist: Star icon, add stock CTA
-  - [ ] Insider Trades (no results): Search icon, clear filters
-  - [ ] Institutions (no results): Building icon, adjust filters
-  - [ ] Company not found: AlertCircle icon, go to dashboard
-- [ ] Fix TransactionTable empty state (UI_AUDIT #152)
+- [x] Create EmptyState component:
+  - [x] Props: icon, title, description, action, secondaryText
+  - [x] Centered layout
+  - [x] Icon: 64px, text-muted
+  - [x] Title: 18px, font-weight 600
+  - [x] Description: 14px, text-secondary, max-width 400px
+  - [x] Action: primary button
+- [x] Implement empty states:
+  - [x] Watchlist: Star icon, add stock CTA
+  - [x] Insider Trades (no results): Search icon, clear filters
+  - [x] Institutions (no results): Building icon, adjust filters
+  - [x] Company not found: AlertCircle icon, go to dashboard
+- [x] Fix TransactionTable empty state (UI_AUDIT #152)
 
 **Verification:**
-- [ ] Empty states display correctly
-- [ ] Actions work
+- [x] Empty states display correctly
+- [x] Actions work
 
 ---
 
@@ -977,7 +977,7 @@ Run these checks after all phases are complete:
 | Jan 17, 2026 | 51 | **Phase 1-3 Complete**: All CSS variables, typography, core components (Button, Card, Input, Select, Checkbox, Switch, Badge, Tabs, Skeleton), and data table features (sticky headers, sparklines, density toggle) implemented and verified |
 | Jan 17, 2026 | 63 | **Phase 4 Complete**: Sidebar and Command Palette fully implemented with amber accents, keyboard shortcuts (⌘K, /), focus traps, and accessibility features. Fixed hardcoded colors in DashboardShell |
 | Jan 17, 2026 | 83 | **Phase 5 Complete**: All page layouts verified and updated (Dashboard, Insider Trades, Institutions, Watchlist, Company Detail). Added density toggle to Insider Trades page with state management via new client component |
-| | | |
+| Jan 17, 2026 | 97 | **Phase 6 Complete**: All loading states and empty states implemented. Created skeleton components for all dashboard pages with shimmer animations. Built EmptyState component and applied to Watchlist, Insider Trades, Institutions, and Company pages. Fixed TransactionTable empty state. |
 
 ---
 
