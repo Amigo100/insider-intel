@@ -267,7 +267,7 @@ export function CompanyPageClient({
         <Button
           onClick={handleWatchlistToggle}
           disabled={isPending}
-          variant={isInWatchlist ? 'outline' : 'default'}
+          variant={isInWatchlist ? 'outline' : 'primary'}
           className={cn(
             'gap-2',
             isInWatchlist
