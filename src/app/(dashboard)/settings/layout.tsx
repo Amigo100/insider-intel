@@ -34,8 +34,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Settings</h1>
-        <p className="text-slate-400">
+        <h1 className="text-3xl font-bold tracking-tight text-[hsl(var(--text-primary))]">Settings</h1>
+        <p className="text-[hsl(var(--text-muted))]">
           Manage your account settings and preferences
         </p>
       </div>
@@ -43,7 +43,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* Sidebar Navigation */}
         <aside className="lg:w-52">
-          <nav className="bg-slate-800/50 rounded-lg p-1 flex flex-row gap-1 lg:flex-col">
+          <nav className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-lg p-1 flex flex-row gap-1 lg:flex-col">
             {settingsNavItems.map((item) => {
               const isActive = pathname === item.href
               const Icon = item.icon
@@ -55,8 +55,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                   className={cn(
                     'flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-white/10 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-[hsl(var(--bg-hover))] text-[hsl(var(--text-primary))]'
+                      : 'text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-primary))] hover:bg-[hsl(var(--bg-hover)/0.5)]'
                   )}
                 >
                   <Icon className="h-4 w-4" />
