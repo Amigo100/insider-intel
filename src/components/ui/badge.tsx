@@ -87,8 +87,8 @@ const badgeVariants = cva(
         // Premium: Gold for premium features
         premium: [
           'border-transparent',
-          'bg-[rgba(212,175,55,0.15)]',
-          'text-[#D4AF37]',
+          'bg-[hsl(var(--accent-secondary)/0.15)]',
+          'text-[hsl(var(--accent-secondary))]',
         ].join(' '),
 
         // === LEGACY SEMANTIC VARIANTS (for backwards compatibility) ===

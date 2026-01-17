@@ -1,9 +1,9 @@
 # InsiderIntel UI Redesign - Task Checklist
 
-**Created:** January 17, 2026  
-**Status:** In Progress  
-**Total Tasks:** 115  
-**Completed:** 0  
+**Created:** January 17, 2026
+**Status:** In Progress
+**Total Tasks:** 115
+**Completed:** 51  
 
 > **Instructions for Claude Code:** Reference this file to track implementation progress. After completing each task, update the checkbox from `[ ]` to `[x]` and add the completion date. Run verification steps before marking complete.
 
@@ -13,9 +13,9 @@
 
 | Phase | Tasks | Completed | Status |
 |-------|-------|-----------|--------|
-| 1. Foundation | 12 | 0 | ⬜ Not Started |
-| 2. Core Components | 24 | 0 | ⬜ Not Started |
-| 3. Data Tables | 15 | 0 | ⬜ Not Started |
+| 1. Foundation | 12 | 12 | ✅ Complete |
+| 2. Core Components | 24 | 24 | ✅ Complete |
+| 3. Data Tables | 15 | 15 | ✅ Complete |
 | 4. Navigation | 12 | 0 | ⬜ Not Started |
 | 5. Page Layouts | 20 | 0 | ⬜ Not Started |
 | 6. Loading & Polish | 14 | 0 | ⬜ Not Started |
@@ -29,60 +29,60 @@
 ## Phase 1: Foundation
 
 ### 1.1 CSS Variables & Design Tokens
-**File:** `src/app/globals.css`  
+**File:** `src/app/globals.css`
 **Prompt Reference:** Prompt 1
 
 #### Background Colors
-- [ ] Add `--bg-app: #0D0D0D` (main application background)
-- [ ] Add `--bg-card: #1A1A1A` (cards, panels, modals)
-- [ ] Add `--bg-elevated: #222222` (elevated surfaces, dropdowns)
-- [ ] Add `--bg-hover: #262626` (hover states, active rows)
-- [ ] Add `--bg-active: #2D2D2D` (pressed states, selected items)
+- [x] Add `--bg-app: #0D0D0D` (main application background)
+- [x] Add `--bg-card: #1A1A1A` (cards, panels, modals)
+- [x] Add `--bg-elevated: #222222` (elevated surfaces, dropdowns)
+- [x] Add `--bg-hover: #262626` (hover states, active rows)
+- [x] Add `--bg-active: #2D2D2D` (pressed states, selected items)
 
 #### Border Colors
-- [ ] Add `--border-default: #333333` (standard borders)
-- [ ] Add `--border-subtle: #2A2A2A` (subtle separators)
-- [ ] Add `--border-focus: #FFA028` (focus rings)
-- [ ] Add `--border-glass: rgba(255, 255, 255, 0.08)` (glassmorphism)
+- [x] Add `--border-default: #333333` (standard borders)
+- [x] Add `--border-subtle: #2A2A2A` (subtle separators)
+- [x] Add `--border-focus: #FFA028` (focus rings)
+- [x] Add `--border-glass: rgba(255, 255, 255, 0.08)` (glassmorphism)
 
 #### Text Colors
-- [ ] Add `--text-primary: #F5F5F5` (headlines, numbers)
-- [ ] Add `--text-secondary: #D4D4D4` (body text)
-- [ ] Add `--text-tertiary: #A0A0A0` (labels, captions)
-- [ ] Add `--text-muted: #737373` (disabled, placeholders)
-- [ ] Add `--text-disabled: #525252` (fully disabled)
+- [x] Add `--text-primary: #F5F5F5` (headlines, numbers)
+- [x] Add `--text-secondary: #D4D4D4` (body text)
+- [x] Add `--text-tertiary: #A0A0A0` (labels, captions)
+- [x] Add `--text-muted: #737373` (disabled, placeholders)
+- [x] Add `--text-disabled: #525252` (fully disabled)
 
 #### Accent Colors
-- [ ] Add `--accent-primary: #FFA028` (Bloomberg amber - ACTIONS ONLY)
-- [ ] Add `--accent-primary-hover: #FFB04D` (hover state)
-- [ ] Add `--accent-primary-muted: rgba(255, 160, 40, 0.15)` (subtle backgrounds)
-- [ ] Add `--accent-secondary: #D4AF37` (premium/gold)
-- [ ] Add `--accent-info: #4A90D9` (links, info)
+- [x] Add `--accent-primary: #FFA028` (Bloomberg amber - ACTIONS ONLY)
+- [x] Add `--accent-primary-hover: #FFB04D` (hover state)
+- [x] Add `--accent-primary-muted: rgba(255, 160, 40, 0.15)` (subtle backgrounds)
+- [x] Add `--accent-secondary: #D4AF37` (premium/gold)
+- [x] Add `--accent-info: #4A90D9` (links, info)
 
 #### Semantic Colors
-- [ ] Add `--signal-positive: #00C853` (gains, buys, success)
-- [ ] Add `--signal-positive-bg: rgba(0, 200, 83, 0.15)`
-- [ ] Add `--signal-negative: #FF5252` (losses, sells, errors)
-- [ ] Add `--signal-negative-bg: rgba(255, 82, 82, 0.15)`
-- [ ] Add `--signal-warning: #FFB300` (warnings)
-- [ ] Add `--signal-neutral: #4A90D9` (neutral info)
+- [x] Add `--signal-positive: #00C853` (gains, buys, success)
+- [x] Add `--signal-positive-bg: rgba(0, 200, 83, 0.15)`
+- [x] Add `--signal-negative: #FF5252` (losses, sells, errors)
+- [x] Add `--signal-negative-bg: rgba(255, 82, 82, 0.15)`
+- [x] Add `--signal-warning: #FFB300` (warnings)
+- [x] Add `--signal-neutral: #4A90D9` (neutral info)
 
 #### Glassmorphism
-- [ ] Add `--glass-bg: rgba(26, 26, 26, 0.75)`
-- [ ] Add `--glass-border: rgba(255, 255, 255, 0.08)`
-- [ ] Add `--glass-blur: 12px`
+- [x] Add `--glass-bg: rgba(26, 26, 26, 0.75)`
+- [x] Add `--glass-border: rgba(255, 255, 255, 0.08)`
+- [x] Add `--glass-blur: 12px`
 
 #### Animation Tokens
-- [ ] Add `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`
-- [ ] Add `--duration-fast: 100ms`
-- [ ] Add `--duration-normal: 150ms`
-- [ ] Add `--duration-slow: 300ms`
+- [x] Add `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`
+- [x] Add `--duration-fast: 100ms`
+- [x] Add `--duration-normal: 150ms`
+- [x] Add `--duration-slow: 300ms`
 
 #### Tailwind Mapping
-- [ ] Map new variables to `.dark` class scope
-- [ ] Ensure existing semantic names (background, foreground, card) still work
-- [ ] Test landing page (light theme) still works
-- [ ] Test dashboard (dark theme) uses new colors
+- [x] Map new variables to `.dark` class scope
+- [x] Ensure existing semantic names (background, foreground, card) still work
+- [x] Test landing page (light theme) still works
+- [x] Test dashboard (dark theme) uses new colors
 
 **Verification:**
 ```bash
@@ -94,18 +94,18 @@ grep -c "bg-app" src/app/globals.css
 ---
 
 ### 1.2 Typography & Fonts
-**Files:** `src/app/layout.tsx`, `src/app/globals.css`, `tailwind.config.ts`  
+**Files:** `src/app/layout.tsx`, `src/app/globals.css`, `tailwind.config.ts`
 **Prompt Reference:** Prompt 2
 
-- [ ] Import Inter font (weights: 400, 500, 600, 700)
-- [ ] Import JetBrains Mono font (weights: 400, 500)
-- [ ] Add `--font-sans` CSS variable for Inter
-- [ ] Add `--font-mono` CSS variable for JetBrains Mono
-- [ ] Add `.tabular-nums` utility class with `font-variant-numeric: tabular-nums`
-- [ ] Update `tailwind.config.ts` to use new font variables
-- [ ] Remove Geist font references (or map them to new fonts)
-- [ ] Test fonts render correctly on dashboard
-- [ ] Test fonts render correctly on landing page
+- [x] Import Inter font (weights: 400, 500, 600, 700)
+- [x] Import JetBrains Mono font (weights: 400, 500)
+- [x] Add `--font-sans` CSS variable for Inter
+- [x] Add `--font-mono` CSS variable for JetBrains Mono
+- [x] Add `.tabular-nums` utility class with `font-variant-numeric: tabular-nums`
+- [x] Update `tailwind.config.ts` to use new font variables
+- [x] Remove Geist font references (or map them to new fonts)
+- [x] Test fonts render correctly on dashboard
+- [x] Test fonts render correctly on landing page
 
 **Verification:**
 ```bash
@@ -120,324 +120,324 @@ grep -i "jetbrains" src/app/layout.tsx
 ## Phase 2: Core Components
 
 ### 2.1 Button Component
-**File:** `src/components/ui/button.tsx`  
+**File:** `src/components/ui/button.tsx`
 **Prompt Reference:** Prompt 3
 
 #### Variants
-- [ ] Update `default` (primary) variant:
-  - [ ] Background: `--accent-primary` (#FFA028)
-  - [ ] Text: `--bg-app` (#0D0D0D) - dark on amber
-  - [ ] Hover: `--accent-primary-hover` (#FFB04D)
-- [ ] Update `secondary` variant:
-  - [ ] Background: transparent
-  - [ ] Border: `--border-default`
-  - [ ] Hover: border and text change to `--accent-primary`
-- [ ] Update `ghost` variant:
-  - [ ] Text: `--text-secondary`
-  - [ ] Hover: `--bg-hover`, `--text-primary`
-- [ ] Update `destructive` variant:
-  - [ ] Background: `--signal-negative`
-  - [ ] Text: white
-- [ ] Remove `outline-light` variant or update colors
+- [x] Update `default` (primary) variant:
+  - [x] Background: `--accent-primary` (#FFA028)
+  - [x] Text: `--bg-app` (#0D0D0D) - dark on amber
+  - [x] Hover: `--accent-primary-hover` (#FFB04D)
+- [x] Update `secondary` variant:
+  - [x] Background: transparent
+  - [x] Border: `--border-default`
+  - [x] Hover: border and text change to `--accent-primary`
+- [x] Update `ghost` variant:
+  - [x] Text: `--text-secondary`
+  - [x] Hover: `--bg-hover`, `--text-primary`
+- [x] Update `destructive` variant:
+  - [x] Background: `--signal-negative`
+  - [x] Text: white
+- [x] Remove `outline-light` variant or update colors
 
 #### Common Styles
-- [ ] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary] focus-visible:ring-offset-2`
-- [ ] Set heights: sm=28px, md=36px, lg=44px
-- [ ] Set border-radius: 6px
-- [ ] Set font-weight: 600
-- [ ] Add transition: `transition-all duration-150`
-- [ ] Remove hardcoded slate/cyan colors
+- [x] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary] focus-visible:ring-offset-2`
+- [x] Set heights: sm=28px, md=36px, lg=44px
+- [x] Set border-radius: 6px
+- [x] Set font-weight: 600
+- [x] Add transition: `transition-all duration-150`
+- [x] Remove hardcoded slate/cyan colors
 
 **Verification:**
-- [ ] Primary button shows amber background
-- [ ] Focus ring is amber (not cyan)
-- [ ] All variants work in light and dark themes
+- [x] Primary button shows amber background
+- [x] Focus ring is amber (not cyan)
+- [x] All variants work in light and dark themes
 
 ---
 
 ### 2.2 Card Component
-**File:** `src/components/ui/card.tsx`  
+**File:** `src/components/ui/card.tsx`
 **Prompt Reference:** Prompt 4
 
-- [ ] Update Card base:
-  - [ ] Background: `bg-card`
-  - [ ] Border: `border border-[--border-default]`
-  - [ ] Border-radius: 8px
-- [ ] Update CardHeader:
-  - [ ] Padding: 16px 20px
-  - [ ] Border-bottom: `border-b border-[--border-subtle]`
-- [ ] Update CardTitle:
-  - [ ] Font-size: 16px
-  - [ ] Font-weight: 600
-  - [ ] Color: `text-foreground` (NOT amber)
-- [ ] Update CardContent padding: 20px
-- [ ] Update CardDescription color: `text-muted-foreground`
-- [ ] Remove all hardcoded colors
-- [ ] Test in light theme (landing page)
-- [ ] Test in dark theme (dashboard)
+- [x] Update Card base:
+  - [x] Background: `bg-card`
+  - [x] Border: `border border-[--border-default]`
+  - [x] Border-radius: 8px
+- [x] Update CardHeader:
+  - [x] Padding: 16px 20px
+  - [x] Border-bottom: `border-b border-[--border-subtle]`
+- [x] Update CardTitle:
+  - [x] Font-size: 16px
+  - [x] Font-weight: 600
+  - [x] Color: `text-foreground` (NOT amber)
+- [x] Update CardContent padding: 20px
+- [x] Update CardDescription color: `text-muted-foreground`
+- [x] Remove all hardcoded colors
+- [x] Test in light theme (landing page)
+- [x] Test in dark theme (dashboard)
 
 **Verification:**
-- [ ] Cards have consistent styling across all pages
-- [ ] No amber in card headers/titles
+- [x] Cards have consistent styling across all pages
+- [x] No amber in card headers/titles
 
 ---
 
 ### 2.3 Input Component
-**File:** `src/components/ui/input.tsx`  
+**File:** `src/components/ui/input.tsx`
 **Prompt Reference:** Prompt 5
 
-- [ ] Set height: 40px minimum (44px preferred for touch)
-- [ ] Set padding: 0 12px
-- [ ] Set background: `bg-background` (uses CSS variable)
-- [ ] Set border: `border border-[--border-default]`
-- [ ] Set border-radius: 6px
-- [ ] Add focus styles:
-  - [ ] Border: `--accent-primary`
-  - [ ] Ring: `0 0 0 3px rgba(255, 160, 40, 0.15)`
-- [ ] Set placeholder color: `text-muted`
-- [ ] Remove hardcoded `dark:` prefixed colors
-- [ ] Test in login form
-- [ ] Test in dashboard filters
+- [x] Set height: 40px minimum (44px preferred for touch)
+- [x] Set padding: 0 12px
+- [x] Set background: `bg-background` (uses CSS variable)
+- [x] Set border: `border border-[--border-default]`
+- [x] Set border-radius: 6px
+- [x] Add focus styles:
+  - [x] Border: `--accent-primary`
+  - [x] Ring: `0 0 0 3px rgba(255, 160, 40, 0.15)`
+- [x] Set placeholder color: `text-muted`
+- [x] Remove hardcoded `dark:` prefixed colors
+- [x] Test in login form
+- [x] Test in dashboard filters
 
 **Verification:**
-- [ ] Input focus shows amber ring (not cyan)
-- [ ] Works in both light and dark themes
+- [x] Input focus shows amber ring (not cyan)
+- [x] Works in both light and dark themes
 
 ---
 
 ### 2.4 Select Component
-**File:** `src/components/ui/select.tsx`  
-**Prompt Reference:** Prompt 5  
+**File:** `src/components/ui/select.tsx`
+**Prompt Reference:** Prompt 5
 **Fixes:** UI_AUDIT #13, #142
 
-- [ ] Update SelectTrigger to match Input styles
-- [ ] Update SelectContent:
-  - [ ] Remove `bg-slate-800` hardcoding
-  - [ ] Use `bg-popover` (maps to `--bg-elevated`)
-  - [ ] Border: `--border-default`
-- [ ] Update SelectItem:
-  - [ ] Hover: `bg-[--bg-hover]`
-  - [ ] Focus: amber ring
-- [ ] Test in transaction filters
-- [ ] Test in settings forms
+- [x] Update SelectTrigger to match Input styles
+- [x] Update SelectContent:
+  - [x] Remove `bg-slate-800` hardcoding
+  - [x] Use `bg-popover` (maps to `--bg-elevated`)
+  - [x] Border: `--border-default`
+- [x] Update SelectItem:
+  - [x] Hover: `bg-[--bg-hover]`
+  - [x] Focus: amber ring
+- [x] Test in transaction filters
+- [x] Test in settings forms
 
 **Verification:**
-- [ ] No hardcoded slate colors remain
-- [ ] Dropdown uses correct dark theme colors
+- [x] No hardcoded slate colors remain
+- [x] Dropdown uses correct dark theme colors
 
 ---
 
 ### 2.5 Checkbox Component
-**File:** `src/components/ui/checkbox.tsx`  
-**Prompt Reference:** Prompt 5  
+**File:** `src/components/ui/checkbox.tsx`
+**Prompt Reference:** Prompt 5
 **Fixes:** UI_AUDIT #17
 
-- [ ] Increase size from 16x16 to 20x20 (`h-5 w-5`)
-- [ ] Set checked state background: `--accent-primary`
-- [ ] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
-- [ ] Remove cyan references
-- [ ] Test in signup form (terms checkbox)
-- [ ] Test in settings (notification toggles)
+- [x] Increase size from 16x16 to 20x20 (`h-5 w-5`)
+- [x] Set checked state background: `--accent-primary`
+- [x] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
+- [x] Remove cyan references
+- [x] Test in signup form (terms checkbox)
+- [x] Test in settings (notification toggles)
 
 **Verification:**
-- [ ] Checkbox is larger (meets 44px touch target with padding)
-- [ ] Checked state shows amber
+- [x] Checkbox is larger (meets 44px touch target with padding)
+- [x] Checked state shows amber
 
 ---
 
 ### 2.6 Switch Component
-**File:** `src/components/ui/switch.tsx`  
+**File:** `src/components/ui/switch.tsx`
 **Prompt Reference:** Prompt 5
 
-- [ ] Set track (off): `bg-muted`
-- [ ] Set track (on): `bg-[--accent-primary]`
-- [ ] Set thumb: white
-- [ ] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
-- [ ] Test in notification settings
+- [x] Set track (off): `bg-muted`
+- [x] Set track (on): `bg-[--accent-primary]`
+- [x] Set thumb: white
+- [x] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
+- [x] Test in notification settings
 
 **Verification:**
-- [ ] Switch "on" state is amber
+- [x] Switch "on" state is amber
 
 ---
 
 ### 2.7 Badge Component
-**File:** `src/components/ui/badge.tsx`  
+**File:** `src/components/ui/badge.tsx`
 **Prompt Reference:** Prompt 6
 
-- [ ] Add `buy` variant:
-  - [ ] Background: `rgba(0, 200, 83, 0.15)`
-  - [ ] Text: `#00C853`
-- [ ] Add `sell` variant:
-  - [ ] Background: `rgba(255, 82, 82, 0.15)`
-  - [ ] Text: `#FF5252`
-- [ ] Add `new` variant:
-  - [ ] Background: `--accent-primary` (solid)
-  - [ ] Text: `#0D0D0D`
-- [ ] Add `premium` variant:
-  - [ ] Background: `rgba(212, 175, 55, 0.15)`
-  - [ ] Text: `#D4AF37`
-- [ ] Set common styles:
-  - [ ] Padding: 2px 8px
-  - [ ] Border-radius: 4px
-  - [ ] Font-size: 11px
-  - [ ] Font-weight: 600
-  - [ ] Text-transform: uppercase
-  - [ ] Letter-spacing: 0.04em
-- [ ] Update existing variants to use CSS variables
+- [x] Add `buy` variant:
+  - [x] Background: `rgba(0, 200, 83, 0.15)`
+  - [x] Text: `#00C853`
+- [x] Add `sell` variant:
+  - [x] Background: `rgba(255, 82, 82, 0.15)`
+  - [x] Text: `#FF5252`
+- [x] Add `new` variant:
+  - [x] Background: `--accent-primary` (solid)
+  - [x] Text: `#0D0D0D`
+- [x] Add `premium` variant:
+  - [x] Background: `rgba(212, 175, 55, 0.15)`
+  - [x] Text: `#D4AF37`
+- [x] Set common styles:
+  - [x] Padding: 2px 8px
+  - [x] Border-radius: 4px
+  - [x] Font-size: 11px
+  - [x] Font-weight: 600
+  - [x] Text-transform: uppercase
+  - [x] Letter-spacing: 0.04em
+- [x] Update existing variants to use CSS variables
 
 **Verification:**
-- [ ] BUY badge is green with icon
-- [ ] SELL badge is red with icon
-- [ ] NEW badge is solid amber
+- [x] BUY badge is green with icon
+- [x] SELL badge is red with icon
+- [x] NEW badge is solid amber
 
 ---
 
 ### 2.8 Tabs Component
-**File:** `src/components/ui/tabs.tsx`  
-**Prompt Reference:** Prompt 7  
+**File:** `src/components/ui/tabs.tsx`
+**Prompt Reference:** Prompt 7
 **Fixes:** UI_AUDIT #14, #15
 
-- [ ] Update TabsList:
-  - [ ] Remove hardcoded slate colors
-  - [ ] Use `bg-muted`
-  - [ ] Border-radius: 6px
-  - [ ] Padding: 4px
-- [ ] Update TabsTrigger:
-  - [ ] Default: `text-muted-foreground`, `bg-transparent`
-  - [ ] Hover: `text-foreground`
-  - [ ] Active: `bg-background`, `text-foreground`, amber bottom border
-- [ ] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
-- [ ] Add `aria-label` prop support to TabsList
-- [ ] Test in company detail page
-- [ ] Test in institutions page
+- [x] Update TabsList:
+  - [x] Remove hardcoded slate colors
+  - [x] Use `bg-muted`
+  - [x] Border-radius: 6px
+  - [x] Padding: 4px
+- [x] Update TabsTrigger:
+  - [x] Default: `text-muted-foreground`, `bg-transparent`
+  - [x] Hover: `text-foreground`
+  - [x] Active: `bg-background`, `text-foreground`, amber bottom border
+- [x] Add focus ring: `focus-visible:ring-2 focus-visible:ring-[--accent-primary]`
+- [x] Add `aria-label` prop support to TabsList
+- [x] Test in company detail page
+- [x] Test in institutions page
 
 **Verification:**
-- [ ] Active tab has amber underline
-- [ ] No hardcoded colors remain
+- [x] Active tab has amber underline
+- [x] No hardcoded colors remain
 
 ---
 
 ### 2.9 Skeleton Component
-**File:** `src/components/ui/skeleton.tsx`  
+**File:** `src/components/ui/skeleton.tsx`
 **Prompt Reference:** Prompt 8
 
-- [ ] Add shimmer animation keyframes:
+- [x] Add shimmer animation keyframes:
   ```css
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
   ```
-- [ ] Update base skeleton:
-  - [ ] Background gradient: `--bg-hover` → `--bg-elevated` → `--bg-hover`
-  - [ ] Background-size: 200% 100%
-  - [ ] Animation: shimmer 1.5s infinite
-- [ ] Create/export variants:
-  - [ ] `SkeletonText` (h-3.5, varying widths)
-  - [ ] `SkeletonHeading` (h-6, w-1/2)
-  - [ ] `SkeletonAvatar` (40x40, rounded-full)
-  - [ ] `SkeletonButton` (h-9, w-24)
-  - [ ] `SkeletonCard` (h-32)
-  - [ ] `SkeletonTableRow` (h-13 comfortable, h-9 compact)
-  - [ ] `SkeletonChart` (h-48)
+- [x] Update base skeleton:
+  - [x] Background gradient: `--bg-hover` → `--bg-elevated` → `--bg-hover`
+  - [x] Background-size: 200% 100%
+  - [x] Animation: shimmer 1.5s infinite
+- [x] Create/export variants:
+  - [x] `SkeletonText` (h-3.5, varying widths)
+  - [x] `SkeletonHeading` (h-6, w-1/2)
+  - [x] `SkeletonAvatar` (40x40, rounded-full)
+  - [x] `SkeletonButton` (h-9, w-24)
+  - [x] `SkeletonCard` (h-32)
+  - [x] `SkeletonTableRow` (h-13 comfortable, h-9 compact)
+  - [x] `SkeletonChart` (h-48)
 
 **Verification:**
-- [ ] Skeleton has shimmer animation (not just pulse)
-- [ ] Animation is smooth and not jarring
+- [x] Skeleton has shimmer animation (not just pulse)
+- [x] Animation is smooth and not jarring
 
 ---
 
 ## Phase 3: Data Tables
 
 ### 3.1 Sticky Table Headers
-**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/ui/table.tsx`  
+**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/ui/table.tsx`
 **Prompt Reference:** Prompt 9
 
-- [ ] Add scroll container wrapper:
-  - [ ] `max-height: calc(100vh - 200px)`
-  - [ ] `overflow: auto`
-  - [ ] Border and border-radius
-- [ ] Update table headers (`thead th`):
-  - [ ] `position: sticky`
-  - [ ] `top: 0`
-  - [ ] `z-index: 20`
-  - [ ] Glassmorphism: `bg-[--glass-bg]`, `backdrop-blur-[12px]`
-  - [ ] Border-bottom
-  - [ ] Font: 11px, uppercase, letter-spacing 0.05em
-  - [ ] Color: `--text-tertiary`
-- [ ] Make first column sticky:
-  - [ ] `position: sticky`
-  - [ ] `left: 0`
-  - [ ] `z-index: 10`
-  - [ ] Opaque background (not glass)
-  - [ ] Border-right
-- [ ] Set corner cell `z-index: 30`
-- [ ] Style number columns:
-  - [ ] `text-align: right`
-  - [ ] `font-family: var(--font-mono)`
-  - [ ] `font-variant-numeric: tabular-nums`
-- [ ] Add row hover: `bg-[--bg-hover]`
-- [ ] Add `scope="col"` to all th elements
+- [x] Add scroll container wrapper:
+  - [x] `max-height: calc(100vh - 200px)`
+  - [x] `overflow: auto`
+  - [x] Border and border-radius
+- [x] Update table headers (`thead th`):
+  - [x] `position: sticky`
+  - [x] `top: 0`
+  - [x] `z-index: 20`
+  - [x] Glassmorphism: `bg-[--glass-bg]`, `backdrop-blur-[12px]`
+  - [x] Border-bottom
+  - [x] Font: 11px, uppercase, letter-spacing 0.05em
+  - [x] Color: `--text-tertiary`
+- [x] Make first column sticky:
+  - [x] `position: sticky`
+  - [x] `left: 0`
+  - [x] `z-index: 10`
+  - [x] Opaque background (not glass)
+  - [x] Border-right
+- [x] Set corner cell `z-index: 30`
+- [x] Style number columns:
+  - [x] `text-align: right`
+  - [x] `font-family: var(--font-mono)`
+  - [x] `font-variant-numeric: tabular-nums`
+- [x] Add row hover: `bg-[--bg-hover]`
+- [x] Add `scope="col"` to all th elements
 
 **Verification:**
-- [ ] Headers stay visible when scrolling
-- [ ] First column stays visible when scrolling horizontally
-- [ ] Glassmorphism effect visible on headers
-- [ ] Numbers align properly in columns
+- [x] Headers stay visible when scrolling
+- [x] First column stays visible when scrolling horizontally
+- [x] Glassmorphism effect visible on headers
+- [x] Numbers align properly in columns
 
 ---
 
 ### 3.2 Sparklines
-**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/charts/trend-sparkline.tsx`  
+**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/charts/trend-sparkline.tsx`
 **Prompt Reference:** Prompt 10
 
-- [ ] Create TrendSparkline component (or update existing):
-  - [ ] Props: `data: number[]`, `trend: 'up' | 'down' | 'neutral'`
-  - [ ] Width: 60-80px
-  - [ ] Height: 24px
-  - [ ] SVG-based
-  - [ ] No axes/gridlines/labels
-  - [ ] Stroke-width: 1.5px
-  - [ ] Stroke-linecap: round
-- [ ] Implement color by trend:
-  - [ ] Up: `--signal-positive`
-  - [ ] Down: `--signal-negative`
-  - [ ] Neutral: `--text-muted`
-- [ ] Add end-point dot (radius 2.5px)
-- [ ] Add to TransactionTable:
-  - [ ] New column "6M Trend"
-  - [ ] Position after Value column
-  - [ ] Hide on mobile
-- [ ] Add `aria-label` describing trend
+- [x] Create TrendSparkline component (or update existing):
+  - [x] Props: `data: number[]`, `trend: 'up' | 'down' | 'neutral'`
+  - [x] Width: 60-80px
+  - [x] Height: 24px
+  - [x] SVG-based
+  - [x] No axes/gridlines/labels
+  - [x] Stroke-width: 1.5px
+  - [x] Stroke-linecap: round
+- [x] Implement color by trend:
+  - [x] Up: `--signal-positive`
+  - [x] Down: `--signal-negative`
+  - [x] Neutral: `--text-muted`
+- [x] Add end-point dot (radius 2.5px)
+- [x] Add to TransactionTable:
+  - [x] New column "6M Trend"
+  - [x] Position after Value column
+  - [x] Hide on mobile
+- [x] Add `aria-label` describing trend
 
 **Verification:**
-- [ ] Sparklines render correctly
-- [ ] Colors match trend direction
-- [ ] Hidden on small screens
+- [x] Sparklines render correctly
+- [x] Colors match trend direction
+- [x] Hidden on small screens
 
 ---
 
 ### 3.3 Density Toggle
-**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/dashboard/density-toggle.tsx` (create)  
+**Files:** `src/components/dashboard/transaction-table.tsx`, `src/components/dashboard/density-toggle.tsx` (create)
 **Prompt Reference:** Prompt 11
 
-- [ ] Create DensityToggle component:
-  - [ ] Two options: "Comfortable" | "Compact"
-  - [ ] Segmented control style
-  - [ ] Active: `bg-[--accent-primary]`, dark text
-  - [ ] Inactive: transparent, `text-tertiary`
-  - [ ] Container: `bg-[--bg-elevated]`, padding 4px, rounded
-- [ ] Define density specifications:
-  - [ ] Comfortable: row 52px, padding 14px 16px, font 13px
-  - [ ] Compact: row 36px, padding 8px 12px, font 12px
-- [ ] Add state management to TransactionTable
-- [ ] Store preference in localStorage
-- [ ] Position in results summary bar
+- [x] Create DensityToggle component:
+  - [x] Two options: "Comfortable" | "Compact"
+  - [x] Segmented control style
+  - [x] Active: `bg-[--accent-primary]`, dark text
+  - [x] Inactive: transparent, `text-tertiary`
+  - [x] Container: `bg-[--bg-elevated]`, padding 4px, rounded
+- [x] Define density specifications:
+  - [x] Comfortable: row 52px, padding 14px 16px, font 13px
+  - [x] Compact: row 36px, padding 8px 12px, font 12px
+- [x] Add state management to TransactionTable
+- [x] Store preference in localStorage
+- [x] Position in results summary bar
 
 **Verification:**
-- [ ] Toggle switches between densities
-- [ ] Preference persists on page reload
-- [ ] Table adjusts row heights correctly
+- [x] Toggle switches between densities
+- [x] Preference persists on page reload
+- [x] Table adjusts row heights correctly
 
 ---
 
@@ -974,7 +974,7 @@ Run these checks after all phases are complete:
 | Date | Tasks Completed | Notes |
 |------|-----------------|-------|
 | Jan 17, 2026 | 0 | Initial checklist created |
-| | | |
+| Jan 17, 2026 | 51 | **Phase 1-3 Complete**: All CSS variables, typography, core components (Button, Card, Input, Select, Checkbox, Switch, Badge, Tabs, Skeleton), and data table features (sticky headers, sparklines, density toggle) implemented and verified |
 | | | |
 
 ---
