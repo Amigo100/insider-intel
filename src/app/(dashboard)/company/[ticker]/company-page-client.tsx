@@ -74,6 +74,7 @@ interface ActivityDataPoint {
   date: string
   buys: number
   sells: number
+  [key: string]: string | number
 }
 
 interface CompanyPageClientProps {
