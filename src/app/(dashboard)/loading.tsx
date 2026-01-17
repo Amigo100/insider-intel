@@ -1,92 +1,101 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Skeleton,
+  SkeletonStatCard,
+  SkeletonChart,
+  SkeletonDashboardCard,
+} from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
+/**
+ * Root Dashboard Layout Loading Skeleton
+ *
+ * Generic skeleton that works for any dashboard page:
+ * - Header
+ * - 4 stat cards
+ * - Chart area
+ * - 2-column content grid
+ *
+ * NO SPINNERS - uses shimmer animation exclusively
+ */
 export default function DashboardLoading() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6" aria-label="Loading" role="status">
       {/* Header Skeleton */}
       <div className="space-y-2">
-        <Skeleton className="h-9 w-64" />
-        <Skeleton className="h-5 w-96" />
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-80" />
       </div>
 
-      {/* Stats Cards Skeleton */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Cards Grid - 4 cards */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <DashboardCard key={i}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-8 w-16" />
-                </div>
-                <Skeleton className="h-10 w-10 rounded-full" />
-              </div>
-            </CardContent>
-          </DashboardCard>
+          <SkeletonStatCard key={i} />
         ))}
       </div>
 
-      {/* Main Content Grid Skeleton */}
+      {/* Chart Area */}
+      <SkeletonDashboardCard>
+        <div className="p-5">
+          <SkeletonChart height={280} />
+        </div>
+      </SkeletonDashboardCard>
+
+      {/* 2-Column Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Chart Card Skeleton */}
-        <DashboardCard className="lg:col-span-2">
-          <CardHeader>
-            <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[300px] w-full" />
-          </CardContent>
-        </DashboardCard>
+        {/* Left Column - List */}
+        <SkeletonDashboardCard>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'flex items-center gap-3 p-3',
+                  'rounded-md',
+                  'bg-[hsl(var(--bg-elevated)/0.3)]'
+                )}
+              >
+                <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <div className="text-right space-y-1">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SkeletonDashboardCard>
 
-        {/* Recent Transactions Skeleton */}
-        <DashboardCard>
-          <CardHeader>
-            <Skeleton className="h-5 w-40" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-3 w-32" />
-                  </div>
-                  <div className="text-right space-y-2">
+        {/* Right Column - List */}
+        <SkeletonDashboardCard>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'flex items-center justify-between p-3',
+                  'rounded-md',
+                  'bg-[hsl(var(--bg-elevated)/0.3)]'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <div className="space-y-1">
                     <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-3 w-24" />
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </DashboardCard>
-
-        {/* Watchlist Skeleton */}
-        <DashboardCard>
-          <CardHeader>
-            <Skeleton className="h-5 w-32" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded" />
-                    <div className="space-y-1">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-5 w-16 rounded-full" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </DashboardCard>
+                <Skeleton className="h-5 w-16 rounded" />
+              </div>
+            ))}
+          </div>
+        </SkeletonDashboardCard>
       </div>
+
+      {/* Screen reader announcement */}
+      <span className="sr-only">Loading content...</span>
     </div>
   )
 }

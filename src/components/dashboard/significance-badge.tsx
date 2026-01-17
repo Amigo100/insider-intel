@@ -11,11 +11,11 @@ interface SignificanceBadgeProps {
 /**
  * Displays a colored indicator based on AI significance score
  *
- * Score ranges:
- * - < 0.3: Gray (Low - routine transaction)
- * - 0.3 - 0.6: Yellow (Medium - notable)
- * - 0.6 - 0.8: Orange (High - significant)
- * - > 0.8: Red (Very High - highly significant)
+ * Uses dots + text + color to avoid relying on color alone:
+ * - < 0.3: ●○○○ Gray (Low - routine transaction)
+ * - 0.3 - 0.6: ●●○○ Yellow (Medium - notable)
+ * - 0.6 - 0.8: ●●●○ Orange (High - significant)
+ * - > 0.8: ●●●● Red (Very High - highly significant)
  */
 export function SignificanceBadge({
   score,
@@ -25,12 +25,24 @@ export function SignificanceBadge({
   if (score === null || score === undefined) {
     return (
       <div className={cn('flex items-center gap-1.5', className)} role="status" aria-label="Significance: Not available">
-        <span className="h-2.5 w-2.5 rounded-full bg-gray-300" aria-hidden="true" />
+        <div className="flex items-center gap-0.5" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <span key={i} className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+          ))}
+        </div>
         {showLabel && (
           <span className="text-xs text-muted-foreground">N/A</span>
         )}
       </div>
     )
+  }
+
+  // Get the number of filled dots (1-4)
+  const getFilledDots = () => {
+    if (score < 0.3) return 1
+    if (score < 0.6) return 2
+    if (score < 0.8) return 3
+    return 4
   }
 
   const getColorClass = () => {
@@ -55,10 +67,23 @@ export function SignificanceBadge({
   }
 
   const label = getLabel()
+  const filledDots = getFilledDots()
+  const colorClass = getColorClass()
 
   return (
     <div className={cn('flex items-center gap-1.5', className)} role="status" aria-label={`Significance: ${label}`}>
-      <span className={cn('h-2.5 w-2.5 rounded-full', getColorClass())} aria-hidden="true" />
+      {/* Dot indicator - filled dots show level without relying on color alone */}
+      <div className="flex items-center gap-0.5" aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={cn(
+              'h-1.5 w-1.5 rounded-full',
+              i < filledDots ? colorClass : 'bg-gray-300 dark:bg-gray-600'
+            )}
+          />
+        ))}
+      </div>
       {showLabel && (
         <span className={cn('text-xs font-medium', getTextColorClass())}>
           {label}
@@ -70,6 +95,7 @@ export function SignificanceBadge({
 
 /**
  * Larger version for detail views
+ * Uses dots + text + color for accessibility
  */
 export function SignificanceIndicator({
   score,
@@ -82,13 +108,17 @@ export function SignificanceIndicator({
     return (
       <div
         className={cn(
-          'flex items-center gap-2 rounded-md bg-gray-100 px-3 py-1.5',
+          'flex items-center gap-2 rounded-md bg-gray-100 dark:bg-gray-800 px-3 py-1.5',
           className
         )}
         role="status"
         aria-label="Significance: Not analyzed"
       >
-        <span className="h-3 w-3 rounded-full bg-gray-300" aria-hidden="true" />
+        <div className="flex items-center gap-0.5" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <span key={i} className="h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+          ))}
+        </div>
         <span className="text-sm text-muted-foreground">Not analyzed</span>
       </div>
     )
@@ -97,30 +127,34 @@ export function SignificanceIndicator({
   const getConfig = () => {
     if (score < 0.3)
       return {
-        bgClass: 'bg-gray-100',
+        bgClass: 'bg-gray-100 dark:bg-gray-800',
         dotClass: 'bg-gray-400',
-        textClass: 'text-gray-600',
+        textClass: 'text-gray-600 dark:text-gray-400',
         label: 'Low Significance',
+        filledDots: 1,
       }
     if (score < 0.6)
       return {
-        bgClass: 'bg-yellow-50',
+        bgClass: 'bg-yellow-50 dark:bg-yellow-900/20',
         dotClass: 'bg-yellow-500',
-        textClass: 'text-yellow-700',
+        textClass: 'text-yellow-700 dark:text-yellow-400',
         label: 'Notable',
+        filledDots: 2,
       }
     if (score < 0.8)
       return {
-        bgClass: 'bg-orange-50',
+        bgClass: 'bg-orange-50 dark:bg-orange-900/20',
         dotClass: 'bg-orange-500',
-        textClass: 'text-orange-700',
+        textClass: 'text-orange-700 dark:text-orange-400',
         label: 'Significant',
+        filledDots: 3,
       }
     return {
-      bgClass: 'bg-red-50',
+      bgClass: 'bg-red-50 dark:bg-red-900/20',
       dotClass: 'bg-red-500',
-      textClass: 'text-red-700',
+      textClass: 'text-red-700 dark:text-red-400',
       label: 'Highly Significant',
+      filledDots: 4,
     }
   }
 
@@ -136,7 +170,18 @@ export function SignificanceIndicator({
       role="status"
       aria-label={`Significance: ${config.label}`}
     >
-      <span className={cn('h-3 w-3 rounded-full', config.dotClass)} aria-hidden="true" />
+      {/* Dot indicator - filled dots show level without relying on color alone */}
+      <div className="flex items-center gap-0.5" aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={cn(
+              'h-2 w-2 rounded-full',
+              i < config.filledDots ? config.dotClass : 'bg-gray-300 dark:bg-gray-600'
+            )}
+          />
+        ))}
+      </div>
       <span className={cn('text-sm font-medium', config.textClass)}>
         {config.label}
       </span>

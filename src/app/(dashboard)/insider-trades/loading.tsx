@@ -1,92 +1,114 @@
+import {
+  Skeleton,
+  SkeletonFilterBar,
+  SkeletonDashboardCard,
+  SkeletonStatCard,
+} from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+
+/**
+ * Insider Trades Loading Skeleton
+ *
+ * Matches the insider trades page structure:
+ * - Header
+ * - 4 stat cards
+ * - Filter bar
+ * - Results summary
+ * - 10 table rows
+ *
+ * NO SPINNERS - uses shimmer animation exclusively
+ */
 export default function InsiderTradesLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6" aria-label="Loading insider trades" role="status">
       {/* Header Skeleton */}
-      <div>
-        <div className="h-9 w-64 bg-slate-700/50 rounded" />
-        <div className="mt-2 h-5 w-96 bg-slate-700/50 rounded" />
-        <div className="mt-2 flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-slate-700/50" />
-          <div className="h-4 w-48 bg-slate-700/50 rounded" />
-        </div>
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-80" />
       </div>
 
-      {/* Stats Row Skeleton */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* Stats Row - 4 cards */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-24 rounded-lg bg-slate-700/50 p-4 flex flex-col justify-between"
-          >
-            <div className="h-3 w-20 bg-slate-600/50 rounded" />
-            <div className="h-8 w-16 bg-slate-600/50 rounded" />
-          </div>
+          <SkeletonStatCard key={i} />
         ))}
       </div>
 
-      {/* Filter Bar Skeleton */}
-      <div className="flex flex-col gap-4 rounded-lg border border-slate-700/50 bg-slate-800/30 p-4 sm:flex-row sm:items-center">
-        <div className="h-10 w-24 bg-slate-700/50 rounded" />
-        <div className="h-10 w-24 bg-slate-700/50 rounded" />
-        <div className="h-10 w-24 bg-slate-700/50 rounded" />
-        <div className="h-10 w-24 bg-slate-700/50 rounded" />
-        <div className="h-10 flex-1 bg-slate-700/50 rounded" />
+      {/* Filter Bar */}
+      <SkeletonFilterBar filters={4} />
+
+      {/* Results Summary */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-4 w-24" />
       </div>
 
-      {/* Results Summary Skeleton */}
-      <div className="h-5 w-48 bg-slate-700/50 rounded" />
+      {/* Table */}
+      <SkeletonDashboardCard title={false}>
+        <div className="overflow-hidden">
+          {/* Table Header */}
+          <div
+            className={cn(
+              'flex items-center gap-4 px-5 py-3',
+              'border-b border-[hsl(var(--border-subtle))]',
+              'bg-[hsl(var(--bg-elevated)/0.3)]'
+            )}
+          >
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-3 w-16 ml-auto" />
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
 
-      {/* Table Skeleton */}
-      <div className="rounded-md border border-slate-700/50">
-        {/* Table Header */}
-        <div className="border-b border-slate-700/50 p-4">
-          <div className="flex items-center gap-6">
-            <div className="h-4 w-16 bg-slate-700/50 rounded" />
-            <div className="h-4 w-24 bg-slate-700/50 rounded" />
-            <div className="h-4 w-20 bg-slate-700/50 rounded" />
-            <div className="h-4 w-12 bg-slate-700/50 rounded" />
-            <div className="h-4 w-16 bg-slate-700/50 rounded ml-auto" />
-            <div className="h-4 w-20 bg-slate-700/50 rounded" />
-            <div className="h-4 w-24 bg-slate-700/50 rounded" />
+          {/* Table Body - 10 rows */}
+          <div className="divide-y divide-[hsl(var(--border-subtle))]">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-5 py-3.5">
+                {/* Date */}
+                <Skeleton className="h-4 w-20" />
+
+                {/* Company */}
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <div className="space-y-1">
+                    <Skeleton className="h-4 w-14" />
+                    <Skeleton className="h-3 w-28" />
+                  </div>
+                </div>
+
+                {/* Insider */}
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+
+                {/* Type Badge */}
+                <Skeleton className="h-5 w-14 rounded" />
+
+                {/* Shares */}
+                <Skeleton className="h-4 w-16 ml-auto" />
+
+                {/* Value */}
+                <Skeleton className="h-4 w-20" />
+
+                {/* Significance */}
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
           </div>
         </div>
+      </SkeletonDashboardCard>
 
-        {/* Table Rows */}
-        <div className="p-4 space-y-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-6">
-              {/* Date */}
-              <div className="h-4 w-20 bg-slate-700/50 rounded" />
-              {/* Company with ticker */}
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-slate-700/50" />
-                <div>
-                  <div className="h-4 w-16 bg-slate-700/50 rounded" />
-                  <div className="mt-1 h-3 w-32 bg-slate-700/50 rounded" />
-                </div>
-              </div>
-              {/* Insider */}
-              <div>
-                <div className="h-4 w-28 bg-slate-700/50 rounded" />
-                <div className="mt-1 h-3 w-20 bg-slate-700/50 rounded" />
-              </div>
-              {/* Type Badge */}
-              <div className="h-6 w-16 rounded-full bg-slate-700/50" />
-              {/* Shares */}
-              <div className="h-4 w-16 bg-slate-700/50 rounded ml-auto" />
-              {/* Value */}
-              <div className="h-4 w-20 bg-slate-700/50 rounded" />
-              {/* Significance */}
-              <div className="h-4 w-24 bg-slate-700/50 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Load More Button Skeleton */}
+      {/* Load More Button */}
       <div className="flex justify-center">
-        <div className="h-10 w-28 bg-slate-700/50 rounded" />
+        <Skeleton className="h-9 w-28 rounded-md" />
       </div>
+
+      {/* Screen reader announcement */}
+      <span className="sr-only">Loading insider trades...</span>
     </div>
   )
 }

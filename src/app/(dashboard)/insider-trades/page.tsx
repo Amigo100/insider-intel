@@ -1,75 +1,29 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { Download } from 'lucide-react'
 import { logger } from '@/lib/logger'
-import { TransactionFilters, ResultsSummary } from '@/components/dashboard/transaction-filters'
-import { TransactionTable } from '@/components/dashboard/transaction-table'
-import { StatCard, StatsRow } from '@/components/dashboard/stats-card'
-import LiveIndicator from '@/components/dashboard/live-indicator'
-import { InsiderTradesEmptyState } from './empty-state-client'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  TransactionFilters,
+  ResultsSummary,
+  Pagination,
+} from '@/components/dashboard/transaction-filters'
+import { TransactionTable } from '@/components/dashboard/transaction-table'
+import { InsiderTradesEmptyState } from './empty-state-client'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
 /**
- * Calculate summary statistics from transactions
+ * Insider Trades Page - Modernized Bloomberg Design System
+ *
+ * Structure:
+ * 1. PAGE HEADER: Title + Export CSV button
+ * 2. FILTER BAR: Card-style with search, type, date range, significance
+ * 3. RESULTS SUMMARY BAR: Count + density toggle
+ * 4. DATA TABLE: Expandable rows with AI context
+ * 5. PAGINATION: Prev/Next navigation
  */
-function calculateStats(transactions: InsiderTransactionWithDetails[]) {
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000)
-
-  let todayCount = 0
-  let weekCount = 0
-  let buyVolume = 0
-  let sellVolume = 0
-  const uniqueTickers = new Set<string>()
-
-  for (const tx of transactions) {
-    const filedDate = new Date(tx.filed_at)
-    const value = tx.total_value || 0
-
-    // Count today's trades
-    if (filedDate >= todayStart) {
-      todayCount++
-    }
-
-    // Count this week's trades
-    if (filedDate >= weekStart) {
-      weekCount++
-    }
-
-    // Calculate net buy volume (P = Purchase, S = Sale)
-    if (tx.transaction_type === 'P') {
-      buyVolume += value
-    } else if (tx.transaction_type === 'S') {
-      sellVolume += value
-    }
-
-    // Track unique companies
-    if (tx.ticker) {
-      uniqueTickers.add(tx.ticker)
-    }
-  }
-
-  const netVolume = buyVolume - sellVolume
-
-  // Format currency for display
-  const formatVolume = (value: number) => {
-    const absValue = Math.abs(value)
-    if (absValue >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`
-    if (absValue >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
-    if (absValue >= 1_000) return `$${(value / 1_000).toFixed(0)}K`
-    return `$${value.toFixed(0)}`
-  }
-
-  return {
-    todayCount: todayCount.toString(),
-    weekCount: weekCount.toString(),
-    netVolume: formatVolume(netVolume),
-    netVolumeType: (netVolume >= 0 ? 'positive' : 'negative') as 'positive' | 'negative',
-    activeCompanies: uniqueTickers.size.toString(),
-  }
-}
 
 export const metadata: Metadata = {
   title: 'Insider Trades',
@@ -81,20 +35,24 @@ interface PageProps {
     type?: string
     days?: string
     ticker?: string
+    significance?: string
     page?: string
   }>
 }
+
+const ITEMS_PER_PAGE = 50
 
 async function getTransactions(params: {
   type?: string
   days?: string
   ticker?: string
+  significance?: string
   page?: string
 }) {
-  const { type, days = '30', ticker, page = '1' } = params
+  const { type, days = '30', ticker, significance, page = '1' } = params
 
-  const limit = 50
-  const offset = (parseInt(page, 10) - 1) * limit
+  const currentPage = parseInt(page, 10) || 1
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
   // Build API URL
   const apiUrl = new URL(
@@ -105,7 +63,8 @@ async function getTransactions(params: {
     apiUrl.searchParams.set('type', type)
   }
   apiUrl.searchParams.set('days', days)
-  apiUrl.searchParams.set('limit', String(limit + offset + 1)) // +1 to check if more exist
+  // Fetch more than needed to calculate total and check for more pages
+  apiUrl.searchParams.set('limit', '1000')
 
   if (ticker) {
     apiUrl.searchParams.set('ticker', ticker)
@@ -122,167 +81,201 @@ async function getTransactions(params: {
 
     const data = await response.json()
 
-    // Handle pagination
-    const allTransactions: InsiderTransactionWithDetails[] = data.transactions || []
-    const transactions = allTransactions.slice(offset, offset + limit)
-    const hasMore = allTransactions.length > offset + limit
+    // Filter by significance if specified
+    let allTransactions: InsiderTransactionWithDetails[] = data.transactions || []
+
+    if (significance && significance !== 'all') {
+      allTransactions = allTransactions.filter((tx) => {
+        const score = tx.ai_significance_score || 0
+        switch (significance) {
+          case 'high':
+            return score >= 0.7
+          case 'medium':
+            return score >= 0.4 && score < 0.7
+          case 'low':
+            return score < 0.4
+          default:
+            return true
+        }
+      })
+    }
+
+    const total = allTransactions.length
+    const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
+
+    // Paginate
+    const transactions = allTransactions.slice(offset, offset + ITEMS_PER_PAGE)
 
     return {
       transactions,
-      total: allTransactions.length,
-      hasMore,
-      page: parseInt(page, 10),
+      total,
+      totalPages,
+      currentPage,
+      pageStart: total > 0 ? offset + 1 : 0,
+      pageEnd: Math.min(offset + ITEMS_PER_PAGE, total),
     }
   } catch (error) {
     logger.app.error({ error }, 'Error fetching transactions')
     return {
       transactions: [],
       total: 0,
-      hasMore: false,
-      page: 1,
+      totalPages: 0,
+      currentPage: 1,
+      pageStart: 0,
+      pageEnd: 0,
     }
   }
 }
 
 export default async function InsiderTradesPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const { transactions, total, hasMore, page } = await getTransactions(params)
+  const { transactions, total, totalPages, currentPage, pageStart, pageEnd } =
+    await getTransactions(params)
 
-  const filters = {
+  const searchParamsRecord = {
     type: params.type,
-    days: params.days || '30',
+    days: params.days,
     ticker: params.ticker,
+    significance: params.significance,
   }
 
-  // Calculate stats from transactions
-  const stats = calculateStats(transactions)
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Insider Transactions</h1>
-          <LiveIndicator />
-        </div>
-        <p className="text-slate-400">
-          Track insider buying and selling activity across all SEC filings
-        </p>
+    <div className="space-y-4">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <h1
+          className={cn(
+            'text-2xl font-bold tracking-tight',
+            'text-[hsl(var(--text-primary))]'
+          )}
+        >
+          Insider Trades
+        </h1>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            'h-9',
+            'border-[hsl(var(--border-default))]',
+            'text-[hsl(var(--text-secondary))]',
+            'hover:text-[hsl(var(--text-primary))]',
+            'hover:bg-[hsl(var(--bg-hover))]'
+          )}
+        >
+          <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+          Export CSV
+        </Button>
       </div>
 
-      {/* Stats Summary */}
-      <StatsRow>
-        <StatCard label="Today's Trades" value={stats.todayCount} />
-        <StatCard label="This Week" value={stats.weekCount} />
-        <StatCard
-          label="Net Buy Volume"
-          value={stats.netVolume}
-          change={stats.netVolumeType === 'positive' ? 'Net buying' : 'Net selling'}
-          changeType={stats.netVolumeType}
-        />
-        <StatCard label="Active Companies" value={stats.activeCompanies} />
-      </StatsRow>
-
-      {/* Filters */}
+      {/* Filter Bar */}
       <Suspense fallback={<FiltersSkeleton />}>
         <TransactionFilters />
       </Suspense>
 
-      {/* Results Summary */}
-      <ResultsSummary count={transactions.length} filters={filters} />
+      {/* Main Content Card */}
+      <div
+        className={cn(
+          'rounded-lg overflow-hidden',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
+        {/* Results Summary Bar (inside the card) */}
+        <ResultsSummary
+          start={pageStart}
+          end={pageEnd}
+          total={total}
+          loading={false}
+        />
 
-      {/* Transaction Table */}
-      <Suspense fallback={<TableSkeleton />}>
-        <TransactionTable transactions={transactions} />
-      </Suspense>
+        {/* Transaction Table */}
+        <Suspense fallback={<TableSkeleton />}>
+          {transactions.length > 0 ? (
+            <TransactionTable
+              transactions={transactions}
+              totalCount={total}
+              pageStart={pageStart}
+              pageEnd={pageEnd}
+              showResultsSummary={false}
+              expandable={true}
+              maxHeight="calc(100vh - 380px)"
+            />
+          ) : (
+            <div className="p-8">
+              <InsiderTradesEmptyState />
+            </div>
+          )}
+        </Suspense>
 
-      {/* Pagination */}
-      {hasMore && (
-        <div className="flex justify-center">
-          <LoadMoreButton currentPage={page} params={params} />
-        </div>
-      )}
-
-      {/* No Results */}
-      {transactions.length === 0 && <InsiderTradesEmptyState />}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="border-t border-[hsl(var(--border-default))]">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              searchParams={searchParamsRecord}
+            />
+          </div>
+        )}
+      </div>
     </div>
-  )
-}
-
-function LoadMoreButton({
-  currentPage,
-  params,
-}: {
-  currentPage: number
-  params: { type?: string; days?: string; ticker?: string }
-}) {
-  const nextPage = currentPage + 1
-  const searchParams = new URLSearchParams()
-
-  if (params.type && params.type !== 'all') {
-    searchParams.set('type', params.type)
-  }
-  if (params.days && params.days !== '30') {
-    searchParams.set('days', params.days)
-  }
-  if (params.ticker) {
-    searchParams.set('ticker', params.ticker)
-  }
-  searchParams.set('page', String(nextPage))
-
-  const href = `/insider-trades?${searchParams.toString()}`
-
-  return (
-    <Button variant="outline" asChild>
-      <a href={href}>Load more</a>
-    </Button>
   )
 }
 
 function FiltersSkeleton() {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-slate-800/30 p-4 sm:flex-row sm:items-center">
-      <Skeleton className="h-10 w-36 bg-slate-700/50" />
-      <Skeleton className="h-10 w-32 bg-slate-700/50" />
-      <Skeleton className="h-10 w-48 bg-slate-700/50" />
-      <Skeleton className="h-10 w-20 bg-slate-700/50" />
+    <div
+      className={cn(
+        'rounded-lg p-4',
+        'bg-[hsl(var(--bg-card))]',
+        'border border-[hsl(var(--border-default))]'
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <Skeleton className="h-9 w-[200px] bg-[hsl(var(--bg-elevated))]" />
+        <Skeleton className="h-9 w-[120px] bg-[hsl(var(--bg-elevated))]" />
+        <Skeleton className="h-9 w-[130px] bg-[hsl(var(--bg-elevated))]" />
+        <Skeleton className="h-9 w-[140px] bg-[hsl(var(--bg-elevated))]" />
+      </div>
     </div>
   )
 }
 
 function TableSkeleton() {
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-gradient-to-br from-slate-800/50 to-slate-900/70">
-      <div className="border-b border-white/[0.06] p-4">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-4 w-16 bg-slate-700/50" />
-          <Skeleton className="h-4 w-24 bg-slate-700/50" />
-          <Skeleton className="h-4 w-20 bg-slate-700/50" />
-          <Skeleton className="h-4 w-12 bg-slate-700/50" />
-          <Skeleton className="h-4 w-16 bg-slate-700/50" />
-          <Skeleton className="h-4 w-20 bg-slate-700/50" />
-          <Skeleton className="h-4 w-24 bg-slate-700/50" />
-        </div>
+    <div className="divide-y divide-[hsl(var(--border-subtle))]">
+      {/* Header skeleton */}
+      <div className="flex items-center gap-4 px-4 py-3 bg-[hsl(var(--bg-elevated))]">
+        <Skeleton className="h-4 w-10 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-24 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-24 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-card))]" />
+        <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-card))]" />
       </div>
-      <div className="p-4 space-y-4">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4">
-            <Skeleton className="h-4 w-20 bg-slate-700/50" />
-            <div>
-              <Skeleton className="h-4 w-16 bg-slate-700/50" />
-              <Skeleton className="mt-1 h-3 w-24 bg-slate-700/50" />
-            </div>
-            <div>
-              <Skeleton className="h-4 w-28 bg-slate-700/50" />
-              <Skeleton className="mt-1 h-3 w-20 bg-slate-700/50" />
-            </div>
-            <Skeleton className="h-5 w-12 rounded-full bg-slate-700/50" />
-            <Skeleton className="h-4 w-16 ml-auto bg-slate-700/50" />
-            <Skeleton className="h-4 w-20 bg-slate-700/50" />
-            <Skeleton className="h-4 w-16 bg-slate-700/50" />
+      {/* Row skeletons */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-4 py-3.5">
+          <Skeleton className="h-5 w-5 bg-[hsl(var(--bg-elevated))]" />
+          <div className="flex-1">
+            <Skeleton className="h-4 w-28 bg-[hsl(var(--bg-elevated))]" />
+            <Skeleton className="mt-1 h-3 w-20 bg-[hsl(var(--bg-elevated))]" />
           </div>
-        ))}
-      </div>
+          <div>
+            <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-elevated))]" />
+            <Skeleton className="mt-1 h-3 w-24 bg-[hsl(var(--bg-elevated))]" />
+          </div>
+          <Skeleton className="h-6 w-14 rounded-full bg-[hsl(var(--bg-elevated))]" />
+          <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-elevated))]" />
+          <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-elevated))] hidden md:block" />
+          <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-elevated))]" />
+          <Skeleton className="h-4 w-16 bg-[hsl(var(--bg-elevated))]" />
+          <Skeleton className="h-4 w-20 bg-[hsl(var(--bg-elevated))]" />
+        </div>
+      ))}
     </div>
   )
 }

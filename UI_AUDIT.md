@@ -1,8 +1,9 @@
 # UI/UX Audit Report - InsiderIntel
 
-**Audit Date**: January 16, 2026
+**Audit Date**: January 17, 2026 (Updated)
 **Auditor**: Claude AI
 **App Version**: 0.1.0
+**Status**: Updated with additional findings
 
 ---
 
@@ -393,5 +394,69 @@ These issues are nice-to-haves that improve overall polish.
 
 ---
 
-*Report generated: January 16, 2026*
-*Total issues: 141 | High: 24 | Medium: 64 | Low: 53*
+## Additional Issues Identified (January 17, 2026 Update)
+
+### NEW HIGH Priority Issues
+
+| # | File Path | Line | Issue | Severity | Suggested Fix |
+|---|-----------|------|-------|----------|---------------|
+| 142 | `src/components/ui/select.tsx` | 21-28, 82-86 | **Select component hardcoded dark theme** - Uses `bg-slate-800`, `border-white/10` that won't work on light pages | HIGH | Add theme-aware classes: `bg-white dark:bg-slate-800 border-slate-300 dark:border-white/10` |
+| 143 | `src/components/landing/pricing-section.tsx` | 139-141 | **Unverifiable marketing claim** - "Join 500+ investors" violates trust guidelines in CLAUDE.md | HIGH | Remove the line or replace with verifiable feature |
+| 144 | `src/components/landing/faq-section.tsx` | 71-75 | **SOC 2 claim without certification** - Says "We follow SOC 2 security standards" | HIGH | Change to "We implement industry security best practices" |
+| 145 | `src/app/layout.tsx` | 100-114 | **Missing skip navigation link** - No way for keyboard users to skip to main content | HIGH | Add skip link as first child in body |
+| 146 | `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 1-686 | **Oversized component (686 lines)** - Single client component handles too many concerns | HIGH | Split into WatchlistSearch, WatchlistGrid, WatchlistActivityFeed, useWatchlist hook |
+
+### NEW MEDIUM Priority Issues
+
+| # | File Path | Line | Issue | Severity | Suggested Fix |
+|---|-----------|------|-------|----------|---------------|
+| 147 | `src/components/landing/pricing-section.tsx` | 269-278 | **Tooltips not keyboard accessible** - Uses CSS `:hover` only, no focus support | MEDIUM | Use Radix UI Tooltip primitive with keyboard support |
+| 148 | `src/components/landing/faq-section.tsx` | 122-138 | **FAQ tabs missing ARIA attributes** - No `role="tablist"`, `aria-selected` | MEDIUM | Add proper ARIA tab pattern attributes |
+| 149 | `src/components/dashboard/company-tabs.tsx` | 135-142, 221-234 | **Uses theme-aware Card in dark dashboard** - Should use DashboardCard for consistency | MEDIUM | Replace `Card` with `DashboardCard` or `CardElevated` |
+| 150 | `src/components/dashboard/sidebar.tsx` | Mobile overlay | **Mobile sidebar missing focus trap** - Keyboard focus can escape to content behind | MEDIUM | Add focus-trap using Radix Dialog or focus-trap library |
+| 151 | `src/app/(dashboard)/watchlist/watchlist-client.tsx` | 187-229 | **No confirmation for watchlist removal** - Single click permanently removes item | MEDIUM | Add AlertDialog confirmation or undo toast |
+| 152 | `src/components/dashboard/transaction-table.tsx` | 173-176 | **Empty state returns null** - Inconsistent empty state handling | MEDIUM | Add default empty state or document parent responsibility |
+| 153 | `src/app/(dashboard)/settings/profile/profile-form.tsx` | 184-196 | **Label not associated with input** - "Current Plan" label isn't a form control | MEDIUM | Change to paragraph with `aria-describedby` |
+| 154 | `src/components/landing/pricing-section.tsx` | 52-65 | **Toggle switch missing focus ring** - No visible keyboard focus indicator | MEDIUM | Add `focus-visible:ring-2 focus-visible:ring-cyan-400` |
+
+### NEW LOW Priority Issues
+
+| # | File Path | Line | Issue | Severity | Suggested Fix |
+|---|-----------|------|-------|----------|---------------|
+| 155 | `src/app/(dashboard)/dashboard/page.tsx` | subtitle | **Hardcoded "today" reference** - Says "What's happening today" even for historical data | LOW | Change to "Latest insider trading activity" |
+| 156 | `src/components/dashboard/transaction-table.tsx` | 238-246 | **Transaction value color only for buy/sell** - Other types (Award, Gift) show neutral | LOW | Consider coloring Award/Exercise as emerald or add legend |
+| 157 | Multiple files | Various | **Magic numbers in components** - Hardcoded `max-w-[150px]`, `min-h-[36px]`, `w-64` | LOW | Create design tokens in tailwind config |
+| 158 | `src/components/dashboard/transaction-table.tsx` | 220-221 | **Truncated names without tooltip** - Company names truncate but no way to see full name | LOW | Add `title={transaction.company_name}` attribute |
+| 159 | `src/app/(dashboard)/settings/profile/profile-form.tsx` | 80-81 | **Success message clears too quickly** - 3 seconds may not be noticed | LOW | Increase to 4-5 seconds or make persistent |
+| 160 | Multiple files | Various | **Inconsistent placeholder text colors** - Some use `slate-400`, others `slate-500` | LOW | Standardize on Input component's pattern |
+| 161 | `src/app/globals.css` | 250-254 | **Animation delay classes unused** - `.animate-delay-100` through `.animate-delay-500` defined but not used | LOW | Remove or implement staggered animations |
+| 162 | `src/app/page.tsx` | Various | **Inconsistent section spacing** - Sections use varying `py-16`, `py-16 sm:py-24` | LOW | Use `.section-padding` class consistently |
+| 163 | `src/app/(dashboard)/watchlist/watchlist-client.tsx`, `institutions-tabs.tsx` | Search inputs | **Search inputs missing clear button** - No X button to quickly clear search | LOW | Add clear button when text is entered |
+
+---
+
+## Updated Summary Statistics
+
+| Severity | Original Count | New Issues | Updated Total |
+|----------|----------------|------------|---------------|
+| HIGH | 24 | 5 | 29 |
+| MEDIUM | 64 | 8 | 72 |
+| LOW | 53 | 9 | 62 |
+| **Total** | **141** | **22** | **163** |
+
+---
+
+## Quick Wins (Can Fix Today)
+
+These issues have simple fixes and high impact:
+
+1. **Remove "500+ investors" claim** (Issue #143) - Delete one line
+2. **Fix SOC 2 claim** (Issue #144) - Change text
+3. **Add title to truncated names** (Issue #158) - Add single attribute
+4. **Increase success message duration** (Issue #159) - Change `3000` to `5000`
+5. **Add toggle focus ring** (Issue #154) - Add focus-visible classes
+
+---
+
+*Report updated: January 17, 2026*
+*Total issues: 163 | High: 29 | Medium: 72 | Low: 62*

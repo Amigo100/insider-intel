@@ -17,6 +17,12 @@ import {
   LineChart,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 /**
  * Enhanced pricing section with annual toggle, tooltips, and visual hierarchy
@@ -30,6 +36,7 @@ export function PricingSection() {
   const prices = isAnnual ? annualPrices : monthlyPrices
 
   return (
+    <TooltipProvider>
     <section id="pricing" className="py-16 sm:py-24 bg-muted/20 scroll-mt-16">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
@@ -136,9 +143,6 @@ export function PricingSection() {
               <p className="mt-2 text-sm text-slate-500">
                 For serious individual investors
               </p>
-              <p className="mt-1 text-xs text-emerald-600 font-medium">
-                Join 500+ investors on this plan
-              </p>
             </div>
             <div className="space-y-6">
               <ul className="space-y-3">
@@ -243,6 +247,7 @@ export function PricingSection() {
         </div>
       </div>
     </section>
+    </TooltipProvider>
   )
 }
 
@@ -255,26 +260,33 @@ interface FeatureItemProps {
 
 function FeatureItem({ icon: Icon, children, tooltip, highlight }: FeatureItemProps) {
   return (
-    <li className="flex items-start gap-3 group">
+    <li className="flex items-start gap-3">
       <div
         className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full ${
           highlight
             ? 'bg-emerald-100 text-emerald-500'
             : 'bg-slate-100 text-slate-400'
         }`}
+        aria-hidden="true"
       >
         <Icon className="h-3 w-3" />
       </div>
       <span className="text-sm text-slate-700 flex-1">{children}</span>
       {tooltip && (
-        <div className="relative">
-          <HelpCircle className="h-4 w-4 text-slate-300 cursor-help" />
-          <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50">
-            <div className="w-48 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg">
-              {tooltip}
-            </div>
-          </div>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className="text-slate-300 hover:text-slate-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              aria-label="More information"
+            >
+              <HelpCircle className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-[200px] text-xs bg-white text-slate-600 border-slate-200">
+            {tooltip}
+          </TooltipContent>
+        </Tooltip>
       )}
     </li>
   )

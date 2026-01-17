@@ -127,7 +127,7 @@ export function DashboardPreview() {
                 Good morning, Alex
               </h2>
               <p className="text-xs text-slate-400 sm:text-sm">
-                Here&apos;s what&apos;s happening with insider trades today
+                Latest insider trading activity
               </p>
             </div>
 

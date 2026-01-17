@@ -1,158 +1,247 @@
 @import "tailwindcss";
 
+/* ===================================================================
+   MODERNIZED BLOOMBERG DESIGN SYSTEM
+   ===================================================================
+   A refined dark theme inspired by Bloomberg Terminal aesthetics.
+   Uses pure black/gray scale with amber accents for actions.
+
+   Typography:
+   - Inter: Primary UI font (headings, body, labels)
+   - JetBrains Mono: Data font (numbers, prices, tickers)
+   =================================================================== */
+
 :root {
+  /* ===== TYPOGRAPHY ===== */
+  /* Primary font stack - Inter for UI elements */
+  --font-sans: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Monospace font stack - JetBrains Mono for data/numbers */
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Monaco, Consolas, monospace;
+
+  /* Legacy mappings for backwards compatibility */
+  --font-geist-sans: var(--font-sans);
+  --font-geist-mono: var(--font-mono);
+
+  /* ===== LIGHT THEME (Landing, Auth, Marketing) ===== */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 0 0% 9%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 0 0% 9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --popover-foreground: 0 0% 9%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 9%;
   --radius: 0.5rem;
 
-  /* Sidebar specific */
-  --sidebar-background: 222.2 84% 4.9%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-muted: 217.2 32.6% 17.5%;
-  --sidebar-muted-foreground: 215 20% 75%;
-  --sidebar-accent: 217.2 32.6% 17.5%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-border: 217.2 32.6% 17.5%;
+  /* ===== ANIMATION/TRANSITION TOKENS ===== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --duration-slow: 300ms;
 
-  /* Semantic transaction colors */
-  --color-buy: 142.1 76.2% 36.3%;
-  --color-buy-muted: 142.1 70% 45%;
-  --color-sell: 0 72.2% 50.6%;
-  --color-sell-muted: 0 65% 55%;
+  /* ===== SIDEBAR (Always Dark) ===== */
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 96%;
+  --sidebar-muted: 0 0% 10%;
+  --sidebar-muted-foreground: 0 0% 64%;
+  --sidebar-accent: 0 0% 13%;
+  --sidebar-accent-foreground: 0 0% 96%;
+  --sidebar-border: 0 0% 20%;
 
-  /* Dark theme background scale */
-  --bg-deepest: 222.2 84% 4.9%;
-  --bg-deep: 217.2 32.6% 17.5%;
-  --bg-surface: 215.3 25% 27%;
-  --bg-surface-hover: 215 20.2% 35%;
+  /* ===== SEMANTIC SIGNAL COLORS ===== */
+  /* Positive: Vibrant green for BUY signals */
+  --signal-positive: 145 100% 39%;
+  --signal-positive-muted: 145 80% 45%;
+  /* Negative: Vibrant red for SELL signals */
+  --signal-negative: 0 100% 66%;
+  --signal-negative-muted: 0 80% 60%;
 
-  /* Background variables */
-  --bg-base: 222.2 84% 4.9%;
-  --bg-elevated: 217.2 32.6% 17.5%;
-  --bg-interactive: 215.3 25% 27%;
-  --bg-input: 217.2 32.6% 17.5%;
+  /* ===== BLOOMBERG ACCENT (Actions Only) ===== */
+  --accent-amber: 36 100% 56%;
+  --accent-amber-hover: 36 100% 65%;
+  --accent-amber-muted: 36 100% 56%;
+  --accent-info: 210 70% 56%;
 
-  /* Border variables */
-  --border-default: 217.2 32.6% 17.5%;
-  --border-hover: 215 20.2% 35%;
-  --border-focus: 199 89% 48%;
+  /* ===== LEGACY MAPPINGS (for backwards compatibility) ===== */
+  --color-buy: 145 100% 39%;
+  --color-buy-muted: 145 80% 45%;
+  --color-sell: 0 100% 66%;
+  --color-sell-muted: 0 80% 60%;
 
-  /* Accent colors - Cyan */
-  --cyan-400: 199 89% 58%;
-  --cyan-500: 199 89% 48%;
-  --cyan-glow: 199 89% 48%;
-  --cyan-muted: 199 40% 30%;
+  /* ===== BACKGROUND SCALE (Dashboard) ===== */
+  --bg-app: 0 0% 5%;
+  --bg-card: 0 0% 10%;
+  --bg-elevated: 0 0% 13%;
+  --bg-hover: 0 0% 15%;
+  --bg-active: 0 0% 18%;
 
-  /* Text colors */
-  --text-primary: 210 40% 98%;
-  --text-secondary: 215 20% 75%;
-  --text-muted: 215 16% 55%;
+  /* ===== BORDER SCALE ===== */
+  --border-default: 0 0% 20%;
+  --border-subtle: 0 0% 16%;
+
+  /* ===== TEXT SCALE ===== */
+  --text-primary: 0 0% 96%;
+  --text-secondary: 0 0% 83%;
+  --text-tertiary: 0 0% 63%;
+  --text-muted: 0 0% 45%;
+
+  /* ===== GLASSMORPHISM ===== */
+  --glass-bg: 0 0% 10%;
+  --glass-border: 0 0% 100%;
+  --glass-blur: 12px;
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20% 75%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+  /* ===== DARK THEME (Dashboard) - Modernized Bloomberg ===== */
+
+  /* Core Tailwind semantic mappings */
+  --background: 0 0% 5%;           /* #0D0D0D - App background */
+  --foreground: 0 0% 96%;          /* #F5F5F5 - Primary text */
+  --card: 0 0% 10%;                /* #1A1A1A - Card background */
+  --card-foreground: 0 0% 96%;     /* #F5F5F5 - Card text */
+  --popover: 0 0% 13%;             /* #222222 - Elevated surfaces */
+  --popover-foreground: 0 0% 96%;  /* #F5F5F5 - Popover text */
+  --primary: 36 100% 56%;          /* #FFA028 - Bloomberg amber (actions) */
+  --primary-foreground: 0 0% 5%;   /* #0D0D0D - Text on primary */
+  --secondary: 0 0% 15%;           /* #262626 - Secondary surfaces */
+  --secondary-foreground: 0 0% 96%;/* #F5F5F5 - Text on secondary */
+  --muted: 0 0% 18%;               /* #2D2D2D - Muted backgrounds */
+  --muted-foreground: 0 0% 63%;    /* #A0A0A0 - Tertiary text */
+  --accent: 0 0% 15%;              /* #262626 - Accent backgrounds */
+  --accent-foreground: 0 0% 96%;   /* #F5F5F5 - Accent text */
+  --destructive: 0 100% 66%;       /* #FF5252 - Error/destructive */
+  --destructive-foreground: 0 0% 96%;
+  --border: 0 0% 20%;              /* #333333 - Default borders */
+  --input: 0 0% 13%;               /* #222222 - Input backgrounds */
+  --ring: 36 100% 56%;             /* #FFA028 - Focus ring (amber) */
+
+  /* Sidebar in dark mode uses same scale */
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 96%;
+  --sidebar-muted: 0 0% 10%;
+  --sidebar-muted-foreground: 0 0% 63%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 96%;
+  --sidebar-border: 0 0% 20%;
 }
 
 /* ===== SEMANTIC TRANSACTION UTILITIES ===== */
-.text-buy { color: hsl(var(--color-buy)); }
-.text-sell { color: hsl(var(--color-sell)); }
-.bg-buy { background-color: hsl(var(--color-buy) / 0.15); }
-.bg-sell { background-color: hsl(var(--color-sell) / 0.15); }
-.text-buy-muted { color: hsl(var(--color-buy-muted)); }
-.text-sell-muted { color: hsl(var(--color-sell-muted)); }
+.text-buy { color: hsl(var(--signal-positive)); }
+.text-sell { color: hsl(var(--signal-negative)); }
+.bg-buy { background-color: hsl(var(--signal-positive) / 0.15); }
+.bg-sell { background-color: hsl(var(--signal-negative) / 0.15); }
+.text-buy-muted { color: hsl(var(--signal-positive-muted)); }
+.text-sell-muted { color: hsl(var(--signal-negative-muted)); }
+
+/* Signal background utilities */
+.bg-signal-positive { background-color: hsl(var(--signal-positive) / 0.15); }
+.bg-signal-negative { background-color: hsl(var(--signal-negative) / 0.15); }
+.text-signal-positive { color: hsl(var(--signal-positive)); }
+.text-signal-negative { color: hsl(var(--signal-negative)); }
+
+/* ===== BLOOMBERG ACCENT UTILITIES ===== */
+.accent-amber { color: hsl(var(--accent-amber)); }
+.bg-accent-amber { background-color: hsl(var(--accent-amber)); }
+.bg-accent-amber-muted { background-color: hsl(var(--accent-amber) / 0.15); }
+.border-accent-amber { border-color: hsl(var(--accent-amber)); }
+.ring-accent-amber { --tw-ring-color: hsl(var(--accent-amber)); }
 
 /* ===== GRADIENT UTILITIES ===== */
 .gradient-dark {
-  background: linear-gradient(180deg, hsl(var(--bg-base)) 0%, hsl(var(--bg-elevated)) 100%);
+  background: linear-gradient(180deg, hsl(var(--bg-app)) 0%, hsl(var(--bg-card)) 100%);
 }
-.gradient-glow {
-  background: linear-gradient(180deg, hsl(var(--cyan-500) / 0.1) 0%, transparent 50%);
+.gradient-card {
+  background: linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--bg-elevated)) 100%);
+}
+.gradient-glow-amber {
+  background: linear-gradient(180deg, hsl(var(--accent-amber) / 0.1) 0%, transparent 50%);
 }
 
-/* ===== ACCENT UTILITIES ===== */
-.accent-cyan { color: hsl(var(--cyan-500)); }
-.accent-cyan-muted { color: hsl(var(--cyan-muted)); }
-.border-accent { border-color: hsl(var(--cyan-500)); }
-.border-accent-muted { border-color: hsl(var(--cyan-muted)); }
+/* ===== GLASSMORPHISM UTILITIES ===== */
+.glass {
+  background-color: hsl(var(--glass-bg) / 0.75);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border) / 0.08);
+}
+.glass-subtle {
+  background-color: hsl(var(--glass-bg) / 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--glass-border) / 0.05);
+}
 
 /* ===== GLOW EFFECTS ===== */
-.glow-cyan {
-  box-shadow: 0 0 20px hsl(var(--cyan-glow) / 0.3);
+.glow-amber {
+  box-shadow: 0 0 20px hsl(var(--accent-amber) / 0.3);
 }
-.glow-cyan-sm {
-  box-shadow: 0 0 10px hsl(var(--cyan-glow) / 0.2);
+.glow-amber-sm {
+  box-shadow: 0 0 10px hsl(var(--accent-amber) / 0.2);
 }
-.glow-buy {
-  box-shadow: 0 0 15px hsl(var(--color-buy) / 0.3);
+.glow-positive {
+  box-shadow: 0 0 15px hsl(var(--signal-positive) / 0.3);
 }
-.glow-sell {
-  box-shadow: 0 0 15px hsl(var(--color-sell) / 0.3);
+.glow-negative {
+  box-shadow: 0 0 15px hsl(var(--signal-negative) / 0.3);
 }
 
 /* ===== CARD HOVER EFFECTS ===== */
 .card-hover {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out),
+              transform var(--duration-normal) var(--ease-out);
 }
 .card-hover:hover {
-  border-color: hsl(var(--border-hover));
-  box-shadow: 0 4px 20px hsl(var(--bg-base) / 0.5);
+  border-color: hsl(var(--border-default));
+  box-shadow: 0 4px 20px hsl(0 0% 0% / 0.4);
 }
 .card-hover-glow:hover {
-  border-color: hsl(var(--cyan-500) / 0.5);
-  box-shadow: 0 0 30px hsl(var(--cyan-glow) / 0.15);
+  border-color: hsl(var(--accent-amber) / 0.5);
+  box-shadow: 0 0 30px hsl(var(--accent-amber) / 0.1);
 }
 
 /* ===== TEXT UTILITIES ===== */
 .text-primary-custom { color: hsl(var(--text-primary)); }
 .text-secondary-custom { color: hsl(var(--text-secondary)); }
+.text-tertiary-custom { color: hsl(var(--text-tertiary)); }
 .text-muted-custom { color: hsl(var(--text-muted)); }
 
+/* ===== TABULAR NUMBERS ===== */
+/* Use for financial data, prices, and aligned numeric columns */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
 /* ===== BACKGROUND UTILITIES ===== */
-.bg-base { background-color: hsl(var(--bg-base)); }
+.bg-app { background-color: hsl(var(--bg-app)); }
+.bg-card-custom { background-color: hsl(var(--bg-card)); }
 .bg-elevated { background-color: hsl(var(--bg-elevated)); }
-.bg-interactive { background-color: hsl(var(--bg-interactive)); }
-.bg-input-custom { background-color: hsl(var(--bg-input)); }
+.bg-hover { background-color: hsl(var(--bg-hover)); }
+.bg-active { background-color: hsl(var(--bg-active)); }
+
+/* Legacy mappings */
+.bg-base { background-color: hsl(var(--bg-app)); }
+.bg-interactive { background-color: hsl(var(--bg-elevated)); }
+.bg-input-custom { background-color: hsl(var(--input)); }
 
 /* ===== BORDER UTILITIES ===== */
 .border-default { border-color: hsl(var(--border-default)); }
-.border-hover-custom { border-color: hsl(var(--border-hover)); }
-.border-focus-custom { border-color: hsl(var(--border-focus)); }
+.border-subtle { border-color: hsl(var(--border-subtle)); }
+.border-hover-custom { border-color: hsl(var(--bg-hover)); }
+.border-focus-custom { border-color: hsl(var(--accent-amber)); }
 
+/* ===== TAILWIND THEME INTEGRATION ===== */
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -180,14 +269,24 @@
   --color-sidebar-accent: hsl(var(--sidebar-accent));
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
+
+  /* Radius tokens */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Font tokens - use new Inter and JetBrains Mono fonts */
+  --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', monospace;
+
+  /* Animation tokens */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
 }
 
+/* ===== BASE STYLES ===== */
 * {
   border-color: hsl(var(--border));
 }
@@ -203,9 +302,9 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Focus visible styles for accessibility */
+/* Focus visible styles for accessibility - uses amber in dark mode */
 :focus-visible {
-  outline: 2px solid hsl(199 89% 48% / 0.5);
+  outline: 2px solid hsl(var(--ring) / 0.7);
   outline-offset: 2px;
 }
 
@@ -227,7 +326,7 @@ html {
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 4s var(--ease-in-out) infinite;
 }
 
 /* Fade in up animation */
@@ -243,13 +342,13 @@ html {
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+  animation: fade-in-up 0.6s var(--ease-out) forwards;
 }
 
 /* Staggered animation delays */
-.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-100 { animation-delay: var(--duration-fast); }
 .animate-delay-200 { animation-delay: 200ms; }
-.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-300 { animation-delay: var(--duration-slow); }
 .animate-delay-400 { animation-delay: 400ms; }
 .animate-delay-500 { animation-delay: 500ms; }
 
@@ -264,7 +363,7 @@ html {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
+  animation: fade-in 0.5s var(--ease-out) forwards;
 }
 
 /* Scale in animation */
@@ -280,21 +379,49 @@ html {
 }
 
 .animate-scale-in {
-  animation: scale-in 0.4s ease-out forwards;
+  animation: scale-in 0.4s var(--ease-out) forwards;
 }
 
-/* Pulse glow animation */
+/* Pulse glow animation - uses amber accent */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 0 0 hsl(var(--accent-amber) / 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+    box-shadow: 0 0 0 8px hsl(var(--accent-amber) / 0);
   }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2s var(--ease-in-out) infinite;
+}
+
+/* Subtle pulse for live indicators */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s var(--ease-in-out) infinite;
+}
+
+/* Shimmer animation for skeleton loading states */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite linear;
 }
 
 /* ===== SCROLL-TRIGGERED ANIMATIONS ===== */
@@ -303,7 +430,7 @@ html {
 .scroll-animate {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
 }
 
 .scroll-animate.is-visible {
@@ -315,17 +442,22 @@ html {
 
 /* Smooth transitions for interactive elements */
 a, button, [role="button"] {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: color var(--duration-normal) var(--ease-out),
+              background-color var(--duration-normal) var(--ease-out),
+              border-color var(--duration-normal) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
 }
 
 /* Card hover effect utility */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 40px -10px hsl(var(--foreground) / 0.1);
+  box-shadow: 0 10px 40px -10px hsl(0 0% 0% / 0.3);
 }
 
 /* Link underline animation */
@@ -341,7 +473,7 @@ a, button, [role="button"] {
   width: 0;
   height: 2px;
   background-color: currentColor;
-  transition: width 0.3s ease;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 .link-underline:hover::after {
@@ -359,7 +491,8 @@ a, button, [role="button"] {
   .animate-fade-in-up,
   .animate-fade-in,
   .animate-scale-in,
-  .animate-pulse-glow {
+  .animate-pulse-glow,
+  .animate-pulse-subtle {
     animation: none;
   }
 
@@ -395,7 +528,41 @@ a, button, [role="button"] {
 
 @media (min-width: 1024px) {
   .section-padding {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
+    padding-top: 8rem;
+    padding-bottom: 8rem;
   }
+}
+
+/* ===== SCROLLBAR STYLING (Dark Mode) ===== */
+.dark {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border-default)) transparent;
+}
+
+.dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border-default));
+  border-radius: 4px;
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--text-muted));
+}
+
+/* ===== SELECTION STYLING ===== */
+::selection {
+  background-color: hsl(var(--accent-amber) / 0.3);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: hsl(var(--accent-amber) / 0.3);
 }

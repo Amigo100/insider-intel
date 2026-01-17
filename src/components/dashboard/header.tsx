@@ -183,7 +183,10 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
 
         {/* No results message */}
         {showResults && searchResults.length === 0 && searchQuery.length >= 1 && !isSearching && (
-          <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 p-3 shadow-lg">
+          <div
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 p-3 shadow-lg"
+            role="alert"
+          >
             <p className="text-sm text-slate-400">No companies found</p>
           </div>
         )}

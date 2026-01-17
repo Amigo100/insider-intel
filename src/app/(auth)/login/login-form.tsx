@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { clientLogger } from '@/lib/client-logger'
-import { Loader2, Mail, Lock, AlertCircle, Info } from 'lucide-react'
+import { Loader2, Mail, Lock, AlertCircle, Info, Eye, EyeOff } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -72,6 +72,7 @@ export function LoginForm() {
   const [errorAction, setErrorAction] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const supabase = createClient()
 
@@ -188,9 +189,13 @@ export function LoginForm() {
         <form onSubmit={handleEmailLogin} className="space-y-4">
           {/* General Error */}
           {errors.general && (
-            <div className="rounded-lg bg-destructive/10 p-4 text-sm">
+            <div
+              className="rounded-lg bg-destructive/10 p-4 text-sm"
+              role="alert"
+              aria-live="polite"
+            >
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" />
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" aria-hidden="true" />
                 <div className="space-y-1">
                   <p className="font-medium text-destructive">{errors.general}</p>
                   {errorAction && (
@@ -205,7 +210,7 @@ export function LoginForm() {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="email"
                 type="email"
@@ -218,11 +223,13 @@ export function LoginForm() {
                 className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="email-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.email}
               </p>
             )}
@@ -240,24 +247,39 @@ export function LoginForm() {
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
                   if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }))
                 }}
-                className={`pl-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                className={`pl-10 pr-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="current-password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                disabled={isLoading || isGoogleLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="password-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.password}
               </p>
             )}

@@ -2,6 +2,22 @@ import Link from 'next/link'
 import { TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+/**
+ * Logo Component - Modernized Bloomberg Design System
+ *
+ * Updated to use amber accent color throughout.
+ *
+ * Variants:
+ * - 'default': Uses CSS variables (adapts to context)
+ * - 'light': For dark backgrounds (amber icon container, white text)
+ * - 'dark': For light backgrounds (dark container, dark text)
+ *
+ * Logo icon specifications:
+ * - 32x32 icon container
+ * - Amber background (#FFA028 / --accent-amber)
+ * - Rounded 8px
+ */
+
 type LogoVariant = 'default' | 'light' | 'dark'
 type LogoSize = 'sm' | 'md' | 'lg'
 
@@ -9,15 +25,15 @@ interface LogoProps {
   /**
    * Variant determines color scheme:
    * - 'default': Adapts to context (uses CSS variables)
-   * - 'light': For dark backgrounds (cyan icon, white text)
-   * - 'dark': For light backgrounds (dark icon container, dark text)
+   * - 'light': For dark backgrounds (amber icon container, white text)
+   * - 'dark': For light backgrounds (dark container, dark text)
    */
   variant?: LogoVariant
   /**
    * Size of the logo:
-   * - 'sm': Small (h-6 icon, text-lg text)
-   * - 'md': Medium (h-8 icon, text-xl text)
-   * - 'lg': Large (h-10 icon, text-2xl text)
+   * - 'sm': Small (24x24 icon container)
+   * - 'md': Medium (32x32 icon container) - Default
+   * - 'lg': Large (40x40 icon container)
    */
   size?: LogoSize
   /**
@@ -37,22 +53,22 @@ interface LogoProps {
 
 const sizeConfig = {
   sm: {
-    container: 'h-6 w-6',
+    container: 'h-6 w-6 rounded-md',
     icon: 'h-4 w-4',
     text: 'text-lg',
-    gap: 'gap-1.5',
-  },
-  md: {
-    container: 'h-8 w-8',
-    icon: 'h-5 w-5',
-    text: 'text-xl',
     gap: 'gap-2',
   },
+  md: {
+    container: 'h-8 w-8 rounded-lg',
+    icon: 'h-5 w-5',
+    text: 'text-xl',
+    gap: 'gap-2.5',
+  },
   lg: {
-    container: 'h-10 w-10',
+    container: 'h-10 w-10 rounded-lg',
     icon: 'h-6 w-6',
     text: 'text-2xl',
-    gap: 'gap-2.5',
+    gap: 'gap-3',
   },
 }
 
@@ -60,7 +76,9 @@ const sizeConfig = {
  * InsiderIntel Logo Component
  *
  * Standardized logo treatment across the entire application.
- * Use 'light' variant on dark backgrounds (dashboard, auth left panel)
+ * Uses amber accent color as primary brand color.
+ *
+ * Use 'light' variant on dark backgrounds (dashboard, sidebar)
  * Use 'dark' variant on light backgrounds (landing page, marketing pages)
  */
 export function Logo({
@@ -76,25 +94,27 @@ export function Logo({
   const getIconContainerStyles = () => {
     switch (variant) {
       case 'light':
-        // For dark backgrounds - no container, just cyan icon
-        return ''
+        // For dark backgrounds - amber container with dark icon
+        return 'flex items-center justify-center bg-[hsl(var(--accent-amber))]'
       case 'dark':
-        // For light backgrounds - dark container
-        return 'flex items-center justify-center rounded-lg bg-slate-900'
+        // For light backgrounds - dark container with amber icon
+        return 'flex items-center justify-center bg-[hsl(var(--bg-app))]'
       default:
         // Default uses CSS variables
-        return 'flex items-center justify-center rounded-lg bg-primary'
+        return 'flex items-center justify-center bg-[hsl(var(--accent-amber))]'
     }
   }
 
   const getIconStyles = () => {
     switch (variant) {
       case 'light':
-        return 'text-cyan-400'
+        // Dark icon on amber background
+        return 'text-[hsl(var(--bg-app))]'
       case 'dark':
-        return 'text-white'
+        // Amber icon on dark background
+        return 'text-[hsl(var(--accent-amber))]'
       default:
-        return 'text-primary-foreground'
+        return 'text-[hsl(var(--bg-app))]'
     }
   }
 
@@ -103,32 +123,22 @@ export function Logo({
       case 'light':
         return 'text-white'
       case 'dark':
-        return 'text-slate-900'
+        return 'text-[hsl(var(--text-primary))]'
       default:
         return 'text-foreground'
     }
   }
 
-  const iconContainerStyles = getIconContainerStyles()
-  const hasContainer = iconContainerStyles !== ''
-
   const content = (
     <div className={cn('flex items-center', config.gap, className)}>
-      {hasContainer ? (
-        <div className={cn(iconContainerStyles, config.container)}>
-          <TrendingUp
-            className={cn(config.icon, getIconStyles())}
-            aria-hidden="true"
-          />
-        </div>
-      ) : (
+      <div className={cn(getIconContainerStyles(), config.container)}>
         <TrendingUp
           className={cn(config.icon, getIconStyles())}
           aria-hidden="true"
         />
-      )}
+      </div>
       {showText && (
-        <span className={cn('font-bold', config.text, getTextStyles())}>
+        <span className={cn('font-bold tracking-tight', config.text, getTextStyles())}>
           InsiderIntel
         </span>
       )}
@@ -142,7 +152,13 @@ export function Logo({
   return (
     <Link
       href={href}
-      className="transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 rounded-sm"
+      className={cn(
+        'transition-opacity hover:opacity-80',
+        'focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:ring-[hsl(var(--accent-amber))]',
+        'focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--bg-app))]',
+        'rounded-sm'
+      )}
     >
       {content}
     </Link>

@@ -5,6 +5,17 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+/**
+ * Select Component - Modernized Bloomberg Design System
+ *
+ * Theme-aware styling using CSS variables:
+ * - Trigger matches Input component styling
+ * - Content uses popover colors (elevated surface)
+ * - Items use hover/focus states with amber accent
+ *
+ * Fixes UI_AUDIT issues #13, #142
+ */
+
 const Select = SelectPrimitive.Root
 
 const SelectGroup = SelectPrimitive.Group
@@ -18,20 +29,32 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between rounded-lg px-4 py-2 text-sm',
-      'bg-slate-800 border border-white/10 text-white',
-      'shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]',
-      'focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20',
+      // Base styles - matches Input component
+      'flex h-11 w-full items-center justify-between rounded-[6px] px-3 py-2 text-sm',
+      'bg-background border border-input text-foreground',
+
+      // Placeholder styling
+      '[&>span]:line-clamp-1',
+      '[&>span[data-placeholder]]:text-muted-foreground',
+
+      // Transition
+      'transition-all duration-150',
+
+      // Focus state - amber accent (matches Input)
+      'focus:outline-none',
+      'focus:border-[hsl(var(--accent-amber))]',
+      'focus:shadow-[0_0_0_3px_hsl(var(--accent-amber)/0.15)]',
+
+      // Disabled state
       'disabled:cursor-not-allowed disabled:opacity-50',
-      '[&>span]:line-clamp-1 [&>span[data-placeholder]]:text-slate-400',
-      'transition-all duration-200',
+
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 text-slate-400" />
+      <ChevronDown className="h-4 w-4 text-muted-foreground" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -44,7 +67,7 @@ const SelectScrollUpButton = React.forwardRef<
   <SelectPrimitive.ScrollUpButton
     ref={ref}
     className={cn(
-      'flex cursor-default items-center justify-center py-1',
+      'flex cursor-default items-center justify-center py-1 text-muted-foreground',
       className
     )}
     {...props}
@@ -61,7 +84,7 @@ const SelectScrollDownButton = React.forwardRef<
   <SelectPrimitive.ScrollDownButton
     ref={ref}
     className={cn(
-      'flex cursor-default items-center justify-center py-1',
+      'flex cursor-default items-center justify-center py-1 text-muted-foreground',
       className
     )}
     {...props}
@@ -80,10 +103,19 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg',
-        'bg-slate-800 border border-white/10 text-white',
-        'shadow-xl shadow-black/50',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        // Base styles - uses popover (elevated surface)
+        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-[6px]',
+        'bg-popover border border-border text-popover-foreground',
+        'shadow-lg',
+
+        // Animations
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+        'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+
+        // Position adjustments
         position === 'popper' &&
           'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
         className
@@ -113,7 +145,10 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)}
+    className={cn(
+      'py-1.5 pl-8 pr-2 text-sm font-semibold text-foreground',
+      className
+    )}
     {...props}
   />
 ))
@@ -126,19 +161,28 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-md py-2 px-3 pl-8 text-sm outline-none',
-      'text-slate-300',
-      'hover:bg-white/5 hover:text-white',
-      'focus:bg-cyan-400/10 focus:text-cyan-400',
+      // Base styles
+      'relative flex w-full cursor-pointer select-none items-center',
+      'rounded-[4px] py-2 px-3 pl-8 text-sm outline-none',
+      'text-popover-foreground',
+
+      // Hover/Focus states - uses theme variables
+      'hover:bg-accent hover:text-accent-foreground',
+      'focus:bg-accent focus:text-accent-foreground',
+
+      // Disabled state
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+
+      // Transition
       'transition-colors duration-150',
+
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-cyan-400" />
+        <Check className="h-4 w-4 text-[hsl(var(--accent-amber))]" />
       </SelectPrimitive.ItemIndicator>
     </span>
 
@@ -153,7 +197,7 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-muted', className)}
+    className={cn('-mx-1 my-1 h-px bg-border', className)}
     {...props}
   />
 ))

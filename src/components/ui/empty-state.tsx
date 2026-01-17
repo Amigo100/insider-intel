@@ -1,23 +1,22 @@
 'use client'
 
 import Link from 'next/link'
-import { type LucideIcon } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 /**
- * EmptyState - Modernized Bloomberg Design System
+ * EmptyState Component - Modernized Bloomberg Design System
  *
- * Reusable empty state for dashboard pages when no data is available.
+ * Reusable empty state for when there's no data to display.
+ * Used across: Watchlist, Insider Trades, Institutions, Company not found
  *
  * Design specs:
- * - Icon: 64px container, 32px icon, amber accent background
+ * - Icon: 64px, text-muted, margin-bottom 16px
  * - Title: 18px, font-weight 600, text-primary
  * - Description: 14px, text-secondary, max-width 400px
  * - Action button: primary style (amber)
  * - Secondary text: 13px, text-muted
- *
- * Used across: Watchlist, Insider Trades, Institutions, Company not found
  */
 
 interface EmptyStateActionButton {
@@ -43,20 +42,17 @@ interface EmptyStateProps {
   description: string
   /** Optional action button or link */
   action?: EmptyStateAction
-  /** Optional secondary action */
-  secondaryAction?: EmptyStateAction
   /** Optional secondary text (e.g., "Popular: AAPL MSFT") */
   secondaryText?: string
   /** Optional className for container */
   className?: string
 }
 
-export default function EmptyState({
+export function EmptyState({
   icon: Icon,
   title,
   description,
   action,
-  secondaryAction,
   secondaryText,
   className,
 }: EmptyStateProps) {
@@ -71,17 +67,17 @@ export default function EmptyState({
       role="status"
       aria-label={title}
     >
-      {/* Icon Container */}
+      {/* Icon */}
       <div
         className={cn(
           'flex items-center justify-center',
           'h-16 w-16 mb-4',
           'rounded-full',
-          'bg-[hsl(var(--accent-amber)/0.15)]'
+          'bg-[hsl(var(--bg-elevated))]'
         )}
       >
         <Icon
-          className="h-8 w-8 text-[hsl(var(--accent-amber))]"
+          className="h-8 w-8 text-[hsl(var(--text-muted))]"
           aria-hidden="true"
         />
       </div>
@@ -109,28 +105,15 @@ export default function EmptyState({
         {description}
       </p>
 
-      {/* Action Buttons */}
-      {(action || secondaryAction) && (
-        <div className="flex items-center gap-3 mb-4">
-          {secondaryAction && (
-            secondaryAction.href ? (
-              <Button variant="outline" asChild>
-                <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
-              </Button>
-            ) : (
-              <Button variant="outline" onClick={secondaryAction.onClick}>
-                {secondaryAction.label}
-              </Button>
-            )
-          )}
-          {action && (
-            action.href ? (
-              <Button asChild>
-                <Link href={action.href}>{action.label}</Link>
-              </Button>
-            ) : (
-              <Button onClick={action.onClick}>{action.label}</Button>
-            )
+      {/* Action Button/Link */}
+      {action && (
+        <div className="mb-4">
+          {action.href ? (
+            <Button asChild>
+              <Link href={action.href}>{action.label}</Link>
+            </Button>
+          ) : (
+            <Button onClick={action.onClick}>{action.label}</Button>
           )}
         </div>
       )}
@@ -151,19 +134,17 @@ export default function EmptyState({
 }
 
 /**
- * EmptyStateCompact - Smaller variant for inline use (e.g., in tables)
+ * EmptyStateCompact - Smaller variant for inline use
  */
 interface EmptyStateCompactProps {
   icon: LucideIcon
   message: string
-  action?: EmptyStateAction
   className?: string
 }
 
 export function EmptyStateCompact({
   icon: Icon,
   message,
-  action,
   className,
 }: EmptyStateCompactProps) {
   return (
@@ -180,18 +161,7 @@ export function EmptyStateCompact({
         className="h-6 w-6 text-[hsl(var(--text-muted))] mb-2"
         aria-hidden="true"
       />
-      <p className="text-sm text-[hsl(var(--text-muted))] mb-4">{message}</p>
-      {action && (
-        action.href ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={action.href}>{action.label}</Link>
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" onClick={action.onClick}>
-            {action.label}
-          </Button>
-        )
-      )}
+      <p className="text-sm text-[hsl(var(--text-muted))]">{message}</p>
     </div>
   )
 }

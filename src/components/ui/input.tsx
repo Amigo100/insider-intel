@@ -5,11 +5,16 @@ export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 /**
- * Input component with theme-aware styling
+ * Input Component - Modernized Bloomberg Design System
  *
- * Works in both light mode (auth pages) and dark mode (dashboard):
- * - Light mode: white bg, slate border, dark text
- * - Dark mode: slate-800 bg, white/10 border, white text
+ * Theme-aware styling using CSS variables:
+ * - Light mode: white bg, border color from theme
+ * - Dark mode: bg-app (#0D0D0D), border-default (#333333)
+ *
+ * Accessibility:
+ * - 44px height for better touch targets
+ * - Visible focus state with amber ring
+ * - High contrast placeholder text
  */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
@@ -17,23 +22,25 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          // Base styles
-          'flex h-10 w-full rounded-lg px-4 py-2 text-sm transition-all duration-200',
-          'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+          // Base styles - 44px height for touch targets
+          'flex h-11 w-full rounded-[6px] px-3 py-2 text-sm',
+          'bg-background border border-input text-foreground',
+          'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
 
-          // Light mode (default)
-          'bg-white border border-slate-300 text-slate-900',
-          'placeholder:text-slate-400',
-          'shadow-sm',
-          'focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20',
-          'disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed',
+          // Placeholder
+          'placeholder:text-muted-foreground',
 
-          // Dark mode overrides
-          'dark:bg-slate-800 dark:border-white/10 dark:text-white',
-          'dark:placeholder:text-slate-500',
-          'dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]',
-          'dark:focus:border-cyan-400/50 dark:focus:ring-cyan-400/20',
-          'dark:disabled:bg-slate-900 dark:disabled:text-slate-500',
+          // Transition
+          'transition-all duration-150',
+
+          // Focus state - amber accent
+          'focus:outline-none',
+          'focus:border-[hsl(var(--accent-amber))]',
+          'focus:shadow-[0_0_0_3px_hsl(var(--accent-amber)/0.15)]',
+
+          // Disabled state
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          'disabled:bg-muted',
 
           className
         )}

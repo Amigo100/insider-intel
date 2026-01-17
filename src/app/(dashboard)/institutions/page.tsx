@@ -1,36 +1,62 @@
 import type { Metadata } from 'next'
+import { Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import {
   InstitutionsTabs,
+  InstitutionalHolding,
   NewPositionsSection,
   TopMovementsSection,
 } from '@/components/dashboard/institutions-tabs'
-import LiveIndicator from '@/components/dashboard/live-indicator'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Institutional Holdings',
-  description: 'Track 13F filings from hedge funds and institutional investors. See what the biggest players are buying and selling.',
+  description:
+    'Track 13F filings from hedge funds and institutional investors. See what the biggest players are buying and selling.',
 }
 
 async function getInstitutionsData() {
   const supabase = await createClient()
 
-  // Get institutions with holdings count
-  const { data: institutions } = await supabase
-    .from('institutions')
-    .select('id, cik, name, institution_type, aum_estimate')
-    .order('aum_estimate', { ascending: false, nullsFirst: false })
-    .limit(100)
-
-  // Get new positions this quarter
-  const { data: newPositionsRaw } = await supabase
+  // Get all institutional holdings for the tabs view
+  const { data: holdingsRaw } = await supabase
     .from('v_institutional_holdings')
     .select('*')
-    .eq('is_new_position', true)
     .order('value', { ascending: false })
-    .limit(100)
+    .limit(500)
 
-  // Group new positions by company
+  // Transform to InstitutionalHolding format
+  const holdings: InstitutionalHolding[] = (holdingsRaw || [])
+    .filter(
+      (h) =>
+        h.id &&
+        h.institution_id &&
+        h.institution_name &&
+        h.company_id &&
+        h.ticker &&
+        h.company_name
+    )
+    .map((h) => ({
+      id: h.id,
+      institution_id: h.institution_id,
+      institution_name: h.institution_name,
+      institution_type: h.institution_type,
+      company_id: h.company_id,
+      ticker: h.ticker,
+      company_name: h.company_name,
+      shares: h.shares || 0,
+      value: h.value || 0,
+      shares_change: h.shares_change,
+      shares_change_percent: h.shares_change
+        ? ((h.shares_change / ((h.shares || 1) - (h.shares_change || 0))) * 100)
+        : null,
+      is_new_position: h.is_new_position || false,
+      is_closed_position: h.is_closed_position || false,
+      report_date: h.report_date || '',
+    }))
+
+  // Get new positions for the summary section (grouped by company)
   const newPositionsMap = new Map<
     string,
     {
@@ -43,23 +69,22 @@ async function getInstitutionsData() {
     }
   >()
 
-  for (const pos of newPositionsRaw || []) {
-    if (!pos.company_id || !pos.ticker || !pos.company_name || pos.value === null || !pos.institution_name) continue
-    const existing = newPositionsMap.get(pos.company_id)
+  for (const h of holdings.filter((h) => h.is_new_position)) {
+    const existing = newPositionsMap.get(h.company_id)
     if (existing) {
       existing.new_buyers++
-      existing.total_value += pos.value
+      existing.total_value += h.value
       if (existing.notable_names.length < 5) {
-        existing.notable_names.push(pos.institution_name)
+        existing.notable_names.push(h.institution_name)
       }
     } else {
-      newPositionsMap.set(pos.company_id, {
-        company_id: pos.company_id,
-        ticker: pos.ticker,
-        company_name: pos.company_name,
+      newPositionsMap.set(h.company_id, {
+        company_id: h.company_id,
+        ticker: h.ticker,
+        company_name: h.company_name,
         new_buyers: 1,
-        total_value: pos.value,
-        notable_names: [pos.institution_name],
+        total_value: h.value,
+        notable_names: [h.institution_name],
       })
     }
   }
@@ -67,14 +92,6 @@ async function getInstitutionsData() {
   const newPositions = Array.from(newPositionsMap.values())
     .sort((a, b) => b.new_buyers - a.new_buyers)
     .slice(0, 20)
-
-  // Get top bought/sold
-  const { data: holdingsWithChanges } = await supabase
-    .from('v_institutional_holdings')
-    .select('*')
-    .not('shares_change', 'is', null)
-    .order('shares_change', { ascending: false })
-    .limit(500)
 
   // Aggregate by company for top bought
   const boughtMap = new Map<
@@ -97,32 +114,31 @@ async function getInstitutionsData() {
     }
   >()
 
-  for (const holding of holdingsWithChanges || []) {
-    if (!holding.company_id || !holding.ticker || !holding.company_name) continue
-    const change = holding.shares_change || 0
+  for (const h of holdings) {
+    const change = h.shares_change || 0
 
-    if (change > 0) {
-      const existing = boughtMap.get(holding.company_id)
+    if (change > 0 && !h.is_new_position) {
+      const existing = boughtMap.get(h.company_id)
       if (existing) {
         existing.net_change += change
         existing.institution_count++
       } else {
-        boughtMap.set(holding.company_id, {
-          ticker: holding.ticker,
-          company_name: holding.company_name,
+        boughtMap.set(h.company_id, {
+          ticker: h.ticker,
+          company_name: h.company_name,
           net_change: change,
           institution_count: 1,
         })
       }
-    } else if (change < 0) {
-      const existing = soldMap.get(holding.company_id)
+    } else if (change < 0 && !h.is_closed_position) {
+      const existing = soldMap.get(h.company_id)
       if (existing) {
         existing.net_change += change
         existing.institution_count++
       } else {
-        soldMap.set(holding.company_id, {
-          ticker: holding.ticker,
-          company_name: holding.company_name,
+        soldMap.set(h.company_id, {
+          ticker: h.ticker,
+          company_name: h.company_name,
           net_change: change,
           institution_count: 1,
         })
@@ -139,7 +155,7 @@ async function getInstitutionsData() {
     .slice(0, 10)
 
   return {
-    institutions: institutions || [],
+    holdings,
     newPositions,
     topBought,
     topSold,
@@ -150,36 +166,46 @@ export default async function InstitutionsPage() {
   const data = await getInstitutionsData()
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1
+            className={cn(
+              'text-2xl font-bold tracking-tight',
+              'text-[hsl(var(--text-primary))]'
+            )}
+          >
             Institutional Holdings
           </h1>
-          <LiveIndicator text="13F filings updated quarterly from SEC EDGAR" />
+          <p className="mt-1 text-sm text-[hsl(var(--text-muted))]">
+            Track 13F filings and institutional ownership changes
+          </p>
         </div>
-        <p className="text-slate-400">
-          Track 13F filings and institutional ownership changes
-        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            'gap-2',
+            'border-[hsl(var(--border-default))]',
+            'text-[hsl(var(--text-secondary))]',
+            'hover:bg-[hsl(var(--bg-hover))]',
+            'hover:text-[hsl(var(--text-primary))]'
+          )}
+        >
+          <Download className="h-4 w-4" aria-hidden="true" />
+          Export CSV
+        </Button>
       </div>
 
-      {/* Tabs */}
-      <InstitutionsTabs
-        institutions={data.institutions}
-        newPositions={data.newPositions}
-        topBought={data.topBought}
-        topSold={data.topSold}
-      />
+      {/* Tabs with filter bar and table */}
+      <InstitutionsTabs holdings={data.holdings} />
 
       {/* New Positions Section */}
       <NewPositionsSection positions={data.newPositions} />
 
       {/* Top Bought/Sold Section */}
-      <TopMovementsSection
-        topBought={data.topBought}
-        topSold={data.topSold}
-      />
+      <TopMovementsSection topBought={data.topBought} topSold={data.topSold} />
     </div>
   )
 }

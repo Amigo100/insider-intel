@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { WatchlistClient } from './watchlist-client'
+import { WatchlistPageClient } from './watchlist-page-client'
 
 export const metadata: Metadata = {
   title: 'Watchlist',
-  description: 'Your personalized stock watchlist. Track insider trading activity for the companies you care about.',
+  description:
+    'Your personalized stock watchlist. Track insider trading activity for the companies you care about.',
 }
 
 async function getWatchlistData(userId: string) {
@@ -18,7 +19,7 @@ async function getWatchlistData(userId: string) {
     .eq('id', userId)
     .single()
 
-  const tier = profile?.subscription_tier || 'free'
+  const tier = (profile?.subscription_tier || 'free') as 'free' | 'retail' | 'pro'
   const limit = tier === 'pro' ? 100 : tier === 'retail' ? 25 : 5
 
   // Get watchlist items with company details
@@ -91,7 +92,13 @@ async function getWatchlistData(userId: string) {
           : null
 
       companyStats[companyId] = {
-        lastTransaction,
+        lastTransaction: lastTransaction
+          ? {
+              transaction_type: lastTransaction.transaction_type,
+              total_value: lastTransaction.total_value || 0,
+              filed_at: lastTransaction.filed_at,
+            }
+          : null,
         sentiment,
         recentBuys: buys,
         recentSells: sells,
@@ -109,7 +116,7 @@ async function getWatchlistData(userId: string) {
     company: item.companies,
     stats: companyStats[item.company_id] || {
       lastTransaction: null,
-      sentiment: 'neutral',
+      sentiment: 'neutral' as const,
       recentBuys: 0,
       recentSells: 0,
       avgSignificance: null,
@@ -117,9 +124,23 @@ async function getWatchlistData(userId: string) {
     },
   }))
 
+  // Format activity items
+  const activity = recentActivity.slice(0, 20).map((t) => ({
+    id: t.id,
+    ticker: t.ticker,
+    company_name: t.company_name,
+    insider_name: t.insider_name,
+    insider_title: t.insider_title,
+    transaction_type: t.transaction_type,
+    total_value: t.total_value || 0,
+    filed_at: t.filed_at,
+    ai_context: t.ai_context,
+    ai_significance_score: t.ai_significance_score,
+  }))
+
   return {
     watchlist,
-    activity: recentActivity.slice(0, 20),
+    activity,
     meta: {
       count: watchlist.length,
       limit,
@@ -142,9 +163,5 @@ export default async function WatchlistPage() {
 
   const data = await getWatchlistData(user.id)
 
-  return (
-    <div className="space-y-8">
-      <WatchlistClient initialData={data} />
-    </div>
-  )
+  return <WatchlistPageClient initialData={data} />
 }

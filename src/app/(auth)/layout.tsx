@@ -8,8 +8,16 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen flex">
+      {/* Skip to form link for keyboard navigation */}
+      <a
+        href="#auth-form"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      >
+        Skip to form
+      </a>
+
       {/* Left Panel - Testimonial/Stats (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" aria-hidden="true">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
           {/* Grid pattern */}
@@ -87,7 +95,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-md">{children}</div>
+          <div id="auth-form" className="w-full max-w-md">{children}</div>
         </main>
 
         {/* Footer */}

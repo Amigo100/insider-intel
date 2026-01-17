@@ -77,8 +77,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       setSaveSuccess(true)
       router.refresh()
 
-      // Clear success message after 3 seconds
-      setTimeout(() => setSaveSuccess(false), 3000)
+      // Clear success message after 5 seconds
+      setTimeout(() => setSaveSuccess(false), 5000)
     } catch (err) {
       clientLogger.error('Error updating profile', { error: err })
       setError('Failed to update profile. Please try again.')
@@ -180,11 +180,14 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             </p>
           </div>
 
-          {/* Current Plan */}
+          {/* Current Plan - Not a form control, use semantic markup */}
           <div className="space-y-2">
-            <Label className="text-slate-300 text-sm font-medium">Current Plan</Label>
+            <p className="text-slate-300 text-sm font-medium">Current Plan</p>
             <div className="flex items-center gap-3">
-              <Badge variant={getTierVariant(initialData.subscriptionTier)}>
+              <Badge
+                variant={getTierVariant(initialData.subscriptionTier)}
+                aria-describedby="plan-description"
+              >
                 {getTierLabel(initialData.subscriptionTier)}
               </Badge>
               {initialData.subscriptionTier === 'free' && (
@@ -193,11 +196,18 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 </Button>
               )}
             </div>
+            <p id="plan-description" className="text-xs text-slate-500">
+              {initialData.subscriptionTier === 'free'
+                ? 'Free tier with basic features. Upgrade to unlock more.'
+                : initialData.subscriptionTier === 'retail'
+                ? 'Retail plan with unlimited watchlist and real-time data.'
+                : 'Pro plan with API access and institutional data.'}
+            </p>
           </div>
 
-          {/* Account Created */}
+          {/* Account Created - Not a form control, use semantic markup */}
           <div className="space-y-2">
-            <Label className="text-slate-300 text-sm font-medium">Account Created</Label>
+            <p className="text-slate-300 text-sm font-medium">Account Created</p>
             <p className="text-sm text-slate-400">
               {formatDate(initialData.createdAt)}
             </p>
@@ -205,7 +215,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+            <div
+              className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400"
+              role="alert"
+              aria-live="polite"
+            >
               {error}
             </div>
           )}

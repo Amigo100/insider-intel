@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Star, StarOff, Building2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { CompanyTabs } from '@/components/dashboard/company-tabs'
-import { WatchlistButton } from './watchlist-button'
+import { CompanyPageClient } from './company-page-client'
+import { cn } from '@/lib/utils'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
 interface PageProps {
@@ -36,44 +35,51 @@ async function getCompanyData(ticker: string) {
     return null
   }
 
-  // Get current year for YTD calculation
-  const currentYear = new Date().getFullYear()
-  const yearStart = `${currentYear}-01-01`
+  // Get date ranges
+  const now = new Date()
+  const oneYearAgo = new Date(now)
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
-  // Get transactions
-  const { data: transactions } = await supabase
+  // Get 1Y transactions for stats
+  const { data: yearTransactions } = await supabase
     .from('v_recent_insider_transactions')
     .select('*')
     .eq('company_id', company.id)
+    .gte('filed_at', oneYearAgo.toISOString())
     .order('filed_at', { ascending: false })
-    .limit(100)
 
-  // Get YTD transactions for stats
-  const { data: ytdTransactions } = await supabase
-    .from('insider_transactions')
-    .select('transaction_type, total_value')
-    .eq('company_id', company.id)
-    .gte('transaction_date', yearStart)
+  const transactions = yearTransactions || []
 
-  // Calculate YTD stats
-  const ytdBuys = ytdTransactions?.filter((t) => t.transaction_type === 'P') || []
-  const ytdSells = ytdTransactions?.filter((t) => t.transaction_type === 'S') || []
-  const ytdBuyValue = ytdBuys.reduce((sum, t) => sum + (t.total_value || 0), 0)
-  const ytdSellValue = ytdSells.reduce((sum, t) => sum + (t.total_value || 0), 0)
+  // Calculate 1Y stats
+  const buys = transactions.filter((t) => t.transaction_type === 'P')
+  const sells = transactions.filter((t) => t.transaction_type === 'S')
+  const buyValue = buys.reduce((sum, t) => sum + (t.total_value || 0), 0)
+  const sellValue = sells.reduce((sum, t) => sum + (t.total_value || 0), 0)
+  const netValue = buyValue - sellValue
 
   // Get institutional holders
   const { data: holders } = await supabase
     .from('v_institutional_holdings')
     .select('*')
     .eq('company_id', company.id)
-    .eq('is_closed_position', false)
     .order('value', { ascending: false })
     .limit(50)
 
-  // Build activity chart data (group by month)
+  // Calculate institutional stats
+  const activeHolders = (holders || []).filter((h) => !h.is_closed_position)
+  const totalInstitutionalValue = activeHolders.reduce(
+    (sum, h) => sum + (h.value || 0),
+    0
+  )
+  const newPositions = activeHolders.filter((h) => h.is_new_position).length
+  const increasedPositions = activeHolders.filter(
+    (h) => !h.is_new_position && (h.shares_change || 0) > 0
+  ).length
+
+  // Build activity chart data (group by month for 12 months)
   const activityMap = new Map<string, { buys: number; sells: number }>()
 
-  for (const txn of transactions || []) {
+  for (const txn of transactions) {
     if (!txn.filed_at) continue
     const date = new Date(txn.filed_at)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
@@ -89,7 +95,6 @@ async function getCompanyData(ticker: string) {
     activityMap.set(monthKey, existing)
   }
 
-  // Convert to array and sort
   const activityData = Array.from(activityMap.entries())
     .map(([date, values]) => ({
       date: new Date(date + '-01').toLocaleDateString('en-US', {
@@ -100,19 +105,35 @@ async function getCompanyData(ticker: string) {
       sells: values.sells,
     }))
     .reverse()
-    .slice(-12) // Last 12 months
+    .slice(-12)
+
+  // Get unique insiders with their most recent activity
+  const insiderMap = new Map<
+    string,
+    { name: string; title: string | null; lastActivity: string; type: string }
+  >()
+  for (const txn of transactions) {
+    if (!insiderMap.has(txn.insider_name)) {
+      insiderMap.set(txn.insider_name, {
+        name: txn.insider_name,
+        title: txn.insider_title,
+        lastActivity: txn.filed_at,
+        type: txn.transaction_type,
+      })
+    }
+  }
+  const keyInsiders = Array.from(insiderMap.values()).slice(0, 5)
 
   return {
     company,
-    transactions: (transactions || []) as InsiderTransactionWithDetails[],
+    transactions: transactions as InsiderTransactionWithDetails[],
     holders: (holders || [])
       .filter(
         (h) =>
           h.institution_id !== null &&
           h.institution_name !== null &&
           h.shares !== null &&
-          h.value !== null &&
-          h.is_new_position !== null
+          h.value !== null
       )
       .map((h) => ({
         institution_id: h.institution_id!,
@@ -122,15 +143,24 @@ async function getCompanyData(ticker: string) {
         value: h.value!,
         percent_of_portfolio: h.percent_of_portfolio,
         shares_change: h.shares_change,
-        shares_change_percent: h.shares_change_percent,
-        is_new_position: h.is_new_position!,
+        shares_change_percent: h.shares_change
+          ? (h.shares_change / ((h.shares || 1) - (h.shares_change || 0))) * 100
+          : null,
+        is_new_position: h.is_new_position || false,
+        is_closed_position: h.is_closed_position || false,
       })),
     activityData,
+    keyInsiders,
     stats: {
-      ytdBuys: ytdBuys.length,
-      ytdSells: ytdSells.length,
-      ytdBuyValue,
-      ytdSellValue,
+      buyCount: buys.length,
+      sellCount: sells.length,
+      buyValue,
+      sellValue,
+      netValue,
+      institutionalHolders: activeHolders.length,
+      institutionalValue: totalInstitutionalValue,
+      newPositions,
+      increasedPositions,
     },
   }
 }
@@ -162,57 +192,54 @@ export default async function CompanyPage({ params }: PageProps) {
     notFound()
   }
 
-  const { company, transactions, holders, activityData, stats } = data
+  const { company, transactions, holders, activityData, keyInsiders, stats } = data
 
   // Check if company is in user's watchlist
-  const watchlistItemId = user
-    ? await checkWatchlist(company.id, user.id)
-    : null
+  const watchlistItemId = user ? await checkWatchlist(company.id, user.id) : null
+
+  // Format market cap
+  const formatMarketCap = (value: number | null) => {
+    if (!value) return null
+    if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}T`
+    if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}B`
+    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(0)}M`
+    return `$${value.toLocaleString()}`
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">
-              {company.ticker}
-            </h1>
-            {company.sector && (
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                <Building2 className="mr-1 h-3 w-3" />
-                {company.sector}
-              </Badge>
-            )}
-          </div>
-          <p className="text-muted-foreground">{company.name}</p>
-          {company.industry && (
-            <p className="text-sm text-muted-foreground">{company.industry}</p>
-          )}
-        </div>
-
-        {user && (
-          <WatchlistButton
-            companyId={company.id}
-            watchlistItemId={watchlistItemId}
-          />
+      {/* Back Link */}
+      <Link
+        href="/dashboard"
+        className={cn(
+          'inline-flex items-center gap-1.5',
+          'text-sm',
+          'text-[hsl(var(--text-muted))]',
+          'hover:text-[hsl(var(--text-primary))]',
+          'transition-colors duration-150'
         )}
-      </div>
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Back to Dashboard
+      </Link>
 
-      {/* Mobile sector badge */}
-      {company.sector && (
-        <Badge variant="secondary" className="sm:hidden">
-          <Building2 className="mr-1 h-3 w-3" />
-          {company.sector}
-        </Badge>
-      )}
-
-      {/* Tabs */}
-      <CompanyTabs
+      {/* Client Component with all the interactive parts */}
+      <CompanyPageClient
+        company={{
+          id: company.id,
+          ticker: company.ticker,
+          name: company.name,
+          sector: company.sector,
+          industry: company.industry,
+          marketCap: formatMarketCap(company.market_cap),
+        }}
         transactions={transactions}
         holders={holders}
         activityData={activityData}
+        keyInsiders={keyInsiders}
         stats={stats}
+        watchlistItemId={watchlistItemId}
+        isLoggedIn={!!user}
       />
     </div>
   )

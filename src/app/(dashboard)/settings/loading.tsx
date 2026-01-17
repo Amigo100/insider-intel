@@ -1,48 +1,107 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton, SkeletonDashboardCard } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
+/**
+ * Settings Loading Skeleton
+ *
+ * Matches the settings page structure:
+ * - Header
+ * - Side navigation
+ * - Form fields
+ *
+ * NO SPINNERS - uses shimmer animation exclusively
+ */
 export default function SettingsLoading() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" aria-label="Loading settings" role="status">
       {/* Header Skeleton */}
-      <div>
-        <Skeleton className="h-9 w-32" />
-        <Skeleton className="mt-2 h-5 w-64" />
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-4 w-64" />
       </div>
 
-      <div className="flex flex-col gap-8 lg:flex-row">
-        {/* Sidebar Navigation Skeleton */}
-        <aside className="lg:w-48">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        {/* Side Navigation */}
+        <aside className="lg:w-48 shrink-0">
           <nav className="flex flex-row gap-2 lg:flex-col">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
+              <div
+                key={i}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2',
+                  'rounded-md',
+                  i === 0 && 'bg-[hsl(var(--bg-elevated)/0.5)]'
+                )}
+              >
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-4 w-20" />
+              </div>
             ))}
           </nav>
         </aside>
 
-        {/* Main Content Skeleton */}
+        {/* Main Content */}
         <main className="flex-1">
-          <DashboardCard>
-            <CardHeader>
-              <Skeleton className="h-6 w-24" />
-              <Skeleton className="h-4 w-64" />
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Form Fields Skeleton */}
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-10 w-full" />
+          <SkeletonDashboardCard>
+            <div className="p-6 space-y-6">
+              {/* Section Header */}
+              <div className="space-y-1.5 pb-4 border-b border-[hsl(var(--border-subtle))]">
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-3 w-64" />
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-5">
+                {/* Field 1 */}
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-10 w-full rounded-md" />
                   <Skeleton className="h-3 w-48" />
                 </div>
-              ))}
 
-              {/* Save Button Skeleton */}
-              <Skeleton className="h-10 w-32" />
-            </CardContent>
-          </DashboardCard>
+                {/* Field 2 */}
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-10 w-full rounded-md" />
+                </div>
+
+                {/* Field 3 - Textarea */}
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-24 w-full rounded-md" />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-[hsl(var(--border-subtle))] pt-6">
+                {/* Toggle Fields */}
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+                      <Skeleton className="h-6 w-11 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="pt-4 flex justify-end">
+                <Skeleton className="h-10 w-32 rounded-md" />
+              </div>
+            </div>
+          </SkeletonDashboardCard>
         </main>
       </div>
+
+      {/* Screen reader announcement */}
+      <span className="sr-only">Loading settings...</span>
     </div>
   )
 }

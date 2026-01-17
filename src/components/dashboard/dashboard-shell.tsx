@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Sidebar } from './sidebar'
 import { Header } from './header'
+import { CommandPaletteProvider } from '@/components/ui/command-palette'
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -19,22 +20,24 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev)
 
   return (
-    <div className="dark min-h-screen bg-slate-900">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+    <CommandPaletteProvider>
+      <div className="dark min-h-screen bg-slate-900">
+        {/* Sidebar */}
+        <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
-      {/* Main content area */}
-      <div className="lg:pl-64">
-        {/* Header */}
-        <Header user={user} onMenuToggle={toggleSidebar} />
+        {/* Main content area */}
+        <div className="lg:pl-64">
+          {/* Header */}
+          <Header user={user} onMenuToggle={toggleSidebar} />
 
-        {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8">
-          <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-4 md:p-6">
-            {children}
-          </div>
-        </main>
+          {/* Page content */}
+          <main className="p-4 sm:p-6 lg:p-8">
+            <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-4 md:p-6">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </CommandPaletteProvider>
   )
 }

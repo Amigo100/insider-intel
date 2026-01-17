@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { clientLogger } from '@/lib/client-logger'
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Info } from 'lucide-react'
+import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Info, Eye, EyeOff, ExternalLink } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -72,6 +72,8 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const supabase = createClient()
 
@@ -226,9 +228,9 @@ export function SignupForm() {
         <form onSubmit={handleEmailSignup} className="space-y-4">
           {/* General Error */}
           {errors.general && (
-            <div className="rounded-lg bg-destructive/10 p-4 text-sm">
+            <div className="rounded-lg bg-destructive/10 p-4 text-sm" role="alert" aria-live="polite">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" />
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" aria-hidden="true" />
                 <div className="space-y-1">
                   <p className="font-medium text-destructive">{errors.general}</p>
                   {errorAction && (
@@ -243,7 +245,7 @@ export function SignupForm() {
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="fullName"
                 type="text"
@@ -257,11 +259,13 @@ export function SignupForm() {
                 className={`pl-10 ${errors.fullName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="name"
+                aria-invalid={!!errors.fullName}
+                aria-describedby={errors.fullName ? 'fullname-error' : undefined}
               />
             </div>
             {errors.fullName && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="fullname-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.fullName}
               </p>
             )}
@@ -271,7 +275,7 @@ export function SignupForm() {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="email"
                 type="email"
@@ -285,11 +289,13 @@ export function SignupForm() {
                 className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="email-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.email}
               </p>
             )}
@@ -299,10 +305,10 @@ export function SignupForm() {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Create a password"
                 value={password}
                 onChange={(e) => {
@@ -310,28 +316,45 @@ export function SignupForm() {
                   if (errors.password)
                     setErrors((prev) => ({ ...prev, password: undefined }))
                 }}
-                className={`pl-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                className={`pl-10 pr-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="new-password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : 'password-strength'}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                disabled={isLoading || isGoogleLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="password-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.password}
               </p>
             )}
-            <PasswordStrength password={password} />
+            <div id="password-strength">
+              <PasswordStrength password={password} />
+            </div>
           </div>
 
           {/* Confirm Password Field */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => {
@@ -339,27 +362,43 @@ export function SignupForm() {
                   if (errors.confirmPassword)
                     setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
                 }}
-                className={`pl-10 ${errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading || isGoogleLoading}
                 autoComplete="new-password"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                disabled={isLoading || isGoogleLoading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="confirm-password-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.confirmPassword}
               </p>
             )}
             {confirmPassword && password === confirmPassword && (
-              <p className="text-xs text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
+              <p className="text-xs text-emerald-600 flex items-center gap-1" role="status">
+                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Passwords match
               </p>
             )}
           </div>
 
           {/* Terms Checkbox */}
-          <div className="space-y-2">
+          <fieldset className="space-y-2">
+            <legend className="sr-only">Terms and conditions</legend>
             <div className="flex items-start space-x-2">
               <Checkbox
                 id="terms"
@@ -371,6 +410,8 @@ export function SignupForm() {
                 }}
                 disabled={isLoading || isGoogleLoading}
                 className={errors.terms ? 'border-destructive' : ''}
+                aria-invalid={!!errors.terms}
+                aria-describedby={errors.terms ? 'terms-error' : undefined}
               />
               <Label
                 htmlFor="terms"
@@ -379,28 +420,34 @@ export function SignupForm() {
                 I agree to the{' '}
                 <Link
                   href="/terms"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:underline inline-flex items-center gap-0.5"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Terms of Service
+                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                  <span className="sr-only">(opens in new tab)</span>
                 </Link>{' '}
                 and{' '}
                 <Link
                   href="/privacy"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:underline inline-flex items-center gap-0.5"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Privacy Policy
+                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                  <span className="sr-only">(opens in new tab)</span>
                 </Link>
               </Label>
             </div>
             {errors.terms && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="terms-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {errors.terms}
               </p>
             )}
-          </div>
+          </fieldset>
 
           {/* Submit Button */}
           <Button

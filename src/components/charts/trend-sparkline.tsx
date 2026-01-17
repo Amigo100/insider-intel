@@ -1,68 +1,139 @@
 'use client'
 
-import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-type TrendDirection = 'up' | 'down' | 'flat'
+/**
+ * TrendSparkline - Modernized Bloomberg Design System
+ *
+ * Pure SVG-based mini-chart for inline trend visualization.
+ * No axes, gridlines, or labels - just the trend line.
+ *
+ * Specifications:
+ * - Width: 60-80px (default 72px)
+ * - Height: 24px
+ * - Stroke width: 1.5px
+ * - Stroke linecap: round
+ * - End point dot: radius 2.5px
+ *
+ * Colors by trend:
+ * - Up: signal-positive (#00C853)
+ * - Down: signal-negative (#FF5252)
+ * - Neutral: text-muted (#737373)
+ */
+
+type TrendDirection = 'up' | 'down' | 'neutral' | 'flat'
 
 interface TrendSparklineProps {
+  /** Array of numeric values to plot */
   data: number[]
+  /** Explicit trend direction (auto-calculated if not provided) */
   trend?: TrendDirection
+  /** Show loading skeleton */
   loading?: boolean
+  /** Width in pixels */
   width?: number
+  /** Height in pixels */
   height?: number
+  /** Additional CSS classes */
   className?: string
+  /** Show the end point dot */
+  showEndDot?: boolean
 }
 
+// CSS variable-based colors for theme compatibility
+const TREND_COLORS = {
+  up: 'hsl(var(--signal-positive))',
+  down: 'hsl(var(--signal-negative))',
+  neutral: 'hsl(var(--text-muted, 0 0% 45%))',
+  flat: 'hsl(var(--text-muted, 0 0% 45%))',
+} as const
+
 /**
- * Determines trend direction from data
+ * Calculate trend direction from data array
  */
 function calculateTrend(data: number[]): TrendDirection {
-  if (data.length < 2) return 'flat'
+  if (data.length < 2) return 'neutral'
 
   const first = data[0]
   const last = data[data.length - 1]
-  const threshold = Math.abs(first) * 0.01 // 1% threshold
+
+  // Use 2% threshold to determine significant change
+  const threshold = Math.abs(first) * 0.02
 
   if (last - first > threshold) return 'up'
   if (first - last > threshold) return 'down'
-  return 'flat'
+  return 'neutral'
 }
 
 /**
- * Gets color based on trend direction
+ * Generate SVG path from data points
  */
-function getTrendColor(trend: TrendDirection): string {
-  switch (trend) {
-    case 'up':
-      return '#10b981' // emerald-500
-    case 'down':
-      return '#ef4444' // red-500
-    case 'flat':
-    default:
-      return '#6b7280' // gray-500
-  }
+function generatePath(
+  data: number[],
+  width: number,
+  height: number,
+  padding: number = 4
+): string {
+  if (data.length < 2) return ''
+
+  const minValue = Math.min(...data)
+  const maxValue = Math.max(...data)
+  const range = maxValue - minValue || 1
+
+  const chartWidth = width - padding * 2
+  const chartHeight = height - padding * 2
+
+  const points = data.map((value, index) => {
+    const x = padding + (index / (data.length - 1)) * chartWidth
+    const y = padding + chartHeight - ((value - minValue) / range) * chartHeight
+    return `${x},${y}`
+  })
+
+  return `M${points.join(' L')}`
 }
 
 /**
- * Mini inline sparkline chart for tables
- *
- * Displays a small trend line (default 80x30px) with color
- * indicating direction: green (up), red (down), gray (flat)
+ * Get the last point coordinates for the end dot
+ */
+function getLastPoint(
+  data: number[],
+  width: number,
+  height: number,
+  padding: number = 4
+): { x: number; y: number } {
+  if (data.length < 1) return { x: 0, y: 0 }
+
+  const minValue = Math.min(...data)
+  const maxValue = Math.max(...data)
+  const range = maxValue - minValue || 1
+
+  const chartWidth = width - padding * 2
+  const chartHeight = height - padding * 2
+
+  const lastValue = data[data.length - 1]
+  const x = padding + chartWidth
+  const y = padding + chartHeight - ((lastValue - minValue) / range) * chartHeight
+
+  return { x, y }
+}
+
+/**
+ * Main TrendSparkline component
  */
 export function TrendSparkline({
   data,
   trend: explicitTrend,
   loading = false,
-  width = 80,
-  height = 30,
+  width = 72,
+  height = 24,
   className,
+  showEndDot = true,
 }: TrendSparklineProps) {
   if (loading) {
     return (
       <Skeleton
-        className={cn(className)}
+        className={cn('rounded', className)}
         style={{ width, height }}
       />
     )
@@ -71,90 +142,143 @@ export function TrendSparkline({
   if (!data || data.length < 2) {
     return (
       <div
-        className={cn('flex items-center justify-center', className)}
+        className={cn('flex items-center justify-center text-muted-foreground', className)}
         style={{ width, height }}
+        aria-label="No trend data available"
       >
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+          <line
+            x1={8}
+            y1={height / 2}
+            x2={width - 8}
+            y2={height / 2}
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeDasharray="4 4"
+            opacity={0.4}
+          />
+        </svg>
+      </div>
+    )
+  }
+
+  const trend = explicitTrend || calculateTrend(data)
+  const color = TREND_COLORS[trend]
+  const path = generatePath(data, width, height)
+  const lastPoint = getLastPoint(data, width, height)
+
+  return (
+    <div
+      className={cn('flex items-center', className)}
+      style={{ width, height }}
+      role="img"
+      aria-label={`Trend: ${trend}`}
+    >
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        fill="none"
+        className="overflow-visible"
+      >
+        {/* Trend line */}
+        <path
+          d={path}
+          stroke={color}
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+
+        {/* End point dot */}
+        {showEndDot && (
+          <circle
+            cx={lastPoint.x}
+            cy={lastPoint.y}
+            r={2.5}
+            fill={color}
+          />
+        )}
+      </svg>
+    </div>
+  )
+}
+
+/**
+ * Sparkline with change percentage label
+ */
+export function TrendSparklineWithChange({
+  data,
+  trend: explicitTrend,
+  loading = false,
+  className,
+}: TrendSparklineProps) {
+  if (loading) {
+    return (
+      <div className={cn('flex items-center gap-2', className)}>
+        <Skeleton className="h-6 w-[72px]" />
+        <Skeleton className="h-4 w-10" />
+      </div>
+    )
+  }
+
+  if (!data || data.length < 2) {
+    return (
+      <div className={cn('flex items-center gap-2', className)}>
+        <TrendSparkline data={data} />
         <span className="text-xs text-muted-foreground">—</span>
       </div>
     )
   }
 
-  // Calculate trend if not explicitly provided
   const trend = explicitTrend || calculateTrend(data)
-  const color = getTrendColor(trend)
-
-  // Transform data for Recharts
-  const chartData = data.map((value, index) => ({
-    index,
-    value,
-  }))
-
-  // Calculate Y domain with padding
-  const minValue = Math.min(...data)
-  const maxValue = Math.max(...data)
-  const padding = (maxValue - minValue) * 0.1 || 1
-
-  return (
-    <div className={cn(className)} style={{ width, height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
-          <YAxis
-            domain={[minValue - padding, maxValue + padding]}
-            hide
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={color}
-            strokeWidth={1.5}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
-/**
- * Sparkline with value label
- */
-export function TrendSparklineWithValue({
-  data,
-  trend: explicitTrend,
-  value,
-  loading = false,
-  className,
-}: TrendSparklineProps & { value?: string | number }) {
-  const trend = explicitTrend || (data.length >= 2 ? calculateTrend(data) : 'flat')
-  const color = getTrendColor(trend)
-
-  if (loading) {
-    return (
-      <div className={cn('flex items-center gap-2', className)}>
-        <Skeleton className="h-[30px] w-[80px]" />
-        <Skeleton className="h-4 w-12" />
-      </div>
-    )
-  }
+  const first = data[0]
+  const last = data[data.length - 1]
+  const changePercent = first !== 0 ? ((last - first) / Math.abs(first)) * 100 : 0
+  const formattedChange = `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(1)}%`
+  const color = TREND_COLORS[trend]
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <TrendSparkline data={data} trend={trend} />
-      {value !== undefined && (
-        <span
-          className="text-sm font-medium"
-          style={{ color }}
-        >
-          {typeof value === 'number' ? value.toLocaleString() : value}
-        </span>
-      )}
+      <span
+        className="text-xs font-medium tabular-nums"
+        style={{ color }}
+      >
+        {formattedChange}
+      </span>
     </div>
   )
 }
 
 /**
- * Multiple sparklines for comparison
+ * Compact table sparkline - optimized for table cells
+ */
+export function TableSparkline({
+  data,
+  trend,
+  className,
+}: {
+  data: number[]
+  trend?: TrendDirection
+  className?: string
+}) {
+  return (
+    <TrendSparkline
+      data={data}
+      trend={trend}
+      width={60}
+      height={24}
+      showEndDot={true}
+      className={className}
+    />
+  )
+}
+
+/**
+ * Sparkline group for comparing multiple trends
  */
 export function SparklineGroup({
   items,
@@ -175,7 +299,7 @@ export function SparklineGroup({
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3">
             <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-[24px] w-[60px]" />
+            <Skeleton className="h-6 w-[60px]" />
           </div>
         ))}
       </div>
@@ -184,42 +308,23 @@ export function SparklineGroup({
 
   return (
     <div className={cn('space-y-2', className)}>
-      {items.map((item, index) => {
-        const trend = item.trend || calculateTrend(item.data)
-        return (
-          <div key={index} className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-16 truncate">
-              {item.label}
-            </span>
-            <TrendSparkline
-              data={item.data}
-              trend={trend}
-              width={60}
-              height={24}
-            />
-          </div>
-        )
-      })}
+      {items.map((item, index) => (
+        <div key={index} className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground w-16 truncate">
+            {item.label}
+          </span>
+          <TrendSparkline
+            data={item.data}
+            trend={item.trend}
+            width={60}
+            height={24}
+          />
+        </div>
+      ))}
     </div>
   )
 }
 
-/**
- * Inline sparkline for table cells
- */
-export function TableSparkline({
-  data,
-  className,
-}: {
-  data: number[]
-  className?: string
-}) {
-  return (
-    <TrendSparkline
-      data={data}
-      width={60}
-      height={24}
-      className={className}
-    />
-  )
-}
+// Export helper for external use
+export { calculateTrend, TREND_COLORS }
+export type { TrendDirection, TrendSparklineProps }

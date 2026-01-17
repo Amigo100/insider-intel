@@ -1,20 +1,19 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useId } from 'react'
 import Link from 'next/link'
-import { Search, Building2, TrendingUp, TrendingDown, Loader2 } from 'lucide-react'
-import EmptyState from '@/components/dashboard/empty-state'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  Search,
+  Building2,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  Minus,
+  X as CloseIcon,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,50 +26,100 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 
-interface Institution {
-  id: string
-  cik: string
-  name: string
-  institution_type: string | null
-  aum_estimate: number | null
-  holdings_count?: number
-}
+/**
+ * InstitutionsTabs - Modernized Bloomberg Design System
+ *
+ * Tab navigation with proper ARIA pattern:
+ * - role="tablist" on container
+ * - role="tab" on each tab
+ * - aria-selected for active state
+ * - aria-controls linking to panels
+ * - role="tabpanel" on content panels
+ *
+ * Tabs: New Positions, Increased, Decreased, Closed, All
+ * Active state: amber underline (not background)
+ * Each tab can show count badge
+ */
 
-interface TopHolder {
+// Types
+export interface InstitutionalHolding {
+  id: string
   institution_id: string
   institution_name: string
   institution_type: string | null
-  shares: number
-  value: number
-  percent_of_portfolio: number | null
-  shares_change: number | null
-  shares_change_percent: number | null
-  is_new_position: boolean
-}
-
-interface NewPosition {
   company_id: string
   ticker: string
   company_name: string
-  new_buyers: number
-  total_value: number
-  notable_names: string[]
+  shares: number
+  value: number
+  shares_change: number | null
+  shares_change_percent: number | null
+  is_new_position: boolean
+  is_closed_position: boolean
+  report_date: string
 }
 
-interface TopMovement {
-  ticker: string
-  company_name: string
-  net_change: number
-  institution_count: number
+export interface InstitutionsTabsProps {
+  holdings: InstitutionalHolding[]
+  loading?: boolean
+  className?: string
 }
 
-interface InstitutionsTabsProps {
-  institutions: Institution[]
-  newPositions: NewPosition[]
-  topBought: TopMovement[]
-  topSold: TopMovement[]
+type TabId = 'new' | 'increased' | 'decreased' | 'closed' | 'all'
+
+interface TabConfig {
+  id: TabId
+  label: string
+  filter: (h: InstitutionalHolding) => boolean
+  emptyIcon: typeof TrendingUp
+  emptyTitle: string
+  emptyDescription: string
 }
 
+const TAB_CONFIG: TabConfig[] = [
+  {
+    id: 'new',
+    label: 'New Positions',
+    filter: (h) => h.is_new_position,
+    emptyIcon: Plus,
+    emptyTitle: 'No new positions found',
+    emptyDescription: 'No institutions initiated new positions this quarter.',
+  },
+  {
+    id: 'increased',
+    label: 'Increased',
+    filter: (h) => !h.is_new_position && !h.is_closed_position && (h.shares_change || 0) > 0,
+    emptyIcon: TrendingUp,
+    emptyTitle: 'No increased positions',
+    emptyDescription: 'No institutions increased their holdings this quarter.',
+  },
+  {
+    id: 'decreased',
+    label: 'Decreased',
+    filter: (h) => !h.is_new_position && !h.is_closed_position && (h.shares_change || 0) < 0,
+    emptyIcon: TrendingDown,
+    emptyTitle: 'No decreased positions',
+    emptyDescription: 'No institutions decreased their holdings this quarter.',
+  },
+  {
+    id: 'closed',
+    label: 'Closed',
+    filter: (h) => h.is_closed_position,
+    emptyIcon: CloseIcon,
+    emptyTitle: 'No closed positions',
+    emptyDescription: 'No institutions fully exited positions this quarter.',
+  },
+  {
+    id: 'all',
+    label: 'All',
+    filter: () => true,
+    emptyIcon: Building2,
+    emptyTitle: 'No holdings data',
+    emptyDescription: 'No institutional holdings data available for this period.',
+  },
+]
+
+// Utility functions
 function formatCurrency(value: number | null): string {
   if (value === null || value === undefined) return '-'
   return new Intl.NumberFormat('en-US', {
@@ -91,465 +140,828 @@ function formatNumber(value: number | null): string {
 
 function formatPercent(value: number | null): string {
   if (value === null || value === undefined) return '-'
-  return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+  const sign = value >= 0 ? '+' : ''
+  return `${sign}${value.toFixed(1)}%`
 }
 
-export function InstitutionsTabs({
-  institutions,
-  newPositions,
-  topBought,
-  topSold,
-}: InstitutionsTabsProps) {
-  return (
-    <Tabs defaultValue="by-stock" className="space-y-6">
-      <TabsList className="grid w-full max-w-md grid-cols-2">
-        <TabsTrigger value="by-stock">By Stock</TabsTrigger>
-        <TabsTrigger value="by-institution">By Institution</TabsTrigger>
-      </TabsList>
-
-      {/* Tab 1: By Stock */}
-      <TabsContent value="by-stock" className="space-y-6">
-        <ByStockTab />
-      </TabsContent>
-
-      {/* Tab 2: By Institution */}
-      <TabsContent value="by-institution" className="space-y-6">
-        <ByInstitutionTab institutions={institutions} />
-      </TabsContent>
-    </Tabs>
-  )
-}
-
-function ByStockTab() {
-  const [ticker, setTicker] = useState('')
-  const [searchedTicker, setSearchedTicker] = useState('')
-  const [holders, setHolders] = useState<TopHolder[]>([])
-  const [activity, setActivity] = useState<{
-    totalBuyers: number
-    totalSellers: number
-    sentiment: string
-  } | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const handleSearch = async () => {
-    if (!ticker.trim()) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Fetch holders
-      const holdersRes = await fetch(
-        `/api/institutional/holders/${ticker.toUpperCase()}`
-      )
-      if (!holdersRes.ok) {
-        if (holdersRes.status === 404) {
-          setError('Company not found')
-        } else {
-          setError('Failed to fetch data')
-        }
-        setHolders([])
-        setActivity(null)
-        return
-      }
-      const holdersData = await holdersRes.json()
-      setHolders(holdersData.holders || [])
-
-      // Fetch activity
-      const activityRes = await fetch(
-        `/api/institutional/activity/${ticker.toUpperCase()}`
-      )
-      if (activityRes.ok) {
-        const activityData = await activityRes.json()
-        setActivity(activityData.activity)
-      }
-
-      setSearchedTicker(ticker.toUpperCase())
-    } catch {
-      setError('Failed to fetch data')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch()
-    }
-  }
-
-  const handleQuickSearch = (tickerSymbol: string) => {
-    setTicker(tickerSymbol)
-    // We need to use a callback to search with the new value
-    setLoading(true)
-    setError(null)
-
-    fetch(`/api/institutional/holders/${tickerSymbol}`)
-      .then(async (holdersRes) => {
-        if (!holdersRes.ok) {
-          if (holdersRes.status === 404) {
-            setError('Company not found')
-          } else {
-            setError('Failed to fetch data')
-          }
-          setHolders([])
-          setActivity(null)
-          return
-        }
-        const holdersData = await holdersRes.json()
-        setHolders(holdersData.holders || [])
-
-        const activityRes = await fetch(`/api/institutional/activity/${tickerSymbol}`)
-        if (activityRes.ok) {
-          const activityData = await activityRes.json()
-          setActivity(activityData.activity)
-        }
-
-        setSearchedTicker(tickerSymbol)
-      })
-      .catch(() => {
-        setError('Failed to fetch data')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <div className="relative flex-1 sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Enter ticker symbol..."
-                value={ticker}
-                onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                onKeyDown={handleKeyDown}
-                className="pl-9"
-              />
-            </div>
-            <Button variant="cyan" onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
-              {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="mr-2 h-4 w-4" />
-              )}
-              Search
-            </Button>
-          </div>
-          {/* Quick ticker suggestions */}
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            <span className="text-xs text-slate-500">Try:</span>
-            {['AAPL', 'MSFT', 'NVDA', 'TSLA'].map((tickerSuggestion) => (
-              <button
-                key={tickerSuggestion}
-                type="button"
-                onClick={() => handleQuickSearch(tickerSuggestion)}
-                disabled={loading}
-                aria-label={`Search for ${tickerSuggestion} institutional holders`}
-                className="min-h-[36px] min-w-[52px] px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/5 text-slate-300 border border-white/10 hover:bg-cyan-400/10 hover:text-cyan-400 hover:border-cyan-400/30 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-              >
-                {tickerSuggestion}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Error */}
-      {error && (
-        <Card className="border-red-500/30">
-          <CardContent className="pt-6">
-            <p className="text-red-400">{error}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Results */}
-      {searchedTicker && !error && (
-        <>
-          {/* Activity Summary */}
-          {activity && (
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-slate-400">Institutions Buying</p>
-                  <p className="text-2xl font-bold text-emerald-400">
-                    {activity.totalBuyers}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-slate-400">Institutions Selling</p>
-                  <p className="text-2xl font-bold text-red-400">
-                    {activity.totalSellers}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-slate-400">Sentiment</p>
-                  <Badge
-                    variant={
-                      activity.sentiment === 'bullish'
-                        ? 'success'
-                        : activity.sentiment === 'bearish'
-                          ? 'destructive'
-                          : 'secondary'
-                    }
-                    className="mt-1"
-                  >
-                    {activity.sentiment.toUpperCase()}
-                  </Badge>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Holders Table */}
-          <Card>
-            <CardHeader className="border-b border-white/[0.06]">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-cyan-400" />
-                Top Institutional Holders - {searchedTicker}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              {holders.length > 0 ? (
-                <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Institution</TableHead>
-                        <TableHead className="text-right">Shares</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="text-right">Change</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {holders.slice(0, 20).map((holder) => (
-                        <TableRow key={holder.institution_id}>
-                          <TableCell>
-                            <p className="font-medium text-white">{holder.institution_name}</p>
-                            {holder.institution_type && (
-                              <p className="text-xs text-slate-400">
-                                {holder.institution_type}
-                              </p>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right font-mono text-slate-200">
-                            {formatNumber(holder.shares)}
-                          </TableCell>
-                          <TableCell className="text-right font-mono text-slate-200">
-                            {formatCurrency(holder.value)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {holder.is_new_position ? (
-                              <Badge variant="success" className="text-xs">
-                                NEW
-                              </Badge>
-                            ) : holder.shares_change_percent !== null ? (
-                              <span
-                                className={
-                                  holder.shares_change_percent > 0
-                                    ? 'text-emerald-400'
-                                    : holder.shares_change_percent < 0
-                                      ? 'text-red-400'
-                                      : 'text-slate-400'
-                                }
-                              >
-                                {formatPercent(holder.shares_change_percent)}
-                              </span>
-                            ) : (
-                              '-'
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <p className="text-center py-8 text-slate-500 text-sm">
-                  No institutional holders found
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      {/* Initial state */}
-      {!searchedTicker && !loading && (
-        <EmptyState
-          icon={Building2}
-          title="Search for a stock"
-          description="Enter a ticker symbol above to see which hedge funds and institutions hold positions. Try AAPL, MSFT, or NVDA."
-        />
-      )}
-    </div>
-  )
-}
-
-function ByInstitutionTab({ institutions }: { institutions: Institution[] }) {
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const filteredInstitutions = institutions.filter((inst) =>
-    inst.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  return (
-    <div className="space-y-4">
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <Input
-          type="text"
-          placeholder="Search institutions..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      {/* Institutions List */}
-      <Card>
-        <CardContent className="pt-6">
-          {filteredInstitutions.length > 0 ? (
-            <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Institution</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Est. AUM</TableHead>
-                    <TableHead className="text-right">Holdings</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInstitutions.slice(0, 50).map((inst) => (
-                    <TableRow key={inst.id}>
-                      <TableCell>
-                        <Link
-                          href={`/institution/${inst.cik}`}
-                          className="font-medium text-white hover:text-cyan-400 transition-colors"
-                        >
-                          {inst.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        {inst.institution_type ? (
-                          <Badge variant="outline">{inst.institution_type}</Badge>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-slate-200">
-                        {formatCurrency(inst.aum_estimate)}
-                      </TableCell>
-                      <TableCell className="text-right text-slate-200">
-                        {inst.holdings_count || '-'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <EmptyState
-              icon={Building2}
-              title="Search for an institution"
-              description="Enter an institution name to view their complete portfolio holdings and recent position changes."
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-export function NewPositionsSection({
-  positions,
+/**
+ * Tab button component
+ */
+function TabButton({
+  tab,
+  count,
+  isActive,
+  onClick,
+  panelId,
 }: {
-  positions: NewPosition[]
+  tab: TabConfig
+  count: number
+  isActive: boolean
+  onClick: () => void
+  panelId: string
 }) {
-  const [typeFilter, setTypeFilter] = useState<string>('all')
+  return (
+    <button
+      type="button"
+      role="tab"
+      id={`tab-${tab.id}`}
+      aria-selected={isActive}
+      aria-controls={panelId}
+      tabIndex={isActive ? 0 : -1}
+      onClick={onClick}
+      className={cn(
+        // Base styles
+        'relative px-4 py-3',
+        'text-sm font-medium',
+        'whitespace-nowrap',
+        'transition-colors duration-150',
+        // Focus styles
+        'focus-visible:outline-none',
+        'focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))]',
+        'focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--bg-card))]',
+        // Active/inactive styles
+        isActive
+          ? 'text-[hsl(var(--accent-amber))]'
+          : 'text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-secondary))]'
+      )}
+    >
+      <span className="flex items-center gap-2">
+        {tab.label}
+        {count > 0 && (
+          <span
+            className={cn(
+              'inline-flex items-center justify-center',
+              'min-w-[20px] h-5 px-1.5',
+              'text-xs font-semibold rounded-full',
+              isActive
+                ? 'bg-[hsl(var(--accent-amber)/0.2)] text-[hsl(var(--accent-amber))]'
+                : 'bg-[hsl(var(--bg-elevated))] text-[hsl(var(--text-muted))]'
+            )}
+          >
+            {count}
+          </span>
+        )}
+      </span>
+      {/* Amber underline for active tab */}
+      {isActive && (
+        <span
+          className={cn(
+            'absolute bottom-0 left-0 right-0 h-0.5',
+            'bg-[hsl(var(--accent-amber))]'
+          )}
+          aria-hidden="true"
+        />
+      )}
+    </button>
+  )
+}
+
+/**
+ * Position status badge
+ */
+function PositionStatusBadge({
+  holding,
+}: {
+  holding: InstitutionalHolding
+}) {
+  if (holding.is_new_position) {
+    return (
+      <Badge
+        className={cn(
+          'bg-[hsl(var(--signal-positive)/0.15)]',
+          'text-[hsl(var(--signal-positive))]',
+          'border border-[hsl(var(--signal-positive)/0.3)]'
+        )}
+      >
+        NEW
+      </Badge>
+    )
+  }
+
+  if (holding.is_closed_position) {
+    return (
+      <Badge
+        className={cn(
+          'bg-[hsl(var(--signal-negative)/0.15)]',
+          'text-[hsl(var(--signal-negative))]',
+          'border border-[hsl(var(--signal-negative)/0.3)]'
+        )}
+      >
+        CLOSED
+      </Badge>
+    )
+  }
+
+  const changePercent = holding.shares_change_percent
+  if (changePercent === null) {
+    return <span className="text-[hsl(var(--text-muted))]">-</span>
+  }
+
+  const isPositive = changePercent > 0
+  const isNegative = changePercent < 0
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between border-b border-white/[0.06] p-4">
-        <CardTitle className="text-base flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-cyan-400" />
-          New Institutional Positions
-        </CardTitle>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Filter by type" />
+    <span
+      className={cn(
+        'inline-flex items-center gap-1',
+        'text-sm font-medium',
+        isPositive && 'text-[hsl(var(--signal-positive))]',
+        isNegative && 'text-[hsl(var(--signal-negative))]',
+        !isPositive && !isNegative && 'text-[hsl(var(--text-muted))]'
+      )}
+    >
+      {isPositive && <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />}
+      {isNegative && <ArrowDownRight className="h-3.5 w-3.5" aria-hidden="true" />}
+      {formatPercent(changePercent)}
+    </span>
+  )
+}
+
+/**
+ * Holdings table component
+ */
+function HoldingsTable({
+  holdings,
+  emptyState,
+}: {
+  holdings: InstitutionalHolding[]
+  emptyState: { icon: typeof TrendingUp; title: string; description: string }
+}) {
+  if (holdings.length === 0) {
+    const EmptyIcon = emptyState.icon
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-12 px-6 text-center"
+        role="status"
+        aria-label={emptyState.title}
+      >
+        {/* Icon Container - 64px with amber accent background */}
+        <div
+          className={cn(
+            'flex items-center justify-center',
+            'h-16 w-16 mb-4',
+            'rounded-full',
+            'bg-[hsl(var(--accent-amber)/0.15)]'
+          )}
+        >
+          <EmptyIcon
+            className="h-8 w-8 text-[hsl(var(--accent-amber))]"
+            aria-hidden="true"
+          />
+        </div>
+        {/* Title - 18px, 600 weight */}
+        <h3
+          className={cn(
+            'text-lg font-semibold',
+            'text-[hsl(var(--text-primary))]',
+            'mb-2'
+          )}
+        >
+          {emptyState.title}
+        </h3>
+        {/* Description - 14px, max-width 400px */}
+        <p
+          className={cn(
+            'text-sm',
+            'text-[hsl(var(--text-secondary))]',
+            'max-w-[400px]'
+          )}
+        >
+          {emptyState.description}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-[hsl(var(--border-subtle))]">
+            <th
+              scope="col"
+              className={cn(
+                'px-5 py-3 text-left',
+                'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                'text-[hsl(var(--text-muted))]'
+              )}
+            >
+              Institution
+            </th>
+            <th
+              scope="col"
+              className={cn(
+                'px-5 py-3 text-left',
+                'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                'text-[hsl(var(--text-muted))]'
+              )}
+            >
+              Ticker
+            </th>
+            <th
+              scope="col"
+              className={cn(
+                'px-5 py-3 text-left',
+                'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                'text-[hsl(var(--text-muted))]'
+              )}
+            >
+              Status
+            </th>
+            <th
+              scope="col"
+              className={cn(
+                'px-5 py-3 text-right',
+                'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                'text-[hsl(var(--text-muted))]'
+              )}
+            >
+              Value
+            </th>
+            <th
+              scope="col"
+              className={cn(
+                'px-5 py-3 text-right',
+                'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                'text-[hsl(var(--text-muted))]'
+              )}
+            >
+              Change
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[hsl(var(--border-subtle))]">
+          {holdings.map((holding) => {
+            const valueChange = holding.shares_change
+              ? (holding.shares_change * (holding.value / (holding.shares || 1)))
+              : null
+
+            return (
+              <tr
+                key={holding.id}
+                className={cn(
+                  'transition-colors duration-150',
+                  'hover:bg-[hsl(var(--bg-hover))]'
+                )}
+              >
+                <td className="px-5 py-3.5">
+                  <p
+                    className={cn(
+                      'font-medium truncate max-w-[200px]',
+                      'text-[hsl(var(--text-primary))]'
+                    )}
+                    title={holding.institution_name}
+                  >
+                    {holding.institution_name}
+                  </p>
+                  {holding.institution_type && (
+                    <p className="text-xs text-[hsl(var(--text-muted))]">
+                      {holding.institution_type}
+                    </p>
+                  )}
+                </td>
+                <td className="px-5 py-3.5">
+                  <Link
+                    href={`/company/${holding.ticker}`}
+                    className={cn(
+                      'font-semibold',
+                      'text-[hsl(var(--text-primary))]',
+                      'hover:text-[hsl(var(--accent-amber))]',
+                      'transition-colors duration-150'
+                    )}
+                  >
+                    {holding.ticker}
+                  </Link>
+                  <p
+                    className="text-xs text-[hsl(var(--text-muted))] truncate max-w-[150px]"
+                    title={holding.company_name}
+                  >
+                    {holding.company_name}
+                  </p>
+                </td>
+                <td className="px-5 py-3.5">
+                  <PositionStatusBadge holding={holding} />
+                </td>
+                <td
+                  className={cn(
+                    'px-5 py-3.5 text-right',
+                    'font-mono tabular-nums',
+                    'text-[hsl(var(--text-secondary))]'
+                  )}
+                >
+                  {formatCurrency(holding.value)}
+                </td>
+                <td
+                  className={cn(
+                    'px-5 py-3.5 text-right',
+                    'font-mono tabular-nums',
+                    valueChange !== null && valueChange > 0 && 'text-[hsl(var(--signal-positive))]',
+                    valueChange !== null && valueChange < 0 && 'text-[hsl(var(--signal-negative))]',
+                    (valueChange === null || valueChange === 0) && 'text-[hsl(var(--text-muted))]'
+                  )}
+                >
+                  {valueChange !== null ? (
+                    <>
+                      {valueChange > 0 ? '+' : ''}
+                      {formatCurrency(valueChange)}
+                    </>
+                  ) : (
+                    '-'
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+/**
+ * Filter bar component
+ */
+export interface InstitutionsFilterBarProps {
+  searchValue: string
+  onSearchChange: (value: string) => void
+  quarterValue: string
+  onQuarterChange: (value: string) => void
+  minValueFilter: string
+  onMinValueChange: (value: string) => void
+  className?: string
+}
+
+export function InstitutionsFilterBar({
+  searchValue,
+  onSearchChange,
+  quarterValue,
+  onQuarterChange,
+  minValueFilter,
+  onMinValueChange,
+  className,
+}: InstitutionsFilterBarProps) {
+  // Generate quarter options (current and past 4 quarters)
+  const generateQuarters = () => {
+    const quarters: { value: string; label: string }[] = []
+    const now = new Date()
+    let year = now.getFullYear()
+    let quarter = Math.ceil((now.getMonth() + 1) / 3)
+
+    for (let i = 0; i < 5; i++) {
+      quarters.push({
+        value: `${year}-Q${quarter}`,
+        label: `Q${quarter} ${year}`,
+      })
+      quarter--
+      if (quarter === 0) {
+        quarter = 4
+        year--
+      }
+    }
+    return quarters
+  }
+
+  const quarters = generateQuarters()
+
+  return (
+    <div
+      role="group"
+      aria-label="Holdings filters"
+      className={cn(
+        'rounded-lg p-4',
+        'bg-[hsl(var(--bg-card))]',
+        'border border-[hsl(var(--border-default))]',
+        className
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[220px] max-w-sm">
+          <Search
+            className={cn(
+              'absolute left-3 top-1/2 -translate-y-1/2',
+              'h-4 w-4',
+              'text-[hsl(var(--text-muted))]'
+            )}
+            aria-hidden="true"
+          />
+          <Input
+            type="text"
+            placeholder="Search institution or ticker..."
+            value={searchValue}
+            onChange={(e) => onSearchChange(e.target.value)}
+            aria-label="Search by institution or ticker"
+            className={cn(
+              'h-9 pl-9',
+              'bg-[hsl(var(--bg-app))]',
+              'border-[hsl(var(--border-default))]',
+              'text-[hsl(var(--text-primary))]',
+              'placeholder:text-[hsl(var(--text-muted))]',
+              'focus-visible:ring-[hsl(var(--accent-amber))]'
+            )}
+          />
+        </div>
+
+        {/* Quarter dropdown */}
+        <Select value={quarterValue} onValueChange={onQuarterChange}>
+          <SelectTrigger
+            className={cn(
+              'h-9 w-[130px]',
+              'bg-[hsl(var(--bg-app))]',
+              'border-[hsl(var(--border-default))]',
+              'text-[hsl(var(--text-primary))]',
+              'focus:ring-[hsl(var(--accent-amber))]'
+            )}
+            aria-label="Filter by quarter"
+          >
+            <SelectValue placeholder="Quarter" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="hedge-fund">Hedge Funds</SelectItem>
-            <SelectItem value="mutual-fund">Mutual Funds</SelectItem>
-            <SelectItem value="pension">Pensions</SelectItem>
+            {quarters.map((q) => (
+              <SelectItem key={q.value} value={q.value}>
+                {q.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-      </CardHeader>
-      <CardContent className="pt-4">
-        {positions.length > 0 ? (
-          <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Stock</TableHead>
-                  <TableHead className="text-right"># New Buyers</TableHead>
-                  <TableHead className="text-right">Total Value</TableHead>
-                  <TableHead>Notable Names</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {positions.slice(0, 10).map((pos) => (
-                  <TableRow key={pos.company_id}>
-                    <TableCell>
-                      <Link
-                        href={`/company/${pos.ticker}`}
-                        className="font-medium text-white hover:text-cyan-400 transition-colors"
-                      >
-                        {pos.ticker}
-                      </Link>
-                      <p className="text-xs text-slate-400 truncate max-w-[150px]">
-                        {pos.company_name}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant="success">{pos.new_buyers}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-slate-200">
-                      {formatCurrency(pos.total_value)}
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-slate-400 truncate max-w-[200px]">
-                        {pos.notable_names.slice(0, 2).join(', ')}
-                        {pos.notable_names.length > 2 && '...'}
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <p className="text-center py-8 text-slate-500 text-sm">
-            No new positions this quarter
-          </p>
+
+        {/* Minimum value dropdown */}
+        <Select value={minValueFilter} onValueChange={onMinValueChange}>
+          <SelectTrigger
+            className={cn(
+              'h-9 w-[120px]',
+              'bg-[hsl(var(--bg-app))]',
+              'border-[hsl(var(--border-default))]',
+              'text-[hsl(var(--text-primary))]',
+              'focus:ring-[hsl(var(--accent-amber))]'
+            )}
+            aria-label="Minimum value filter"
+          >
+            <SelectValue placeholder="Min Value" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Values</SelectItem>
+            <SelectItem value="1m">$1M+</SelectItem>
+            <SelectItem value="10m">$10M+</SelectItem>
+            <SelectItem value="100m">$100M+</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Main InstitutionsTabs component
+ */
+export function InstitutionsTabs({
+  holdings,
+  loading = false,
+  className,
+}: InstitutionsTabsProps) {
+  const [activeTab, setActiveTab] = useState<TabId>('new')
+  const [searchValue, setSearchValue] = useState('')
+  const [quarterValue, setQuarterValue] = useState('')
+  const [minValueFilter, setMinValueFilter] = useState('all')
+
+  const instanceId = useId()
+
+  // Filter holdings based on search and min value
+  const filteredHoldings = holdings.filter((h) => {
+    // Search filter
+    if (searchValue) {
+      const search = searchValue.toLowerCase()
+      const matchesInstitution = h.institution_name.toLowerCase().includes(search)
+      const matchesTicker = h.ticker.toLowerCase().includes(search)
+      if (!matchesInstitution && !matchesTicker) return false
+    }
+
+    // Min value filter
+    if (minValueFilter !== 'all') {
+      const minValue =
+        minValueFilter === '1m' ? 1_000_000 :
+        minValueFilter === '10m' ? 10_000_000 :
+        minValueFilter === '100m' ? 100_000_000 : 0
+      if (h.value < minValue) return false
+    }
+
+    return true
+  })
+
+  // Get counts for each tab
+  const tabCounts = TAB_CONFIG.reduce((acc, tab) => {
+    acc[tab.id] = filteredHoldings.filter(tab.filter).length
+    return acc
+  }, {} as Record<TabId, number>)
+
+  // Get current tab config and filtered data
+  const currentTabConfig = TAB_CONFIG.find((t) => t.id === activeTab) || TAB_CONFIG[0]
+  const currentHoldings = filteredHoldings.filter(currentTabConfig.filter)
+
+  // Handle keyboard navigation between tabs
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const currentIndex = TAB_CONFIG.findIndex((t) => t.id === activeTab)
+    let newIndex = currentIndex
+
+    if (e.key === 'ArrowRight') {
+      newIndex = (currentIndex + 1) % TAB_CONFIG.length
+    } else if (e.key === 'ArrowLeft') {
+      newIndex = (currentIndex - 1 + TAB_CONFIG.length) % TAB_CONFIG.length
+    } else if (e.key === 'Home') {
+      newIndex = 0
+    } else if (e.key === 'End') {
+      newIndex = TAB_CONFIG.length - 1
+    } else {
+      return
+    }
+
+    e.preventDefault()
+    setActiveTab(TAB_CONFIG[newIndex].id)
+
+    // Focus the new tab button
+    const newTabButton = document.getElementById(`tab-${TAB_CONFIG[newIndex].id}`)
+    newTabButton?.focus()
+  }
+
+  if (loading) {
+    return (
+      <div className={cn('space-y-4', className)}>
+        {/* Tabs skeleton */}
+        <div className="flex gap-2 border-b border-[hsl(var(--border-default))]">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-24 bg-[hsl(var(--bg-elevated))]" />
+          ))}
+        </div>
+        {/* Filter bar skeleton */}
+        <Skeleton className="h-16 w-full bg-[hsl(var(--bg-elevated))]" />
+        {/* Table skeleton */}
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full bg-[hsl(var(--bg-elevated))]" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('space-y-4', className)}>
+      {/* Tab navigation */}
+      <div
+        role="tablist"
+        aria-label="Holdings categories"
+        onKeyDown={handleKeyDown}
+        className={cn(
+          'flex overflow-x-auto',
+          'border-b border-[hsl(var(--border-default))]',
+          '-mx-1 px-1'
         )}
-      </CardContent>
-    </Card>
+      >
+        {TAB_CONFIG.map((tab) => (
+          <TabButton
+            key={tab.id}
+            tab={tab}
+            count={tabCounts[tab.id]}
+            isActive={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            panelId={`panel-${tab.id}-${instanceId}`}
+          />
+        ))}
+      </div>
+
+      {/* Filter bar */}
+      <InstitutionsFilterBar
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+        quarterValue={quarterValue}
+        onQuarterChange={setQuarterValue}
+        minValueFilter={minValueFilter}
+        onMinValueChange={setMinValueFilter}
+      />
+
+      {/* Tab panels */}
+      {TAB_CONFIG.map((tab) => (
+        <div
+          key={tab.id}
+          role="tabpanel"
+          id={`panel-${tab.id}-${instanceId}`}
+          aria-labelledby={`tab-${tab.id}`}
+          hidden={activeTab !== tab.id}
+          tabIndex={0}
+          className={cn(
+            'rounded-lg overflow-hidden',
+            'bg-[hsl(var(--bg-card))]',
+            'border border-[hsl(var(--border-default))]',
+            activeTab !== tab.id && 'hidden'
+          )}
+        >
+          {activeTab === tab.id && (
+            <HoldingsTable
+              holdings={currentHoldings.slice(0, 50)}
+              emptyState={{
+                icon: tab.emptyIcon,
+                title: tab.emptyTitle,
+                description: tab.emptyDescription,
+              }}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Legacy exports for backwards compatibility (can be removed later)
+export interface Institution {
+  id: string
+  cik: string
+  name: string
+  institution_type: string | null
+  aum_estimate: number | null
+  holdings_count?: number
+}
+
+export interface NewPosition {
+  company_id: string
+  ticker: string
+  company_name: string
+  new_buyers: number
+  total_value: number
+  notable_names: string[]
+}
+
+export interface TopMovement {
+  ticker: string
+  company_name: string
+  net_change: number
+  institution_count: number
+}
+
+export function NewPositionsSection({ positions }: { positions: NewPosition[] }) {
+  if (positions.length === 0) {
+    return (
+      <div
+        className={cn(
+          'rounded-lg',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
+        <div
+          className="flex flex-col items-center justify-center py-12 px-6 text-center"
+          role="status"
+          aria-label="No new positions"
+        >
+          {/* Icon Container - 64px with amber accent */}
+          <div
+            className={cn(
+              'flex items-center justify-center',
+              'h-16 w-16 mb-4',
+              'rounded-full',
+              'bg-[hsl(var(--accent-amber)/0.15)]'
+            )}
+          >
+            <Plus
+              className="h-8 w-8 text-[hsl(var(--accent-amber))]"
+              aria-hidden="true"
+            />
+          </div>
+          <h3
+            className={cn(
+              'text-lg font-semibold',
+              'text-[hsl(var(--text-primary))]',
+              'mb-2'
+            )}
+          >
+            No new positions
+          </h3>
+          <p
+            className={cn(
+              'text-sm',
+              'text-[hsl(var(--text-secondary))]',
+              'max-w-[400px]'
+            )}
+          >
+            No institutions initiated new positions this quarter.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        'rounded-lg overflow-hidden',
+        'bg-[hsl(var(--bg-card))]',
+        'border border-[hsl(var(--border-default))]'
+      )}
+    >
+      <div
+        className={cn(
+          'flex items-center gap-2 px-5 py-4',
+          'border-b border-[hsl(var(--border-subtle))]'
+        )}
+      >
+        <TrendingUp className="h-4 w-4 text-[hsl(var(--signal-positive))]" aria-hidden="true" />
+        <h2 className="text-base font-semibold text-[hsl(var(--text-primary))]">
+          New Institutional Positions
+        </h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[hsl(var(--border-subtle))]">
+              <th
+                scope="col"
+                className={cn(
+                  'px-5 py-3 text-left',
+                  'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                  'text-[hsl(var(--text-muted))]'
+                )}
+              >
+                Stock
+              </th>
+              <th
+                scope="col"
+                className={cn(
+                  'px-5 py-3 text-right',
+                  'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                  'text-[hsl(var(--text-muted))]'
+                )}
+              >
+                New Buyers
+              </th>
+              <th
+                scope="col"
+                className={cn(
+                  'px-5 py-3 text-right',
+                  'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                  'text-[hsl(var(--text-muted))]'
+                )}
+              >
+                Total Value
+              </th>
+              <th
+                scope="col"
+                className={cn(
+                  'px-5 py-3 text-left',
+                  'text-[11px] font-semibold uppercase tracking-[0.05em]',
+                  'text-[hsl(var(--text-muted))]'
+                )}
+              >
+                Notable Names
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[hsl(var(--border-subtle))]">
+            {positions.slice(0, 10).map((pos) => (
+              <tr
+                key={pos.company_id}
+                className="hover:bg-[hsl(var(--bg-hover))] transition-colors"
+              >
+                <td className="px-5 py-3.5">
+                  <Link
+                    href={`/company/${pos.ticker}`}
+                    className={cn(
+                      'font-semibold',
+                      'text-[hsl(var(--text-primary))]',
+                      'hover:text-[hsl(var(--accent-amber))]',
+                      'transition-colors'
+                    )}
+                  >
+                    {pos.ticker}
+                  </Link>
+                  <p className="text-xs text-[hsl(var(--text-muted))] truncate max-w-[150px]">
+                    {pos.company_name}
+                  </p>
+                </td>
+                <td className="px-5 py-3.5 text-right">
+                  <Badge
+                    className={cn(
+                      'bg-[hsl(var(--signal-positive)/0.15)]',
+                      'text-[hsl(var(--signal-positive))]',
+                      'border border-[hsl(var(--signal-positive)/0.3)]'
+                    )}
+                  >
+                    {pos.new_buyers}
+                  </Badge>
+                </td>
+                <td className="px-5 py-3.5 text-right font-mono tabular-nums text-[hsl(var(--text-secondary))]">
+                  {formatCurrency(pos.total_value)}
+                </td>
+                <td className="px-5 py-3.5">
+                  <p className="text-sm text-[hsl(var(--text-muted))] truncate max-w-[200px]">
+                    {pos.notable_names.slice(0, 2).join(', ')}
+                    {pos.notable_names.length > 2 && '...'}
+                  </p>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   )
 }
 
@@ -563,94 +975,140 @@ export function TopMovementsSection({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Most Bought */}
-      <Card>
-        <CardHeader className="border-b border-white/[0.06] p-4">
-          <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
-            Most Bought by Institutions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          {topBought.length > 0 ? (
-            <div className="space-y-3">
-              {topBought.slice(0, 5).map((item, index) => (
-                <Link
-                  key={item.ticker}
-                  href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] p-3 hover:bg-white/[0.02] hover:border-white/[0.12] transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-slate-400">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <p className="font-medium text-white">{item.ticker}</p>
-                      <p className="text-xs text-slate-400 truncate max-w-[120px]">
-                        {item.company_name}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-emerald-400">
-                      +{formatNumber(item.net_change)}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {item.institution_count} institutions
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-8 text-slate-500 text-sm">No data</p>
+      <div
+        className={cn(
+          'rounded-lg overflow-hidden',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
+        <div
+          className={cn(
+            'flex items-center gap-2 px-5 py-4',
+            'border-b border-[hsl(var(--border-subtle))]'
           )}
-        </CardContent>
-      </Card>
+        >
+          <TrendingUp className="h-4 w-4 text-[hsl(var(--signal-positive))]" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-[hsl(var(--text-primary))]">
+            Most Bought by Institutions
+          </h2>
+        </div>
+        {topBought.length > 0 ? (
+          <div className="p-4 space-y-2">
+            {topBought.slice(0, 5).map((item, index) => (
+              <Link
+                key={item.ticker}
+                href={`/company/${item.ticker}`}
+                className={cn(
+                  'flex items-center justify-between',
+                  'rounded-lg p-3',
+                  'border border-[hsl(var(--border-default))]',
+                  'hover:bg-[hsl(var(--bg-hover))]',
+                  'hover:border-[hsl(var(--border-strong))]',
+                  'transition-colors'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-[hsl(var(--text-muted))] w-6">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[hsl(var(--text-primary))]">
+                      {item.ticker}
+                    </p>
+                    <p className="text-xs text-[hsl(var(--text-muted))] truncate max-w-[120px]">
+                      {item.company_name}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-mono text-[hsl(var(--signal-positive))]">
+                    +{formatNumber(item.net_change)}
+                  </p>
+                  <p className="text-xs text-[hsl(var(--text-muted))]">
+                    {item.institution_count} institutions
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center" role="status">
+            <div className={cn('flex items-center justify-center', 'h-12 w-12 mb-3', 'rounded-full', 'bg-[hsl(var(--accent-amber)/0.15)]')}>
+              <TrendingUp className="h-6 w-6 text-[hsl(var(--accent-amber))]" aria-hidden="true" />
+            </div>
+            <p className="text-sm text-[hsl(var(--text-muted))]">No data available</p>
+          </div>
+        )}
+      </div>
 
       {/* Most Sold */}
-      <Card>
-        <CardHeader className="border-b border-white/[0.06] p-4">
-          <CardTitle className="text-base flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-red-400" />
-            Most Sold by Institutions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          {topSold.length > 0 ? (
-            <div className="space-y-3">
-              {topSold.slice(0, 5).map((item, index) => (
-                <Link
-                  key={item.ticker}
-                  href={`/company/${item.ticker}`}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] p-3 hover:bg-white/[0.02] hover:border-white/[0.12] transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-slate-400">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <p className="font-medium text-white">{item.ticker}</p>
-                      <p className="text-xs text-slate-400 truncate max-w-[120px]">
-                        {item.company_name}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-red-400">
-                      {formatNumber(item.net_change)}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {item.institution_count} institutions
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-8 text-slate-500 text-sm">No data</p>
+      <div
+        className={cn(
+          'rounded-lg overflow-hidden',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
+        <div
+          className={cn(
+            'flex items-center gap-2 px-5 py-4',
+            'border-b border-[hsl(var(--border-subtle))]'
           )}
-        </CardContent>
-      </Card>
+        >
+          <TrendingDown className="h-4 w-4 text-[hsl(var(--signal-negative))]" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-[hsl(var(--text-primary))]">
+            Most Sold by Institutions
+          </h2>
+        </div>
+        {topSold.length > 0 ? (
+          <div className="p-4 space-y-2">
+            {topSold.slice(0, 5).map((item, index) => (
+              <Link
+                key={item.ticker}
+                href={`/company/${item.ticker}`}
+                className={cn(
+                  'flex items-center justify-between',
+                  'rounded-lg p-3',
+                  'border border-[hsl(var(--border-default))]',
+                  'hover:bg-[hsl(var(--bg-hover))]',
+                  'hover:border-[hsl(var(--border-strong))]',
+                  'transition-colors'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-[hsl(var(--text-muted))] w-6">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[hsl(var(--text-primary))]">
+                      {item.ticker}
+                    </p>
+                    <p className="text-xs text-[hsl(var(--text-muted))] truncate max-w-[120px]">
+                      {item.company_name}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-mono text-[hsl(var(--signal-negative))]">
+                    {formatNumber(item.net_change)}
+                  </p>
+                  <p className="text-xs text-[hsl(var(--text-muted))]">
+                    {item.institution_count} institutions
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center" role="status">
+            <div className={cn('flex items-center justify-center', 'h-12 w-12 mb-3', 'rounded-full', 'bg-[hsl(var(--accent-amber)/0.15)]')}>
+              <TrendingDown className="h-6 w-6 text-[hsl(var(--accent-amber))]" aria-hidden="true" />
+            </div>
+            <p className="text-sm text-[hsl(var(--text-muted))]">No data available</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

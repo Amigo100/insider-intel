@@ -1,144 +1,103 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { DashboardCard, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Skeleton,
+  SkeletonTabs,
+  SkeletonFilterBar,
+  SkeletonDashboardCard,
+} from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
+/**
+ * Institutions Loading Skeleton
+ *
+ * Matches the institutions page structure:
+ * - Header
+ * - Tabs navigation
+ * - Filter bar
+ * - 8 table rows
+ *
+ * NO SPINNERS - uses shimmer animation exclusively
+ */
 export default function InstitutionsLoading() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6" aria-label="Loading institutions" role="status">
       {/* Header Skeleton */}
-      <div>
-        <Skeleton className="h-9 w-64" />
-        <Skeleton className="mt-2 h-5 w-80" />
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-72" />
       </div>
 
-      {/* Tabs Skeleton */}
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-full max-w-sm" />
+      {/* Tabs Navigation */}
+      <SkeletonTabs count={5} />
 
-        {/* Tab Content Skeleton - Institutions List */}
-        <DashboardCard>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-9 w-64" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              {/* Table Header */}
-              <div className="border-b p-4">
-                <div className="flex items-center gap-6">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-20 ml-auto" />
-                </div>
-              </div>
+      {/* Filter Bar */}
+      <SkeletonFilterBar filters={3} />
 
-              {/* Table Rows */}
-              <div className="p-4 space-y-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-6">
-                    <div className="flex-1">
-                      <Skeleton className="h-4 w-48" />
-                      <Skeleton className="mt-1 h-3 w-24" />
-                    </div>
-                    <Skeleton className="h-5 w-20 rounded-full" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </DashboardCard>
+      {/* Results Summary */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-4 w-20" />
       </div>
 
-      {/* New Positions Section Skeleton */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-9 w-32" />
-        </div>
+      {/* Table */}
+      <SkeletonDashboardCard title={false}>
+        <div className="overflow-hidden">
+          {/* Table Header */}
+          <div
+            className={cn(
+              'flex items-center gap-4 px-5 py-3',
+              'border-b border-[hsl(var(--border-subtle))]',
+              'bg-[hsl(var(--bg-elevated)/0.3)]'
+            )}
+          >
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-24 ml-auto" />
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <DashboardCard key={i}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                </div>
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-3 w-20" />
+          {/* Table Body - 8 rows */}
+          <div className="divide-y divide-[hsl(var(--border-subtle))]">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-5 py-3.5">
+                {/* Institution */}
+                <div className="flex items-center gap-3 flex-1">
+                  <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                  <div className="space-y-1 min-w-0">
+                    <Skeleton className="h-4 w-40" />
                     <Skeleton className="h-3 w-24" />
                   </div>
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-3/4" />
                 </div>
-              </CardContent>
-            </DashboardCard>
-          ))}
+
+                {/* Type Badge */}
+                <Skeleton className="h-5 w-20 rounded" />
+
+                {/* Value */}
+                <Skeleton className="h-4 w-24 ml-auto" />
+
+                {/* Shares */}
+                <Skeleton className="h-4 w-20" />
+
+                {/* Change */}
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </SkeletonDashboardCard>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-4 w-32" />
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-9 rounded-md" />
+          <Skeleton className="h-9 w-9 rounded-md" />
+          <Skeleton className="h-9 w-9 rounded-md" />
         </div>
       </div>
 
-      {/* Top Movements Section Skeleton */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Top Bought */}
-        <DashboardCard>
-          <CardHeader>
-            <Skeleton className="h-5 w-40" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <div>
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="mt-1 h-3 w-24" />
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="mt-1 h-3 w-16" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </DashboardCard>
-
-        {/* Top Sold */}
-        <DashboardCard>
-          <CardHeader>
-            <Skeleton className="h-5 w-40" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <div>
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="mt-1 h-3 w-24" />
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="mt-1 h-3 w-16" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </DashboardCard>
-      </div>
+      {/* Screen reader announcement */}
+      <span className="sr-only">Loading institutional holdings...</span>
     </div>
   )
 }

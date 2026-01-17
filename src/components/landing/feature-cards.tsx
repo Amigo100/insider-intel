@@ -175,7 +175,13 @@ function MiniPieChart() {
     <div className="flex items-center gap-4">
       {/* Circular representation */}
       <div className="relative h-16 w-16 flex-shrink-0">
-        <svg viewBox="0 0 36 36" className="h-16 w-16 -rotate-90">
+        <svg
+          viewBox="0 0 36 36"
+          className="h-16 w-16 -rotate-90"
+          role="img"
+          aria-labelledby="pie-chart-title"
+        >
+          <title id="pie-chart-title">Institutional holdings distribution: Vanguard 35%, BlackRock 28%, State Street 20%, Others 17%</title>
           {/* Background circle */}
           <circle
             cx="18"

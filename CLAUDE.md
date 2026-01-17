@@ -242,7 +242,7 @@ src/components/
 ### Library Modules
 
 ```
-lib/
+src/lib/
 ├── supabase/
 │   ├── client.ts              # Browser Supabase client (createBrowserClient)
 │   ├── server.ts              # Server Supabase client (createServerClient)
@@ -274,10 +274,23 @@ lib/
 ├── auth/
 │   └── cron.ts                # Cron job authentication (verifyCronSecret)
 │
+├── utils.ts                   # Utility functions (cn, getDisplayName)
 ├── logger.ts                  # Pino structured logging with module loggers
 ├── client-logger.ts           # Browser-safe logger for client components
 └── sentry.ts                  # Sentry initialization
 ```
+
+### Utility Functions (`src/lib/utils.ts`)
+
+| Function | Purpose |
+|----------|---------|
+| `cn(...inputs)` | Merge Tailwind classes with clsx + tailwind-merge |
+| `getDisplayName(user, fallback)` | Smart display name extraction from user data |
+
+**`getDisplayName` priorities:**
+1. Use `user.name` if it contains spaces (real name)
+2. Smart-parse email username (handles `alex.deighton`, `alexDeighton`, `alex_deighton`, `alex123`)
+3. Fall back to provided fallback (default: `'there'`)
 
 ### Other Important Files
 
@@ -453,6 +466,72 @@ The app uses a **CSS variable-based theming system** with scoped dark mode:
 | `.animate-pulse-glow` | Pulsing glow effect |
 | `.hover-lift` | Lift on hover with shadow |
 | `.scroll-animate` | Scroll-triggered animation |
+
+### Accessibility Patterns
+
+The app follows WCAG AA accessibility standards:
+
+#### Focus States
+- All interactive elements use `focus-visible:ring-2 focus-visible:ring-cyan-400`
+- Ring offset adapts to theme: `focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900`
+- Focus rings only appear on keyboard navigation (not mouse clicks)
+
+#### ARIA Attributes
+- Icon-only buttons require `aria-label` (e.g., `aria-label="Clear filter"`)
+- Decorative icons use `aria-hidden="true"`
+- Transaction badges use `role="status"` with descriptive `aria-label`
+- Sort buttons indicate current state in `aria-label`
+
+#### Color Independence
+- Buy/Sell indicators use icon + text + color (triple redundancy)
+- Significance badges use orange/yellow/green with different intensities
+- Never rely on color alone to convey information
+
+#### Touch Targets
+- Minimum 44px touch target for mobile (buttons have `min-h-[36px]` with padding)
+- Adequate spacing between interactive elements
+
+#### Reduced Motion
+```css
+@media (prefers-reduced-motion: reduce) {
+  /* All animations disabled for users who prefer reduced motion */
+}
+```
+
+### Responsive Design Patterns
+
+The app is fully responsive across all breakpoints:
+
+| Breakpoint | Width | Layout Changes |
+|------------|-------|----------------|
+| Default | <640px | Single column, stacked elements, sidebar as overlay |
+| `sm:` | ≥640px | Two-column grids, horizontal button groups |
+| `md:` | ≥768px | Tablet layouts, 2-column watchlist grid |
+| `lg:` | ≥1024px | Full sidebar visible, 3-4 column grids |
+| `xl:` | ≥1280px | Maximum content width, larger spacing |
+
+#### Common Responsive Patterns
+```tsx
+// Stats grid: 2 cols mobile, 4 cols desktop
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+// Button group: stacked mobile, horizontal desktop
+<div className="flex flex-col sm:flex-row gap-3">
+
+// Settings layout: stacked mobile, sidebar desktop
+<div className="flex flex-col lg:flex-row gap-6">
+
+// Tables: horizontal scroll wrapper
+<div className="overflow-auto">
+  <Table />
+</div>
+```
+
+#### Mobile-Specific UI
+- Sidebar collapses to hamburger menu on mobile
+- Auth left panel hidden on mobile (single column form)
+- Search form elements stack vertically on small screens
+- Pricing cards stack in single column
 
 ---
 
@@ -669,6 +748,29 @@ ORDER BY it.filed_at DESC;
 3. **Missing tests** - No unit or integration tests currently
 4. **Hardcoded CUSIP mappings** - Fallback in `lib/openfigi/client.ts` for ~60 common securities
 
+### Credibility & Trust Guidelines
+
+**Important**: The landing page was audited to remove fake/unverifiable claims. Follow these guidelines:
+
+#### What NOT to Include
+- ❌ Fake testimonials from fictional people
+- ❌ Unverifiable statistics ("$2.4B+ tracked", "10,000+ users")
+- ❌ False certifications (SOC 2, GDPR badges without actual compliance)
+- ❌ Misleading data freshness claims ("Updated every 5 min" without verification)
+
+#### What IS Allowed
+- ✅ Honest feature descriptions ("Track Form 4 insider filings")
+- ✅ Verifiable data sources ("SEC EDGAR", "OpenFIGI")
+- ✅ Technology descriptions ("AI-Powered" with Claude)
+- ✅ Standard security features ("256-bit SSL" - provided by Vercel)
+- ✅ Use cases section instead of fake testimonials
+
+#### Current Implementation
+- `trust-badges.tsx` - Shows SEC EDGAR, OpenFIGI, AI-Powered, SSL
+- `testimonials.tsx` - Renamed to "Use Cases" with feature descriptions
+- `live-activity-feed.tsx` - Shows "(From SEC filings)" not fake update times
+- Static fallback data labeled as "Example transactions (sign up to see real data)"
+
 ---
 
 ## 7. Design Decisions
@@ -739,6 +841,14 @@ ORDER BY it.filed_at DESC;
 3. **RLS on user data** - `profiles`, `watchlist_items` restricted to owner
 4. **No API keys for frontend** - All routes are session-authenticated
 5. **Service role key server-only** - Never exposed to client
+
+### UI Component Decisions
+
+1. **Input component is theme-aware** - Uses light styles by default, `dark:` prefix for dark mode
+2. **Button focus uses cyan ring** - Consistent `focus-visible:ring-cyan-400` across all buttons
+3. **Cards use CSS variables** - `bg-card text-card-foreground` adapts to theme context
+4. **Transaction badges are semantic** - BUY/SELL use fixed emerald/red colors with icons
+5. **Dashboard shell scopes dark theme** - `dark` class on shell wrapper, not on `<html>`
 
 ---
 
@@ -868,6 +978,58 @@ curl -X GET http://localhost:3000/api/cron/generate-context \
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 # Use the webhook signing secret from the CLI output
 ```
+
+### Adding Accessibility to Components
+
+When creating or modifying interactive components:
+
+1. **Icon-only buttons**:
+   ```tsx
+   <button aria-label="Clear filter">
+     <X className="h-4 w-4" aria-hidden="true" />
+   </button>
+   ```
+
+2. **Status badges**:
+   ```tsx
+   <Badge role="status" aria-label="Purchase transaction">
+     <ArrowUpRight aria-hidden="true" /> BUY
+   </Badge>
+   ```
+
+3. **Sortable columns**:
+   ```tsx
+   <Button
+     aria-label={`Sort by ${field}, currently ${direction}`}
+     onClick={() => handleSort(field)}
+   >
+     {label} <ArrowUpDown aria-hidden="true" />
+   </Button>
+   ```
+
+4. **Dismissible alerts**:
+   ```tsx
+   <div role="alert">
+     Error message
+     <button aria-label="Dismiss error">×</button>
+   </div>
+   ```
+
+### Checking Responsive Layouts
+
+Test pages at these widths:
+- **375px** - iPhone SE (smallest common mobile)
+- **390px** - iPhone 14
+- **768px** - iPad portrait
+- **1024px** - iPad landscape / small laptop
+- **1280px+** - Desktop
+
+Key areas to verify:
+- [ ] Sidebar behavior (collapsed/expanded)
+- [ ] Table horizontal scrolling
+- [ ] Form element stacking
+- [ ] Touch target sizes (≥44px)
+- [ ] Text readability (no overflow/truncation issues)
 
 ---
 
