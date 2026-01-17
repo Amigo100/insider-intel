@@ -48,7 +48,7 @@ interface HolderData {
   shares_change: number | null
   shares_change_percent: number | null
   is_new_position: boolean
-  is_closed_position: boolean
+  is_closed_position?: boolean
 }
 
 interface KeyInsider {
