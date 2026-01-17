@@ -19,7 +19,7 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('[&_tr]:border-b [&_tr]:border-white/[0.06]', className)} {...props} />
+  <thead ref={ref} className={cn('[&_tr]:border-b [&_tr]:border-[hsl(var(--border-subtle))]', className)} {...props} />
 ))
 TableHeader.displayName = 'TableHeader'
 
@@ -42,7 +42,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      'border-t border-white/[0.06] bg-slate-800/30 font-medium [&>tr]:last:border-b-0',
+      'border-t border-[hsl(var(--border-subtle))] bg-[hsl(var(--bg-elevated)/0.3)] font-medium [&>tr]:last:border-b-0',
       className
     )}
     {...props}
@@ -57,7 +57,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      'border-b border-white/[0.06] transition-colors hover:bg-white/[0.02] data-[state=selected]:bg-slate-700/50',
+      'border-b border-[hsl(var(--border-subtle))] transition-colors hover:bg-[hsl(var(--bg-hover)/0.5)] data-[state=selected]:bg-[hsl(var(--bg-active)/0.5)]',
       className
     )}
     {...props}
@@ -73,7 +73,7 @@ const TableHead = React.forwardRef<
     ref={ref}
     scope={scope}
     className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-slate-300 [&:has([role=checkbox])]:pr-0',
+      'h-12 px-4 text-left align-middle font-medium text-[hsl(var(--text-tertiary))] [&:has([role=checkbox])]:pr-0',
       className
     )}
     {...props}
@@ -87,7 +87,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn('p-4 align-middle text-slate-200 [&:has([role=checkbox])]:pr-0', className)}
+    className={cn('p-4 align-middle text-[hsl(var(--text-secondary))] [&:has([role=checkbox])]:pr-0', className)}
     {...props}
   />
 ))
@@ -99,7 +99,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn('mt-4 text-sm text-slate-400', className)}
+    className={cn('mt-4 text-sm text-[hsl(var(--text-muted))]', className)}
     {...props}
   />
 ))
