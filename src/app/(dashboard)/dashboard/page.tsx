@@ -199,14 +199,19 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1
-          className={cn(
-            'text-2xl font-bold tracking-tight',
-            'text-[hsl(var(--text-primary))]'
-          )}
-        >
-          Dashboard
-        </h1>
+        <div>
+          <h1
+            className={cn(
+              'text-2xl font-bold tracking-tight',
+              'text-[hsl(var(--text-primary))]'
+            )}
+          >
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-[hsl(var(--text-muted))]">
+            Latest insider trading activity
+          </p>
+        </div>
         <DateRangeSelector defaultValue="7d" />
       </div>
 
