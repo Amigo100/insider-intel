@@ -75,7 +75,7 @@ export function WatchlistButton({
 
   return (
     <Button
-      variant={isInWatchlist ? 'secondary' : 'default'}
+      variant={isInWatchlist ? 'secondary' : 'primary'}
       onClick={handleToggle}
       disabled={isPending}
     >
