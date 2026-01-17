@@ -3,7 +3,7 @@
 **Created:** January 17, 2026
 **Status:** In Progress
 **Total Tasks:** 115
-**Completed:** 63  
+**Completed:** 83  
 
 > **Instructions for Claude Code:** Reference this file to track implementation progress. After completing each task, update the checkbox from `[ ]` to `[x]` and add the completion date. Run verification steps before marking complete.
 
@@ -17,7 +17,7 @@
 | 2. Core Components | 24 | 24 | ✅ Complete |
 | 3. Data Tables | 15 | 15 | ✅ Complete |
 | 4. Navigation | 12 | 12 | ✅ Complete |
-| 5. Page Layouts | 20 | 0 | ⬜ Not Started |
+| 5. Page Layouts | 20 | 20 | ✅ Complete |
 | 6. Loading & Polish | 14 | 0 | ⬜ Not Started |
 | 7. Accessibility | 29 | 0 | ⬜ Not Started |
 | 8. Content Fixes | 9 | 0 | ⬜ Not Started |
@@ -552,171 +552,171 @@ grep -i "jetbrains" src/app/layout.tsx
 ## Phase 5: Page Layouts
 
 ### 5.1 Dashboard Page
-**File:** `src/app/(dashboard)/dashboard/page.tsx`  
+**File:** `src/app/(dashboard)/dashboard/page.tsx`
 **Prompt Reference:** Prompt 14
 
-- [ ] Update page header:
-  - [ ] Title: "Dashboard"
-  - [ ] Right: Date range selector
-  - [ ] Remove time-based greeting
-- [ ] Update metrics row:
-  - [ ] 4-column grid (2 on mobile)
-  - [ ] Gap: 16px
-  - [ ] Cards: Buys, Sells, Clusters, Watchlist
-- [ ] Implement content grid:
-  - [ ] Main: 2/3 width
-  - [ ] Sidebar: 1/3 width
-  - [ ] Gap: 24px
-  - [ ] Stack on mobile
-- [ ] Main content:
-  - [ ] "Recent Insider Activity" card
-  - [ ] "View All →" link
-  - [ ] TransactionTable (10 rows)
-- [ ] Sidebar:
-  - [ ] "Cluster Alerts" card
-  - [ ] "Watchlist Activity" card
-- [ ] Add Suspense boundaries with skeletons
+- [x] Update page header:
+  - [x] Title: "Dashboard"
+  - [x] Right: Date range selector
+  - [x] Remove time-based greeting
+- [x] Update metrics row:
+  - [x] 4-column grid (2 on mobile)
+  - [x] Gap: 16px
+  - [x] Cards: Buys, Sells, Clusters, Watchlist
+- [x] Implement content grid:
+  - [x] Main: 2/3 width
+  - [x] Sidebar: 1/3 width
+  - [x] Gap: 24px
+  - [x] Stack on mobile
+- [x] Main content:
+  - [x] "Recent Insider Activity" card
+  - [x] "View All →" link
+  - [x] TransactionTable (10 rows)
+- [x] Sidebar:
+  - [x] "Cluster Alerts" card
+  - [x] "Watchlist Activity" card
+- [x] Add Suspense boundaries with skeletons
 
 **Verification:**
-- [ ] Layout matches wireframe
-- [ ] Responsive at all breakpoints
-- [ ] Loading states work
+- [x] Layout matches wireframe
+- [x] Responsive at all breakpoints
+- [x] Loading states work
 
 ---
 
 ### 5.2 Insider Trades Page
-**File:** `src/app/(dashboard)/insider-trades/page.tsx`  
+**File:** `src/app/(dashboard)/insider-trades/page.tsx`
 **Prompt Reference:** Prompt 15
 
-- [ ] Update page header:
-  - [ ] Title: "Insider Trades"
-  - [ ] Action: "Export CSV" button
-- [ ] Implement filter bar:
-  - [ ] Card-style container
-  - [ ] Search input with icon
-  - [ ] Type dropdown
-  - [ ] Date range dropdown
-  - [ ] Significance dropdown
-  - [ ] Clear filters button
-- [ ] Add results summary bar:
-  - [ ] "Showing X-Y of Z transactions"
-  - [ ] Density toggle
-- [ ] Update table:
-  - [ ] Full width
-  - [ ] Sticky headers + first column
-  - [ ] All columns per spec
-- [ ] Implement row expansion:
-  - [ ] AI Context paragraph
-  - [ ] Significance indicator
-  - [ ] Actions: View Company, Add to Watchlist
-- [ ] Add pagination
+- [x] Update page header:
+  - [x] Title: "Insider Trades"
+  - [x] Action: "Export CSV" button
+- [x] Implement filter bar:
+  - [x] Card-style container
+  - [x] Search input with icon
+  - [x] Type dropdown
+  - [x] Date range dropdown
+  - [x] Significance dropdown
+  - [x] Clear filters button
+- [x] Add results summary bar:
+  - [x] "Showing X-Y of Z transactions"
+  - [x] Density toggle
+- [x] Update table:
+  - [x] Full width
+  - [x] Sticky headers + first column
+  - [x] All columns per spec
+- [x] Implement row expansion:
+  - [x] AI Context paragraph
+  - [x] Significance indicator
+  - [x] Actions: View Company, Add to Watchlist
+- [x] Add pagination
 
 **Verification:**
-- [ ] Filters work correctly
-- [ ] Row expansion shows AI context
-- [ ] Pagination works
+- [x] Filters work correctly
+- [x] Row expansion shows AI context
+- [x] Pagination works
 
 ---
 
 ### 5.3 Institutions Page
-**File:** `src/app/(dashboard)/institutions/page.tsx`  
-**Prompt Reference:** Prompt 16  
+**File:** `src/app/(dashboard)/institutions/page.tsx`
+**Prompt Reference:** Prompt 16
 **Fixes:** UI_AUDIT #35
 
-- [ ] Update page header
-- [ ] Implement tab navigation:
-  - [ ] Tabs: New Positions, Increased, Decreased, Closed, All
-  - [ ] Active: amber underline
-  - [ ] Count badges on tabs
-  - [ ] ARIA tab pattern
-- [ ] Add filter bar:
-  - [ ] Search input
-  - [ ] Quarter dropdown
-  - [ ] Minimum value dropdown
-- [ ] Update data table columns
-- [ ] Add empty states per tab
-- [ ] Fix InstitutionsTabs aria-label (UI_AUDIT #35)
+- [x] Update page header
+- [x] Implement tab navigation:
+  - [x] Tabs: New Positions, Increased, Decreased, Closed, All
+  - [x] Active: amber underline
+  - [x] Count badges on tabs
+  - [x] ARIA tab pattern
+- [x] Add filter bar:
+  - [x] Search input
+  - [x] Quarter dropdown
+  - [x] Minimum value dropdown
+- [x] Update data table columns
+- [x] Add empty states per tab
+- [x] Fix InstitutionsTabs aria-label (UI_AUDIT #35)
 
 **Verification:**
-- [ ] Tabs filter data correctly
-- [ ] ARIA attributes present
-- [ ] Empty states display
+- [x] Tabs filter data correctly
+- [x] ARIA attributes present
+- [x] Empty states display
 
 ---
 
 ### 5.4 Watchlist Page
-**Files:** `src/app/(dashboard)/watchlist/page.tsx`, `src/app/(dashboard)/watchlist/watchlist-client.tsx`  
-**Prompt Reference:** Prompt 17  
+**Files:** `src/app/(dashboard)/watchlist/page.tsx`, `src/app/(dashboard)/watchlist/watchlist-client.tsx`
+**Prompt Reference:** Prompt 17
 **Fixes:** UI_AUDIT #146, #151
 
-- [ ] Update page header:
-  - [ ] Title with count
-  - [ ] "+ Add Ticker" button
-- [ ] Implement watchlist grid:
-  - [ ] 3 columns desktop, 2 tablet, 1 mobile
-  - [ ] Gap: 16px
-- [ ] Create watchlist card:
-  - [ ] Ticker (18px, bold)
-  - [ ] Company name (13px, tertiary)
-  - [ ] Sparkline
-  - [ ] Last activity
-  - [ ] Active indicator (green border + badge)
-  - [ ] Hover actions: View, Remove
-- [ ] Add removal confirmation dialog (fixes #151)
-- [ ] Implement activity feed:
-  - [ ] Grouped by date
-  - [ ] Item: ticker, description, AI preview
-- [ ] Create empty state
-- [ ] Refactor watchlist-client.tsx (fixes #146):
-  - [ ] Create WatchlistGrid component
-  - [ ] Create WatchlistCard component
-  - [ ] Create WatchlistActivityFeed component
-  - [ ] Create useWatchlist hook
+- [x] Update page header:
+  - [x] Title with count
+  - [x] "+ Add Ticker" button
+- [x] Implement watchlist grid:
+  - [x] 3 columns desktop, 2 tablet, 1 mobile
+  - [x] Gap: 16px
+- [x] Create watchlist card:
+  - [x] Ticker (18px, bold)
+  - [x] Company name (13px, tertiary)
+  - [x] Sparkline
+  - [x] Last activity
+  - [x] Active indicator (green border + badge)
+  - [x] Hover actions: View, Remove
+- [x] Add removal confirmation dialog (fixes #151)
+- [x] Implement activity feed:
+  - [x] Grouped by date
+  - [x] Item: ticker, description, AI preview
+- [x] Create empty state
+- [x] Refactor watchlist-client.tsx (fixes #146):
+  - [x] Create WatchlistGrid component
+  - [x] Create WatchlistCard component
+  - [x] Create WatchlistActivityFeed component
+  - [x] Create useWatchlist hook
 
 **Verification:**
-- [ ] Grid layout responsive
-- [ ] Removal shows confirmation
-- [ ] Empty state displays
-- [ ] Client file is smaller/split
+- [x] Grid layout responsive
+- [x] Removal shows confirmation
+- [x] Empty state displays
+- [x] Client file is smaller/split
 
 ---
 
 ### 5.5 Company Detail Page
-**Files:** `src/app/(dashboard)/company/[ticker]/page.tsx`, `src/components/dashboard/company-tabs.tsx`  
-**Prompt Reference:** Prompt 18  
+**Files:** `src/app/(dashboard)/company/[ticker]/page.tsx`, `src/components/dashboard/company-tabs.tsx`
+**Prompt Reference:** Prompt 18
 **Fixes:** UI_AUDIT #149
 
-- [ ] Update page header:
-  - [ ] Back link
-  - [ ] Title: "TICKER - Company Name"
-  - [ ] Subtitle: Sector, Market Cap
-  - [ ] Watchlist button
-- [ ] Implement metrics row (company-specific):
-  - [ ] Insider Buys (1Y)
-  - [ ] Insider Sells (1Y)
-  - [ ] Net Insider Activity
-  - [ ] Institutional Ownership
-- [ ] Implement tabs:
-  - [ ] Overview, Insider Activity, Institutional Holdings
-  - [ ] ARIA labels
-- [ ] Overview tab content:
-  - [ ] 2-column layout
-  - [ ] Activity chart (12 months)
-  - [ ] Key insiders list
-  - [ ] Recent transactions
-- [ ] Insider Activity tab:
-  - [ ] Filters
-  - [ ] Full TransactionTable
-- [ ] Institutional Holdings tab:
-  - [ ] Top holders pie chart
-  - [ ] Recent changes
-  - [ ] Full holders table
-- [ ] Replace Card with DashboardCard (fixes #149)
+- [x] Update page header:
+  - [x] Back link
+  - [x] Title: "TICKER - Company Name"
+  - [x] Subtitle: Sector, Market Cap
+  - [x] Watchlist button
+- [x] Implement metrics row (company-specific):
+  - [x] Insider Buys (1Y)
+  - [x] Insider Sells (1Y)
+  - [x] Net Insider Activity
+  - [x] Institutional Ownership
+- [x] Implement tabs:
+  - [x] Overview, Insider Activity, Institutional Holdings
+  - [x] ARIA labels
+- [x] Overview tab content:
+  - [x] 2-column layout
+  - [x] Activity chart (12 months)
+  - [x] Key insiders list
+  - [x] Recent transactions
+- [x] Insider Activity tab:
+  - [x] Filters
+  - [x] Full TransactionTable
+- [x] Institutional Holdings tab:
+  - [x] Top holders pie chart
+  - [x] Recent changes
+  - [x] Full holders table
+- [x] Replace Card with DashboardCard (fixes #149)
 
 **Verification:**
-- [ ] All tabs render correctly
-- [ ] Charts display
-- [ ] Watchlist toggle works
+- [x] All tabs render correctly
+- [x] Charts display
+- [x] Watchlist toggle works
 
 ---
 
@@ -976,6 +976,7 @@ Run these checks after all phases are complete:
 | Jan 17, 2026 | 0 | Initial checklist created |
 | Jan 17, 2026 | 51 | **Phase 1-3 Complete**: All CSS variables, typography, core components (Button, Card, Input, Select, Checkbox, Switch, Badge, Tabs, Skeleton), and data table features (sticky headers, sparklines, density toggle) implemented and verified |
 | Jan 17, 2026 | 63 | **Phase 4 Complete**: Sidebar and Command Palette fully implemented with amber accents, keyboard shortcuts (⌘K, /), focus traps, and accessibility features. Fixed hardcoded colors in DashboardShell |
+| Jan 17, 2026 | 83 | **Phase 5 Complete**: All page layouts verified and updated (Dashboard, Insider Trades, Institutions, Watchlist, Company Detail). Added density toggle to Insider Trades page with state management via new client component |
 | | | |
 
 ---
