@@ -15,7 +15,6 @@ import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { StatCard, StatsRow, StatCardSkeleton } from '@/components/dashboard/stats-card'
-import { DateRangeSelector, type DateRange, getDateFromRange } from '@/components/dashboard/date-range-selector'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
@@ -50,14 +49,13 @@ function formatCurrency(value: number): string {
   return `$${value.toFixed(0)}`
 }
 
-async function getDashboardData(userId: string, dateRange: DateRange = '7d') {
+async function getDashboardData(userId: string) {
   try {
     const supabase = await createClient()
 
-    // Get date range for queries
-    const rangeStart = getDateFromRange(dateRange)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    // Get date range for queries (last 7 days)
+    const rangeStart = new Date()
+    rangeStart.setDate(rangeStart.getDate() - 7)
 
     // Fetch recent transactions for table
     const { data: recentTransactions } = await supabase
@@ -111,7 +109,7 @@ async function getDashboardData(userId: string, dateRange: DateRange = '7d') {
       .from('v_recent_insider_transactions')
       .select('*')
       .eq('transaction_type', 'P')
-      .gte('filed_at', sevenDaysAgo.toISOString())
+      .gte('filed_at', rangeStart.toISOString())
 
     const clusterMap = new Map<string, ClusterData>()
 
@@ -193,7 +191,7 @@ export default async function DashboardPage() {
     return null
   }
 
-  const data = await getDashboardData(user.id, '7d')
+  const data = await getDashboardData(user.id)
 
   return (
     <div className="space-y-6">
@@ -212,7 +210,6 @@ export default async function DashboardPage() {
             Latest insider trading activity
           </p>
         </div>
-        <DateRangeSelector defaultValue="7d" />
       </div>
 
       {/* Metrics Row */}

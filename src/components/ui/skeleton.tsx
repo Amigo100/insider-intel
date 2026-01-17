@@ -443,7 +443,7 @@ function SkeletonDashboardCard({
   title = true,
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & {
+}: Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> & {
   title?: boolean
 }) {
   return (

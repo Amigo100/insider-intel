@@ -38,13 +38,13 @@ async function getInstitutionsData() {
         h.company_name
     )
     .map((h) => ({
-      id: h.id,
-      institution_id: h.institution_id,
-      institution_name: h.institution_name,
+      id: h.id!,
+      institution_id: h.institution_id!,
+      institution_name: h.institution_name!,
       institution_type: h.institution_type,
-      company_id: h.company_id,
-      ticker: h.ticker,
-      company_name: h.company_name,
+      company_id: h.company_id!,
+      ticker: h.ticker!,
+      company_name: h.company_name!,
       shares: h.shares || 0,
       value: h.value || 0,
       shares_change: h.shares_change,
