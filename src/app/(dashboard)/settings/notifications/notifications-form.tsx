@@ -109,10 +109,10 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
   ]
 
   return (
-    <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
-      <div className="p-6 border-b border-white/[0.08]">
-        <h2 className="text-lg font-semibold text-white">Notification Preferences</h2>
-        <p className="text-sm text-slate-400 mt-1">
+    <div className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-xl border border-[hsl(var(--border-default))]">
+      <div className="p-6 border-b border-[hsl(var(--border-default))]">
+        <h2 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Notification Preferences</h2>
+        <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
           Choose how and when you want to be notified about insider trading
           activity
         </p>
@@ -127,20 +127,20 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
               return (
                 <div
                   key={option.id}
-                  className="flex items-start justify-between gap-4 rounded-lg border border-white/[0.08] bg-slate-700/30 p-5"
+                  className="flex items-start justify-between gap-4 rounded-lg border border-[hsl(var(--border-default))] bg-[hsl(var(--bg-elevated)/0.3)] p-5"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700/50">
-                      <Icon className="h-5 w-5 text-slate-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[hsl(var(--bg-elevated)/0.5)]">
+                      <Icon className="h-5 w-5 text-[hsl(var(--text-muted))]" />
                     </div>
                     <div className="space-y-1">
                       <Label
                         htmlFor={option.id}
-                        className="text-base font-medium cursor-pointer text-slate-200"
+                        className="text-base font-medium cursor-pointer text-[hsl(var(--text-secondary))]"
                       >
                         {option.label}
                       </Label>
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-[hsl(var(--text-muted))]">
                         {option.description}
                       </p>
                     </div>
@@ -156,11 +156,11 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
           </div>
 
           {/* Info Box */}
-          <div className="rounded-lg bg-cyan-400/5 border border-cyan-400/20 p-4">
-            <p className="text-sm text-slate-400">
-              <strong className="text-cyan-400">Note:</strong> Instant alerts are only available for Retail
+          <div className="rounded-lg bg-[hsl(var(--accent-amber)/0.05)] border border-[hsl(var(--accent-amber)/0.2)] p-4">
+            <p className="text-sm text-[hsl(var(--text-muted))]">
+              <strong className="text-[hsl(var(--accent-amber))]">Note:</strong> Instant alerts are only available for Retail
               and Pro subscribers.{' '}
-              <a href="/settings/billing" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+              <a href="/settings/billing" className="text-[hsl(var(--accent-amber))] hover:text-[hsl(var(--accent-amber)/0.8)] underline underline-offset-2">
                 Upgrade your plan
               </a>{' '}
               to enable real-time notifications.
@@ -169,7 +169,7 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400" role="alert">
+            <div className="rounded-lg bg-[hsl(var(--signal-negative)/0.1)] border border-[hsl(var(--signal-negative)/0.2)] p-3 text-sm text-[hsl(var(--signal-negative))]" role="alert">
               {error}
             </div>
           )}
@@ -178,13 +178,9 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
           <div className="flex items-center gap-4 pt-2">
             <Button
               type="submit"
+              variant={hasChanges && !isSaving ? 'primary' : 'secondary'}
               disabled={isSaving || !hasChanges}
-              className={cn(
-                'min-w-[160px]',
-                hasChanges && !isSaving
-                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
-              )}
+              className="min-w-[160px]"
             >
               {isSaving ? (
                 <>
@@ -201,7 +197,7 @@ export function NotificationsForm({ initialData }: NotificationsFormProps) {
               )}
             </Button>
             {!hasChanges && !saveSuccess && (
-              <span className="text-sm text-slate-500">
+              <span className="text-sm text-[hsl(var(--text-muted))]">
                 No changes to save
               </span>
             )}
