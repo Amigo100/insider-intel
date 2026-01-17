@@ -160,7 +160,7 @@ export default function AboutPage() {
             <Button size="lg" asChild>
               <Link href="/signup">Start Free</Link>
             </Button>
-            <Button size="lg" variant="outline-light" asChild>
+            <Button size="lg" variant="outline" asChild>
               <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
