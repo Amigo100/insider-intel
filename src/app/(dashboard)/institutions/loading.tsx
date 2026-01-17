@@ -39,7 +39,13 @@ export default function InstitutionsLoading() {
       </div>
 
       {/* Table */}
-      <SkeletonDashboardCard title={false}>
+      <div
+        className={cn(
+          'rounded-lg overflow-hidden',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
         <div className="overflow-hidden">
           {/* Table Header */}
           <div
@@ -84,7 +90,7 @@ export default function InstitutionsLoading() {
             ))}
           </div>
         </div>
-      </SkeletonDashboardCard>
+      </div>
 
       {/* Pagination */}
       <div className="flex items-center justify-between">

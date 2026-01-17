@@ -44,7 +44,13 @@ export default function InsiderTradesLoading() {
       </div>
 
       {/* Table */}
-      <SkeletonDashboardCard title={false}>
+      <div
+        className={cn(
+          'rounded-lg overflow-hidden',
+          'bg-[hsl(var(--bg-card))]',
+          'border border-[hsl(var(--border-default))]'
+        )}
+      >
         <div className="overflow-hidden">
           {/* Table Header */}
           <div
@@ -100,7 +106,7 @@ export default function InsiderTradesLoading() {
             ))}
           </div>
         </div>
-      </SkeletonDashboardCard>
+      </div>
 
       {/* Load More Button */}
       <div className="flex justify-center">
