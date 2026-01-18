@@ -121,6 +121,22 @@ function formatPrice(value: number | null): string {
   }).format(value)
 }
 
+/**
+ * Decode HTML entities in strings (e.g., &amp; -> &)
+ */
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text
+  const entities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+  }
+  return text.replace(/&(?:amp|lt|gt|quot|#39|apos);/g, (match) => entities[match] || match)
+}
+
 // Shared styles
 const headerCellStyles = cn(
   // Sticky positioning
@@ -530,6 +546,7 @@ export function TransactionTable({
                         <p
                           className={cn(
                             'font-medium truncate max-w-[180px]',
+                            'text-[hsl(var(--text-primary))]',
                             density === 'compact' && 'text-xs'
                           )}
                           title={transaction.insider_name}
@@ -539,7 +556,7 @@ export function TransactionTable({
                         {/* Hide subtitle in compact mode */}
                         {density === 'comfortable' && (
                           <p
-                            className="text-xs text-muted-foreground truncate max-w-[180px]"
+                            className="text-xs text-[hsl(var(--text-secondary))] truncate max-w-[180px]"
                             title={transaction.insider_title || 'Insider'}
                           >
                             {transaction.insider_title || 'Insider'}
@@ -550,7 +567,7 @@ export function TransactionTable({
                         <Link
                           href={`/company/${transaction.ticker}`}
                           className={cn(
-                            'font-semibold text-foreground hover:text-[hsl(var(--accent-amber))] transition-colors',
+                            'font-semibold text-[hsl(var(--text-primary))] hover:text-[hsl(var(--accent-amber))] transition-colors',
                             density === 'compact' && 'text-xs'
                           )}
                           onClick={(e) => e.stopPropagation()}
@@ -560,10 +577,10 @@ export function TransactionTable({
                         {/* Hide company name in compact mode */}
                         {density === 'comfortable' && (
                           <p
-                            className="text-xs text-muted-foreground truncate max-w-[150px]"
-                            title={transaction.company_name}
+                            className="text-xs text-[hsl(var(--text-secondary))] truncate max-w-[150px]"
+                            title={decodeHtmlEntities(transaction.company_name)}
                           >
-                            {transaction.company_name}
+                            {decodeHtmlEntities(transaction.company_name)}
                           </p>
                         )}
                       </td>

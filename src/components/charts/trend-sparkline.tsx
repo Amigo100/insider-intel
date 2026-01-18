@@ -140,25 +140,14 @@ export function TrendSparkline({
   }
 
   if (!data || data.length < 2) {
+    // Show subtle "N/A" text instead of dashed line for cleaner look
     return (
       <div
-        className={cn('flex items-center justify-center text-muted-foreground', className)}
+        className={cn('flex items-center justify-center', className)}
         style={{ width, height }}
         aria-label="No trend data available"
       >
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-          <line
-            x1={8}
-            y1={height / 2}
-            x2={width - 8}
-            y2={height / 2}
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeDasharray="4 4"
-            opacity={0.4}
-          />
-        </svg>
+        <span className="text-[10px] text-[hsl(var(--text-muted))] opacity-50">N/A</span>
       </div>
     )
   }

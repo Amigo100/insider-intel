@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       )
     }
-    limit = Math.min(limit, 200) // Cap at 200
+    limit = Math.min(limit, 1000) // Cap at 1000
 
     // Validate type parameter
     const validTypes = ['P', 'S', 'A', 'D', 'G', 'M', 'ALL']
