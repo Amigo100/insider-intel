@@ -3,7 +3,7 @@ import Link from 'next/link'
 import {
   ChevronRight,
   ArrowRight,
-  Zap,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -80,8 +80,8 @@ export const metadata: Metadata = {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Navigation - Sticky Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Logo variant="dark" size="md" />
 
@@ -89,44 +89,47 @@ export default function LandingPage() {
           <nav className="hidden items-center gap-8 md:flex">
             <Link
               href="#features"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 rounded-sm"
             >
               Features
             </Link>
             <Link
               href="#pricing"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 rounded-sm"
             >
               Pricing
             </Link>
             <Link
               href="#faq"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 rounded-sm"
             >
               FAQ
             </Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
+            <Button variant="ghost" size="sm" asChild className="hidden sm:flex text-slate-500 hover:text-slate-900">
               <Link href="/login">Sign In</Link>
             </Button>
-            <Button variant="primary" size="sm" asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            <Link
+              href="/signup"
+              className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-[0_4px_14px_rgba(34,211,238,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)]"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </header>
 
       <main>
         {/* Hero Section */}
-        <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-background">
+        <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32 bg-white">
           {/* Background decoration */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
             <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl" aria-hidden="true">
               <div
-                className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-primary to-emerald-400/30 opacity-20"
+                className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-cyan-400/30 to-emerald-400/20 opacity-30"
                 style={{
                   clipPath:
                     'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
@@ -137,36 +140,41 @@ export default function LandingPage() {
 
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
-              <Badge variant="secondary" className="mb-6 gap-1.5 animate-fade-in">
-                <Zap className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                AI-powered SEC filing analysis
-              </Badge>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl animate-fade-in-up">
-                Track Insider & Institutional Trading{' '}
-                <span className="text-primary">with AI</span>
+              {/* Badge with sparkle icon */}
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 py-1.5 text-sm text-slate-600 opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+                <Sparkles className="h-4 w-4 text-slate-500" />
+                <span>Real SEC Data • AI Insights</span>
+              </div>
+
+              <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+                Track Insider Trading Activity Before the Market Moves
               </h1>
-              <p className="mt-6 text-lg text-muted-foreground sm:text-xl animate-fade-in-up animate-delay-100">
-                Know what the smart money is doing before the market moves. Get
-                real-time alerts on SEC filings, AI-powered analysis, and
-                actionable insights to make better investment decisions.
+
+              <p className="mx-auto mt-6 max-w-xl text-lg text-slate-600 sm:text-xl opacity-0 animate-fade-in-up" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+                Real-time Form 4 filings and institutional holdings with AI-powered context.
               </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row animate-fade-in-up animate-delay-200">
-                <Button size="lg" variant="primary" asChild className="w-full sm:w-auto shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
-                  <Link href="/signup">
-                    Start Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-                  <Link href="#features">
-                    See How It Works
-                  </Link>
-                </Button>
+
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+                {/* Primary CTA - Cyan gradient */}
+                <Link
+                  href="/signup"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400 px-6 py-3 text-base font-semibold text-slate-900 shadow-[0_4px_14px_rgba(34,211,238,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] sm:w-auto"
+                >
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                {/* Secondary CTA */}
+                <Link
+                  href="#features"
+                  className="inline-flex w-full items-center justify-center rounded-lg border-2 border-slate-300 bg-transparent px-6 py-3 text-base font-medium text-slate-700 transition-all duration-200 hover:border-slate-900 hover:bg-slate-900 hover:text-white sm:w-auto"
+                >
+                  See How It Works
+                </Link>
               </div>
             </div>
 
             {/* Dashboard Preview */}
-            <div className="mt-16 sm:mt-20 lg:mt-24 animate-fade-in-up animate-delay-300">
+            <div className="mt-16 sm:mt-20 lg:mt-24 opacity-0 animate-fade-in-up" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
               <DashboardPreview />
             </div>
 
@@ -178,13 +186,13 @@ export default function LandingPage() {
         </section>
 
         {/* Live Activity Section */}
-        <section className="py-12 sm:py-16 border-y bg-muted/20">
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <LiveActivityHeader />
             <div className="mx-auto max-w-2xl">
               <LiveActivityFeed />
             </div>
-            <p className="mt-8 text-center text-xs text-muted-foreground">
+            <p className="mt-8 text-center text-xs text-slate-500">
               Data sourced directly from SEC EDGAR filings
             </p>
           </div>
@@ -194,13 +202,13 @@ export default function LandingPage() {
         <TrustBadges />
 
         {/* Features Section */}
-        <section id="features" className="py-16 sm:py-24 scroll-mt-16">
+        <section id="features" className="py-16 sm:py-24 scroll-mt-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Everything you need to track smart money
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Everything you need to track insider activity
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-4 text-lg text-slate-600">
                 Comprehensive tools to monitor insider trading, institutional
                 holdings, and market movements
               </p>
@@ -213,13 +221,13 @@ export default function LandingPage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="border-y bg-muted/30 py-16 sm:py-24">
+        <section className="bg-slate-50 py-16 sm:py-24">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                 Get started in minutes
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-4 text-lg text-slate-600">
                 Three simple steps to start tracking insider trading activity
               </p>
             </div>
@@ -227,55 +235,53 @@ export default function LandingPage() {
             <div className="mt-12 sm:mt-16 grid gap-8 sm:gap-12 sm:grid-cols-3 max-w-4xl mx-auto">
               {/* Step 1 */}
               <div className="relative text-center group">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground transition-transform group-hover:scale-110">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-xl font-bold text-white transition-transform group-hover:scale-110">
                   1
                 </div>
-                <h3 className="mt-6 text-xl font-semibold">Sign up for free</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Create your account in seconds. No credit card required to get
-                  started.
+                <h3 className="mt-6 text-lg font-semibold text-slate-900">Create Account</h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Sign up in 30 seconds. No credit card required.
                 </p>
-                {/* Connector line */}
-                <div className="absolute right-0 top-8 hidden h-0.5 w-1/2 bg-border sm:block" />
+                {/* Connector line - dashed */}
+                <div className="absolute right-0 top-6 hidden h-[2px] w-1/2 border-t-2 border-dashed border-slate-300 sm:block" />
               </div>
 
               {/* Step 2 */}
               <div className="relative text-center group">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground transition-transform group-hover:scale-110">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-xl font-bold text-white transition-transform group-hover:scale-110">
                   2
                 </div>
-                <h3 className="mt-6 text-xl font-semibold">Add stocks to watch</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Search for companies and add them to your watchlist to track
-                  insider activity.
+                <h3 className="mt-6 text-lg font-semibold text-slate-900">Track Insiders</h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Add companies to your watchlist and track insider activity.
                 </p>
-                {/* Connector lines */}
-                <div className="absolute left-0 top-8 hidden h-0.5 w-1/2 bg-border sm:block" />
-                <div className="absolute right-0 top-8 hidden h-0.5 w-1/2 bg-border sm:block" />
+                {/* Connector lines - dashed */}
+                <div className="absolute left-0 top-6 hidden h-[2px] w-1/2 border-t-2 border-dashed border-slate-300 sm:block" />
+                <div className="absolute right-0 top-6 hidden h-[2px] w-1/2 border-t-2 border-dashed border-slate-300 sm:block" />
               </div>
 
               {/* Step 3 */}
               <div className="relative text-center group">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground transition-transform group-hover:scale-110">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-xl font-bold text-white transition-transform group-hover:scale-110">
                   3
                 </div>
-                <h3 className="mt-6 text-xl font-semibold">Get notified</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Receive instant alerts and AI-powered insights when insiders
-                  make significant trades.
+                <h3 className="mt-6 text-lg font-semibold text-slate-900">Act on Insights</h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Get AI-powered analysis and instant alerts when insiders trade.
                 </p>
-                {/* Connector line */}
-                <div className="absolute left-0 top-8 hidden h-0.5 w-1/2 bg-border sm:block" />
+                {/* Connector line - dashed */}
+                <div className="absolute left-0 top-6 hidden h-[2px] w-1/2 border-t-2 border-dashed border-slate-300 sm:block" />
               </div>
             </div>
 
             <div className="mt-12 sm:mt-16 text-center">
-              <Button size="lg" variant="primary" asChild className="shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
-                <Link href="/signup">
-                  Get Started Now
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400 px-6 py-3 text-base font-semibold text-slate-900 shadow-[0_4px_14px_rgba(34,211,238,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)]"
+              >
+                Get Started Now
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
           </div>
         </section>
@@ -289,43 +295,44 @@ export default function LandingPage() {
         {/* FAQ Section */}
         <FAQSection />
 
-        {/* CTA Section */}
+        {/* CTA Section - Dark Gradient with Rounded Corners */}
         <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-8 py-16 text-center sm:px-16 sm:py-20">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Ready to track the smart money?
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Start tracking insider trading and institutional holdings today.
-                Free forever plan available.
+              <p className="mx-auto mt-4 max-w-xl text-lg text-slate-300">
+                Join thousands of investors using InsiderIntel. Start free today.
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" variant="primary" asChild className="w-full sm:w-auto shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
-                  <Link href="/signup">
-                    Start Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-                  <Link href="/login">
-                    Sign In
-                  </Link>
-                </Button>
+                <Link
+                  href="/signup"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400 px-6 py-3 text-base font-semibold text-slate-900 shadow-[0_4px_14px_rgba(34,211,238,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] sm:w-auto"
+                >
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex w-full items-center justify-center rounded-lg border border-slate-600 bg-transparent px-6 py-3 text-base font-medium text-white transition-colors hover:bg-slate-800 sm:w-auto"
+                >
+                  Sign In
+                </Link>
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-muted/30">
+      {/* Footer - Slate-50 Background */}
+      <footer className="bg-slate-50 border-t border-slate-200">
         <div className="container mx-auto px-4 py-12 sm:py-16">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div className="sm:col-span-2 lg:col-span-1">
               <Logo variant="dark" size="md" />
-              <p className="mt-4 text-sm text-muted-foreground max-w-xs">
+              <p className="mt-4 text-sm text-slate-500 max-w-xs">
                 Track insider trading and institutional holdings with AI-powered
                 insights.
               </p>
@@ -333,12 +340,12 @@ export default function LandingPage() {
 
             {/* Product */}
             <div>
-              <h3 className="font-semibold">Product</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Product</h3>
               <ul className="mt-4 space-y-3">
                 <li>
                   <Link
                     href="#features"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     Features
                   </Link>
@@ -346,7 +353,7 @@ export default function LandingPage() {
                 <li>
                   <Link
                     href="#pricing"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     Pricing
                   </Link>
@@ -354,7 +361,7 @@ export default function LandingPage() {
                 <li>
                   <Link
                     href="#faq"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     FAQ
                   </Link>
@@ -364,12 +371,12 @@ export default function LandingPage() {
 
             {/* Company */}
             <div>
-              <h3 className="font-semibold">Company</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Company</h3>
               <ul className="mt-4 space-y-3">
                 <li>
                   <Link
                     href="/about"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     About
                   </Link>
@@ -377,7 +384,7 @@ export default function LandingPage() {
                 <li>
                   <Link
                     href="/contact"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     Contact
                   </Link>
@@ -387,28 +394,28 @@ export default function LandingPage() {
 
             {/* Legal */}
             <div>
-              <h3 className="font-semibold">Legal</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Legal</h3>
               <ul className="mt-4 space-y-3">
                 <li>
                   <Link
                     href="/terms"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
-                    Terms of Service
+                    Terms
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/privacy"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
-                    Privacy Policy
+                    Privacy
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/disclaimer"
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-slate-500 transition-colors hover:text-slate-900"
                   >
                     Disclaimer
                   </Link>
@@ -417,11 +424,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 sm:flex-row">
+            <p className="text-sm text-slate-500">
               &copy; {new Date().getFullYear()} InsiderIntel. All rights reserved.
             </p>
-            <p className="text-xs text-muted-foreground text-center sm:text-right">
+            <p className="text-xs text-slate-400 text-center sm:text-right">
               Not financial advice. Past performance does not guarantee future
               results.
             </p>

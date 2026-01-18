@@ -1,5 +1,4 @@
-import { FileText, TrendingUp, Bell } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { User, TrendingUp, BarChart3 } from 'lucide-react'
 
 interface UseCase {
   title: string
@@ -9,46 +8,43 @@ interface UseCase {
 
 const useCases: UseCase[] = [
   {
-    title: 'Track Insider Activity',
+    title: 'Retail Investor',
     description:
-      'Monitor Form 4 filings to see when executives and directors buy or sell shares in their own companies.',
-    icon: FileText,
+      'Track insider buying and selling at companies you own. Get alerts when executives show confidence in their stock.',
+    icon: User,
   },
   {
-    title: 'Spot Cluster Buying',
+    title: 'Day Trader',
     description:
-      'Identify when multiple insiders at the same company are buying shares - a potential signal of confidence.',
+      'Spot cluster buying patterns before they hit the news. React quickly to significant insider activity.',
     icon: TrendingUp,
   },
   {
-    title: 'Get Timely Alerts',
+    title: 'Analyst',
     description:
-      'Receive notifications when there is significant insider activity in companies on your watchlist.',
-    icon: Bell,
+      'Comprehensive 13F data and insider transaction history. Export data and integrate with your research workflow.',
+    icon: BarChart3,
   },
 ]
 
 /**
- * Use cases section - replacing fake testimonials with honest feature descriptions
- *
- * NOTE: This replaces the previous testimonials section which contained
- * fabricated quotes from fictional people. Real testimonials should only
- * be added once actual users provide them with permission.
+ * Use cases section - Built for Every Investor
+ * Per spec: 3 persona cards (Retail Investor, Day Trader, Analyst)
  */
 export function Testimonials() {
   return (
-    <section className="py-16 sm:py-24">
+    <section className="py-16 sm:py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Make smarter investment decisions
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Built for Every Investor
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Leverage insider trading data to inform your research
+          <p className="mt-4 text-lg text-slate-600">
+            Whether you&apos;re a retail investor or professional analyst
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {useCases.map((useCase, index) => (
             <UseCaseCard key={index} useCase={useCase} />
           ))}
@@ -62,19 +58,17 @@ function UseCaseCard({ useCase }: { useCase: UseCase }) {
   const Icon = useCase.icon
 
   return (
-    <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <CardContent className="pt-6">
-        {/* Icon */}
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+      {/* Icon */}
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100">
+        <Icon className="h-6 w-6 text-slate-700" />
+      </div>
 
-        {/* Title */}
-        <h3 className="text-lg font-semibold">{useCase.title}</h3>
+      {/* Title */}
+      <h3 className="text-lg font-semibold text-slate-900">{useCase.title}</h3>
 
-        {/* Description */}
-        <p className="mt-2 text-muted-foreground">{useCase.description}</p>
-      </CardContent>
-    </Card>
+      {/* Description */}
+      <p className="mt-2 text-sm text-slate-600">{useCase.description}</p>
+    </div>
   )
 }

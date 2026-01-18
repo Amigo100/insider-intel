@@ -37,13 +37,13 @@ export function PricingSection() {
 
   return (
     <TooltipProvider>
-    <section id="pricing" className="py-16 sm:py-24 bg-muted/20 scroll-mt-16">
+    <section id="pricing" className="py-16 sm:py-24 bg-white scroll-mt-16">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Simple, transparent pricing
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Simple, Transparent Pricing
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-4 text-lg text-slate-600">
             Start free and upgrade as you grow. No hidden fees.
           </p>
 
@@ -51,7 +51,7 @@ export function PricingSection() {
           <div className="mt-8 flex items-center justify-center gap-3">
             <span
               className={`text-sm font-medium transition-colors ${
-                !isAnnual ? 'text-foreground' : 'text-muted-foreground'
+                !isAnnual ? 'text-slate-900' : 'text-slate-500'
               }`}
             >
               Monthly
@@ -59,7 +59,7 @@ export function PricingSection() {
             <button
               onClick={() => setIsAnnual(!isAnnual)}
               className={`relative h-7 w-12 rounded-full transition-colors flex-shrink-0 ${
-                isAnnual ? 'bg-primary' : 'bg-muted'
+                isAnnual ? 'bg-slate-900' : 'bg-slate-200'
               }`}
               aria-label={isAnnual ? 'Switch to monthly billing' : 'Switch to annual billing'}
               role="switch"
@@ -73,27 +73,27 @@ export function PricingSection() {
             </button>
             <span
               className={`text-sm font-medium transition-colors ${
-                isAnnual ? 'text-foreground' : 'text-muted-foreground'
+                isAnnual ? 'text-slate-900' : 'text-slate-500'
               }`}
             >
               Annual
             </span>
-            <Badge variant="secondary" className={`bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 transition-opacity ${isAnnual ? 'opacity-100' : 'opacity-0'}`}>
+            <span className={`inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 transition-opacity ${isAnnual ? 'opacity-100' : 'opacity-0'}`}>
               Save 20%
-            </Badge>
+            </span>
           </div>
         </div>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-3 lg:items-start">
           {/* Free Plan */}
-          <div className="bg-card rounded-2xl border border-border p-8 transition-all duration-200 hover:border-border/80 hover:shadow-lg hover:-translate-y-1">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-200 hover:shadow-lg">
             <div className="pb-4">
-              <h3 className="text-xl font-semibold text-foreground">Free</h3>
+              <h3 className="text-xl font-semibold text-slate-900">Free</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold text-foreground">${prices.free}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.free}</span>
+                <span className="text-slate-500">/month</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 Perfect for exploring insider data
               </p>
             </div>
@@ -114,7 +114,7 @@ export function PricingSection() {
               </ul>
               <Link
                 href="/signup"
-                className="block w-full text-center bg-card text-foreground font-semibold py-3 rounded-lg border border-border hover:bg-muted transition-colors"
+                className="block w-full text-center bg-white text-slate-900 font-semibold py-3 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors"
               >
                 Get Started Free
               </Link>
@@ -122,25 +122,25 @@ export function PricingSection() {
           </div>
 
           {/* Retail Plan - Most Popular */}
-          <div className="relative bg-card rounded-2xl border-2 border-primary p-8 shadow-xl transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 lg:-mt-4 lg:mb-4">
+          <div className="relative rounded-2xl border-2 border-slate-900 bg-white p-8 shadow-lg transition-all duration-200 hover:shadow-xl lg:-mt-4 lg:mb-4">
             {/* Popular Badge */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-4 py-1 rounded-full flex items-center gap-1">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-1 rounded-full flex items-center gap-1">
               <Zap className="h-3 w-3" />
               Most Popular
             </div>
 
             <div className="pb-4 pt-4">
-              <h3 className="text-xl font-semibold text-foreground">Retail</h3>
+              <h3 className="text-xl font-semibold text-slate-900">Retail</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold text-foreground">${prices.retail}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.retail}</span>
+                <span className="text-slate-500">/month</span>
                 {isAnnual && (
-                  <span className="ml-2 text-sm text-muted-foreground/70 line-through">
+                  <span className="ml-2 text-sm text-slate-400 line-through">
                     $29
                   </span>
                 )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 For serious individual investors
               </p>
             </div>
@@ -167,38 +167,38 @@ export function PricingSection() {
               </ul>
               <Link
                 href="/signup"
-                className="block w-full text-center bg-primary text-primary-foreground font-semibold py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                className="block w-full text-center bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors"
               >
                 Start 14-day free trial
               </Link>
-              <p className="text-center text-xs text-muted-foreground">
+              <p className="text-center text-xs text-slate-500">
                 No credit card required
               </p>
             </div>
           </div>
 
           {/* Pro Plan */}
-          <div className="relative bg-card rounded-2xl border border-border p-8 transition-all duration-200 hover:border-border/80 hover:shadow-lg hover:-translate-y-1">
+          <div className="relative rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-200 hover:shadow-lg">
             {/* For Teams Badge */}
             <div className="absolute -top-3 right-4">
-              <span className="inline-flex items-center bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full">
+              <span className="inline-flex items-center bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-full">
                 <Building2 className="mr-1 h-3 w-3" />
                 For Teams
               </span>
             </div>
 
             <div className="pb-4 pt-2">
-              <h3 className="text-xl font-semibold text-foreground">Pro</h3>
+              <h3 className="text-xl font-semibold text-slate-900">Pro</h3>
               <div className="mt-4">
-                <span className="text-4xl font-bold text-foreground">${prices.pro}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-4xl font-bold text-slate-900">${prices.pro}</span>
+                <span className="text-slate-500">/month</span>
                 {isAnnual && (
-                  <span className="ml-2 text-sm text-muted-foreground/70 line-through">
+                  <span className="ml-2 text-sm text-slate-400 line-through">
                     $79
                   </span>
                 )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-slate-500">
                 For professionals & institutions
               </p>
             </div>
@@ -225,7 +225,7 @@ export function PricingSection() {
               </ul>
               <Link
                 href="/signup"
-                className="block w-full text-center bg-card text-foreground font-semibold py-3 rounded-lg border border-border hover:bg-muted transition-colors"
+                className="block w-full text-center bg-white text-slate-900 font-semibold py-3 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors"
               >
                 Contact Sales
               </Link>
@@ -234,16 +234,8 @@ export function PricingSection() {
         </div>
 
         {/* Money-back Guarantee */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex items-center gap-3 rounded-full border bg-card px-6 py-3 shadow-sm">
-            <Shield className="h-5 w-5 text-emerald-500" />
-            <p className="text-sm">
-              <span className="font-semibold">14-day money-back guarantee.</span>{' '}
-              <span className="text-muted-foreground">
-                Not satisfied? Get a full refund, no questions asked.
-              </span>
-            </p>
-          </div>
+        <div className="mt-12 text-center text-slate-500">
+          <span className="text-lg">💰</span> 30-day money-back guarantee
         </div>
       </div>
     </section>
@@ -264,26 +256,26 @@ function FeatureItem({ icon: Icon, children, tooltip, highlight }: FeatureItemPr
       <div
         className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full ${
           highlight
-            ? 'bg-emerald-100 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400'
-            : 'bg-muted text-muted-foreground'
+            ? 'bg-emerald-100 text-emerald-600'
+            : 'bg-slate-100 text-slate-500'
         }`}
         aria-hidden="true"
       >
         <Icon className="h-3 w-3" />
       </div>
-      <span className="text-sm text-foreground flex-1">{children}</span>
+      <span className="text-sm text-slate-700 flex-1">{children}</span>
       {tooltip && (
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
-              className="text-muted-foreground/50 hover:text-muted-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              className="text-slate-300 hover:text-slate-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 rounded-sm"
               aria-label="More information"
             >
               <HelpCircle className="h-4 w-4" aria-hidden="true" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[200px] text-xs bg-card text-foreground border-border">
+          <TooltipContent side="top" className="max-w-[200px] text-xs bg-slate-900 text-white border-slate-700">
             {tooltip}
           </TooltipContent>
         </Tooltip>

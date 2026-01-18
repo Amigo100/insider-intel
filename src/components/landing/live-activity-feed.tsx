@@ -198,16 +198,18 @@ function StaticActivityFeed() {
 
 /**
  * Header component for the Live Activity section
+ * Per spec: "Live Insider Activity" with pulsing green dot
  */
 export function LiveActivityHeader() {
   return (
-    <div className="flex items-center justify-center gap-2 mb-6">
-      <div className="relative">
-        <Activity className="h-5 w-5 text-emerald-500" />
-        <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+    <div className="flex items-center justify-center gap-3 mb-8">
+      {/* Pulsing green dot indicator */}
+      <div className="relative flex items-center justify-center">
+        <span className="h-3 w-3 rounded-full bg-emerald-500" />
+        <span className="absolute h-3 w-3 rounded-full bg-emerald-500 animate-ping opacity-75" />
       </div>
-      <h2 className="text-lg font-semibold">Recent Insider Activity</h2>
-      <span className="text-xs text-muted-foreground">(From SEC filings)</span>
+      <h2 className="text-xl font-semibold text-slate-900">Live Insider Activity</h2>
+      <span className="text-sm text-slate-500">(From SEC filings)</span>
     </div>
   )
 }

@@ -12,54 +12,50 @@ import { Database, Lock, FileCheck, Cpu } from 'lucide-react'
  */
 export function TrustBadges() {
   return (
-    <section className="border-y bg-muted/20 py-12">
+    <section className="bg-slate-50 py-8">
       <div className="container mx-auto px-4">
-        <p className="mb-8 text-center text-sm font-medium text-muted-foreground">
-          OFFICIAL DATA SOURCES & TECHNOLOGY
-        </p>
-
-        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
           {/* SEC EDGAR - TRUE: We fetch data from SEC */}
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
-              <FileCheck className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
+              <FileCheck className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">SEC EDGAR</p>
-              <p className="text-xs">Official SEC filings</p>
+              <p className="text-sm font-medium text-slate-900">SEC EDGAR</p>
+              <p className="text-xs text-slate-500">Official SEC filings</p>
             </div>
           </div>
 
           {/* OpenFIGI - TRUE: Used for CUSIP lookups */}
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
-              <Database className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
+              <Database className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">OpenFIGI</p>
-              <p className="text-xs">Security identifiers</p>
+              <p className="text-sm font-medium text-slate-900">OpenFIGI</p>
+              <p className="text-xs text-slate-500">Security identifiers</p>
             </div>
           </div>
 
           {/* AI Powered - TRUE: Uses Claude for context generation */}
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
-              <Cpu className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
+              <Cpu className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">AI-Powered</p>
-              <p className="text-xs">Claude analysis</p>
+              <p className="text-sm font-medium text-slate-900">AI-Powered</p>
+              <p className="text-xs text-slate-500">Claude analysis</p>
             </div>
           </div>
 
           {/* SSL/TLS - TRUE: Vercel provides this by default */}
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background">
-              <Lock className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
+              <Lock className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">256-bit SSL</p>
-              <p className="text-xs">Encrypted connection</p>
+              <p className="text-sm font-medium text-slate-900">256-bit SSL</p>
+              <p className="text-xs text-slate-500">Encrypted connection</p>
             </div>
           </div>
         </div>
