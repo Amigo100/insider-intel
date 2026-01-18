@@ -139,20 +139,20 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
               {/* Badge - neutral colors, NOT amber (badge is not an action) */}
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-1.5 text-sm text-[#525252] animate-fade-in-up animate-delay-100">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-1.5 text-sm text-[#525252]">
                 <Sparkles className="h-4 w-4 text-[#525252]" />
                 <span>Real SEC Data • AI Insights</span>
               </div>
 
-              <h1 className="text-4xl font-bold tracking-tight text-[#171717] sm:text-5xl lg:text-6xl animate-fade-in-up animate-delay-200">
+              <h1 className="text-4xl font-bold tracking-tight text-[#171717] sm:text-5xl lg:text-6xl">
                 Track Insider Trading Activity Before the Market Moves
               </h1>
 
-              <p className="mx-auto mt-6 max-w-xl text-lg text-[#525252] sm:text-xl animate-fade-in-up animate-delay-300">
+              <p className="mx-auto mt-6 max-w-xl text-lg text-[#525252] sm:text-xl">
                 Real-time Form 4 filings and institutional holdings with AI-powered context.
               </p>
 
-              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row animate-fade-in-up animate-delay-400">
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 {/* Primary CTA - Amber */}
                 <Link
                   href="/signup"
@@ -172,7 +172,7 @@ export default function LandingPage() {
             </div>
 
             {/* Dashboard Preview */}
-            <div className="mt-12 sm:mt-16 lg:mt-20 animate-fade-in-up animate-delay-500">
+            <div className="mt-12 sm:mt-16 lg:mt-20">
               <DashboardPreview />
             </div>
 
