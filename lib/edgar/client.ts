@@ -96,7 +96,11 @@ export interface EdgarError {
 // Constants
 // =============================================================================
 
-const SEC_USER_AGENT = 'InsiderIntel/1.0 (contact@insiderintel.app)'
+// SEC requires a User-Agent with company name and valid email
+// Format: "Company Name AdminContact@company.com"
+// See: https://www.sec.gov/os/accessing-edgar-data
+const SEC_USER_AGENT =
+  process.env.SEC_USER_AGENT || 'InsiderIntel support@insiderintel.io'
 const SEC_SEARCH_BASE_URL = 'https://efts.sec.gov/LATEST/search-index'
 const SEC_ARCHIVES_BASE_URL = 'https://www.sec.gov/Archives/edgar/data'
 
@@ -121,12 +125,16 @@ export function delay(ms: number): Promise<void> {
 
 /**
  * Creates a fetch request with required SEC headers
+ * SEC requires specific headers including a valid User-Agent with email
  */
 function createSecRequest(url: string): Request {
   return new Request(url, {
     headers: {
       'User-Agent': SEC_USER_AGENT,
-      Accept: 'application/json, text/xml, */*',
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Encoding': 'gzip, deflate',
+      'Accept-Language': 'en-US,en;q=0.5',
+      Host: new URL(url).host,
     },
   })
 }
@@ -585,7 +593,18 @@ export async function fetchDailyIndexForDate(date: Date): Promise<DailyIndexEntr
     return entries
   } catch (error) {
     // Network errors or parse errors - return empty array
-    console.error(`Error fetching daily index for ${dateStr}:`, error)
+    // Note: 403 errors are common when running from cloud providers (Vercel, AWS, etc.)
+    // as the SEC blocks requests from known cloud IP ranges
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage.includes('403')) {
+      console.error(
+        `SEC returned 403 Forbidden for ${dateStr}. ` +
+        `This typically happens when running from cloud providers. ` +
+        `Consider running the seed script locally or using a residential proxy.`
+      )
+    } else {
+      console.error(`Error fetching daily index for ${dateStr}:`, error)
+    }
     return []
   }
 }

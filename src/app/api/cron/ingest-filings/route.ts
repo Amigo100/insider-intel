@@ -94,10 +94,15 @@ export async function GET(request: Request) {
     }
 
     if (filings.length === 0) {
-      log.info('No filings found in date range')
+      log.warn(
+        'No filings found - this may indicate SEC is blocking requests from this server. ' +
+        'The SEC commonly returns 403 Forbidden for requests from cloud provider IP addresses (Vercel, AWS, etc.). ' +
+        'Consider running the seed script locally or setting up a residential proxy.'
+      )
       return NextResponse.json({
         ...stats,
-        message: 'No filings found in date range',
+        message: 'No filings found in date range. SEC may be blocking requests from cloud servers.',
+        hint: 'Run the seed script locally: npx tsx scripts/seed-30-days.ts',
         timestamp: new Date().toISOString(),
         durationMs: Date.now() - startTime,
       })

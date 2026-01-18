@@ -20,10 +20,12 @@ import {
 // Configuration
 // =============================================================================
 
-const DAYS_BACK = 14 // Fetch last 14 days (weekdays only have filings)
-const MAX_FILINGS = 1000 // Maximum filings to process
+// Configuration - can be overridden via environment variables
+const DAYS_BACK = parseInt(process.env.DAYS_BACK || '14', 10) // Fetch last N days
+const MAX_FILINGS = parseInt(process.env.MAX_FILINGS || '1000', 10) // Maximum filings to process
 const RATE_LIMIT_DELAY = 150 // 150ms between SEC requests
-const SEC_USER_AGENT = 'InsiderIntel/1.0 (contact@insiderintel.app)'
+// SEC requires User-Agent with company name and valid email
+const SEC_USER_AGENT = process.env.SEC_USER_AGENT || 'InsiderIntel support@insiderintel.io'
 
 // =============================================================================
 // Types

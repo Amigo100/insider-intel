@@ -56,9 +56,9 @@ async function getDashboardData(userId: string) {
   try {
     const supabase = await createClient()
 
-    // Get date range for queries (last 7 days)
+    // Get date range for queries (last 30 days)
     const rangeStart = new Date()
-    rangeStart.setDate(rangeStart.getDate() - 7)
+    rangeStart.setDate(rangeStart.getDate() - 30)
 
     // Fetch recent transactions for table
     const { data: recentTransactions } = await supabase
