@@ -10,7 +10,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import {
-  fetchRecentForm4Filings,
+  fetchForm4FilingsFromDailyIndex,
   fetchAndParseForm4,
   delay,
   buildForm4DocumentUrl,
@@ -69,25 +69,17 @@ export async function GET(request: Request) {
   try {
     const supabase = getSupabaseServiceClient()
 
-    // Calculate date range (last 2 days)
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - DAYS_BACK)
+    log.info({ daysBack: DAYS_BACK, maxFilings: MAX_FILINGS }, 'Fetching Form 4 filings from daily index')
 
-    const startDateStr = startDate.toISOString().split('T')[0]
-    const endDateStr = endDate.toISOString().split('T')[0]
-
-    log.info({ startDate: startDateStr, endDate: endDateStr }, 'Fetching Form 4 filings')
-
-    // Fetch filings metadata from SEC EDGAR
+    // Fetch filings metadata from SEC EDGAR daily index files
     let filings: Form4FilingMetadata[] = []
     try {
-      filings = await fetchRecentForm4Filings(startDateStr, endDateStr, MAX_FILINGS)
+      filings = await fetchForm4FilingsFromDailyIndex(DAYS_BACK, MAX_FILINGS)
       stats.filingsFound = filings.length
-      log.info({ count: filings.length }, 'Found Form 4 filings')
+      log.info({ count: filings.length }, 'Found Form 4 filings from daily index')
     } catch (error) {
       const errorMsg = `Failed to fetch Form 4 filings: ${error instanceof Error ? error.message : 'Unknown error'}`
-      log.error({ error: errorMsg }, 'SEC EDGAR fetch failed')
+      log.error({ error: errorMsg }, 'SEC EDGAR daily index fetch failed')
       stats.errors.push(errorMsg)
 
       return NextResponse.json(

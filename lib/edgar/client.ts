@@ -496,3 +496,142 @@ export function buildForm4DocumentUrl(cik: string, accessionNumber: string): str
 
   return `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/${accessionWithDashes}-index.htm`
 }
+
+// =============================================================================
+// Daily Index File Functions
+// =============================================================================
+
+/** Entry from SEC daily index file */
+export interface DailyIndexEntry {
+  formType: string
+  companyName: string
+  cik: string
+  filedDate: string
+  filePath: string
+  accessionNumber: string
+}
+
+/**
+ * Fetches Form 4 filings from SEC daily index file for a specific date
+ *
+ * Daily index files are available at:
+ * https://www.sec.gov/Archives/edgar/daily-index/{year}/QTR{quarter}/form.{YYYYMMDD}.idx
+ *
+ * @param date - Date to fetch filings for
+ * @returns Array of Form 4 filing entries from the daily index
+ */
+export async function fetchDailyIndexForDate(date: Date): Promise<DailyIndexEntry[]> {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const quarter = Math.ceil(month / 3)
+
+  const dateStr = `${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`
+  const url = `https://www.sec.gov/Archives/edgar/daily-index/${year}/QTR${quarter}/form.${dateStr}.idx`
+
+  await delay(REQUEST_DELAY_MS)
+
+  try {
+    const response = await fetchWithRetry(url)
+
+    if (!response.ok) {
+      // 404 is expected for weekends/holidays - no filings on those days
+      if (response.status === 404) {
+        return []
+      }
+      throw new Error(`Failed to fetch daily index: ${response.status}`)
+    }
+
+    const text = await response.text()
+    const lines = text.split('\n')
+
+    // Skip header lines (first 11 lines typically)
+    const dataLines = lines.slice(11)
+
+    const entries: DailyIndexEntry[] = []
+
+    for (const line of dataLines) {
+      if (line.length < 100) continue // Skip short/empty lines
+
+      // Parse fixed-width format:
+      // Form Type (12) | Company Name (62) | CIK (12) | Date Filed (12) | File Name
+      const formType = line.slice(0, 12).trim()
+
+      // Only include Form 4 filings
+      if (formType !== '4') continue
+
+      const companyName = line.slice(12, 74).trim()
+      const cik = line.slice(74, 86).trim()
+      const filedDate = line.slice(86, 98).trim()
+      const filePath = line.slice(98).trim()
+
+      // Extract accession number from file path
+      // Path format: edgar/data/{cik}/{accession}/{filename}
+      const pathParts = filePath.split('/')
+      const accessionNumber = pathParts.length >= 4 ? pathParts[3] : ''
+
+      if (!accessionNumber) continue
+
+      entries.push({
+        formType,
+        companyName,
+        cik,
+        filedDate,
+        filePath,
+        accessionNumber,
+      })
+    }
+
+    return entries
+  } catch (error) {
+    // Network errors or parse errors - return empty array
+    console.error(`Error fetching daily index for ${dateStr}:`, error)
+    return []
+  }
+}
+
+/**
+ * Fetches Form 4 filings from SEC daily index files for a date range
+ *
+ * @param daysBack - Number of days to look back
+ * @param maxEntries - Maximum number of entries to return
+ * @returns Array of unique Form 4 filing entries
+ */
+export async function fetchForm4FilingsFromDailyIndex(
+  daysBack: number = 2,
+  maxEntries: number = 500
+): Promise<Form4FilingMetadata[]> {
+  const entries: DailyIndexEntry[] = []
+  const seenAccessions = new Set<string>()
+
+  // Fetch each day's index
+  for (let i = 0; i < daysBack; i++) {
+    const date = new Date()
+    date.setDate(date.getDate() - i)
+
+    const dayEntries = await fetchDailyIndexForDate(date)
+
+    for (const entry of dayEntries) {
+      // Skip duplicates
+      if (seenAccessions.has(entry.accessionNumber)) continue
+      seenAccessions.add(entry.accessionNumber)
+
+      entries.push(entry)
+
+      // Stop if we've reached the max
+      if (entries.length >= maxEntries) break
+    }
+
+    if (entries.length >= maxEntries) break
+  }
+
+  // Convert to Form4FilingMetadata format
+  return entries.map((entry) => ({
+    accessionNumber: entry.accessionNumber,
+    accessionNumberNoDashes: entry.accessionNumber.replace(/-/g, ''),
+    cik: entry.cik,
+    filedAt: entry.filedDate,
+    formType: '4',
+    displayName: entry.companyName,
+  }))
+}
