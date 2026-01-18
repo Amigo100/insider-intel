@@ -11,6 +11,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react'
+
+// Note: TrendingUp, TrendingDown, Users, Star are used as iconName strings for StatCard
+// to avoid passing functions to client components
 import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -218,25 +221,25 @@ export default async function DashboardPage() {
           <StatCard
             label="Insider Buys"
             value={data.buyCount}
-            icon={TrendingUp}
+            iconName="TrendingUp"
             iconColor="positive"
           />
           <StatCard
             label="Insider Sells"
             value={data.sellCount}
-            icon={TrendingDown}
+            iconName="TrendingDown"
             iconColor="negative"
           />
           <StatCard
             label="Cluster Alerts"
             value={data.clusterCount}
-            icon={Users}
+            iconName="Users"
             iconColor="amber"
           />
           <StatCard
             label="Watchlist Items"
             value={data.watchlistCount}
-            icon={Star}
+            iconName="Star"
             iconColor="muted"
           />
         </StatsRow>

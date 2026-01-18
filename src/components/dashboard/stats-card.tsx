@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, Users, Star } from 'lucide-react'
 
 /**
  * StatCard - Modernized Bloomberg Design System
@@ -19,6 +19,17 @@ import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
  * - Icon container: 40x40, colored background
  */
 
+// Icon mapping to avoid passing functions from server components
+const iconMap = {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Star,
+  Minus,
+} as const
+
+type IconName = keyof typeof iconMap
+
 interface StatCardProps {
   /** Card label (e.g., "Insider Buys") */
   label: string
@@ -28,8 +39,8 @@ interface StatCardProps {
   change?: number
   /** Change label text (e.g., "vs last week") */
   changeLabel?: string
-  /** Icon to display */
-  icon?: LucideIcon
+  /** Icon name to display (must be one of the predefined icons) */
+  iconName?: IconName
   /** Icon background color (CSS variable or hex) */
   iconColor?: 'amber' | 'positive' | 'negative' | 'muted'
   /** Additional className */
@@ -70,11 +81,12 @@ export function StatCard({
   value,
   change,
   changeLabel,
-  icon: Icon,
+  iconName,
   iconColor = 'muted',
   className,
 }: StatCardProps) {
   const iconStyles = getIconColorStyles(iconColor)
+  const Icon = iconName ? iconMap[iconName] : null
 
   // Format change value
   const formatChange = (val: number) => {
