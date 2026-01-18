@@ -1,58 +1,96 @@
 # InsiderIntel - External Services Setup Guide
 
-This guide covers the setup of external services required for InsiderIntel to function fully in production.
+This guide covers **all external actions required** to make InsiderIntel fully functional in production. Follow each section in order for a complete setup.
 
 ---
 
 ## Table of Contents
 
-1. [Supabase Configuration](#1-supabase-configuration)
-2. [Google OAuth Setup](#2-google-oauth-setup)
-3. [Anthropic Claude API](#3-anthropic-claude-api)
-4. [Stripe Payments](#4-stripe-payments)
-5. [Resend Email Service](#5-resend-email-service)
-6. [OpenFIGI API](#6-openfigi-api)
-7. [Vercel Cron Jobs](#7-vercel-cron-jobs)
-8. [Sentry Error Tracking](#8-sentry-error-tracking)
-9. [Environment Variables Checklist](#9-environment-variables-checklist)
+1. [Prerequisites](#1-prerequisites)
+2. [Supabase Configuration](#2-supabase-configuration)
+3. [Supabase Authentication & Email Setup](#3-supabase-authentication--email-setup)
+4. [Google OAuth Setup](#4-google-oauth-setup)
+5. [Stripe Payments](#5-stripe-payments)
+6. [Resend Email Service](#6-resend-email-service)
+7. [Anthropic Claude API](#7-anthropic-claude-api)
+8. [OpenFIGI API](#8-openfigi-api)
+9. [Sentry Error Tracking](#9-sentry-error-tracking)
+10. [Vercel Deployment](#10-vercel-deployment)
+11. [Vercel Cron Jobs](#11-vercel-cron-jobs)
+12. [Environment Variables Reference](#12-environment-variables-reference)
+13. [Production Launch Checklist](#13-production-launch-checklist)
+14. [Troubleshooting](#14-troubleshooting)
 
 ---
 
-## 1. Supabase Configuration
+## 1. Prerequisites
+
+Before starting, ensure you have:
+
+- [ ] Node.js 18+ installed locally
+- [ ] Git repository set up (GitHub recommended for Vercel integration)
+- [ ] A domain name for production (e.g., `insiderintel.com`)
+- [ ] Access to DNS settings for your domain
+- [ ] Credit card for paid services (Stripe, Anthropic, etc.)
+
+### Accounts to Create
+
+You will need accounts on these platforms:
+
+| Service | Purpose | Pricing |
+|---------|---------|---------|
+| [Supabase](https://supabase.com) | Database & Auth | Free tier available |
+| [Stripe](https://stripe.com) | Payments | Transaction fees only |
+| [Resend](https://resend.com) | Transactional email | Free tier: 3k emails/month |
+| [Anthropic](https://console.anthropic.com) | AI context generation | Pay-per-use |
+| [Vercel](https://vercel.com) | Hosting & Cron | Free tier available |
+| [Google Cloud](https://console.cloud.google.com) | OAuth provider | Free |
+| [OpenFIGI](https://openfigi.com) | CUSIP lookups | Free |
+| [Sentry](https://sentry.io) | Error tracking | Free tier available |
+
+---
+
+## 2. Supabase Configuration
 
 Supabase provides the PostgreSQL database and authentication for InsiderIntel.
 
-### 1.1 Create Supabase Project
+### 2.1 Create Supabase Project
 
 - [ ] Sign up at [supabase.com](https://supabase.com)
 - [ ] Create a new project
-- [ ] Choose a region close to your users
-- [ ] Set a strong database password (save it securely)
+- [ ] Choose a region close to your users (e.g., `us-east-1` for US users)
+- [ ] Set a strong database password (save it securely - you'll need it for direct DB access)
 - [ ] Wait for project to provision (~2 minutes)
 
-### 1.2 Get API Keys
+### 2.2 Get API Keys
 
 - [ ] Go to **Settings → API**
 - [ ] Copy **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
 - [ ] Copy **anon public** key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Copy **service_role** key → `SUPABASE_SERVICE_ROLE_KEY` (keep secret!)
 
-### 1.3 Configure Database Schema
+> **Security Warning**: The `service_role` key bypasses Row Level Security. Never expose it to the client.
 
-Run the following SQL in the **SQL Editor** to create required tables:
+### 2.3 Configure Database Schema
+
+Run the following SQL in the **SQL Editor** (Project → SQL Editor → New Query):
 
 ```sql
+-- ============================================
+-- PART 1: Core Tables
+-- ============================================
+
 -- Profiles table (extends auth.users)
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT,
   full_name TEXT,
   avatar_url TEXT,
-  subscription_tier TEXT DEFAULT 'free',
+  subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'retail', 'pro')),
   stripe_customer_id TEXT,
-  notification_daily_digest BOOLEAN DEFAULT false,
+  notification_daily_digest BOOLEAN DEFAULT true,
   notification_instant_alerts BOOLEAN DEFAULT false,
-  notification_weekly_summary BOOLEAN DEFAULT false,
+  notification_weekly_summary BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -72,10 +110,9 @@ CREATE TABLE IF NOT EXISTS public.companies (
 -- Insiders table
 CREATE TABLE IF NOT EXISTS public.insiders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cik TEXT NOT NULL,
+  cik TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(cik)
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Insider transactions table
@@ -86,15 +123,16 @@ CREATE TABLE IF NOT EXISTS public.insider_transactions (
   accession_number TEXT UNIQUE NOT NULL,
   filed_at TIMESTAMPTZ,
   transaction_date DATE,
-  transaction_type TEXT,
+  transaction_type TEXT CHECK (transaction_type IN ('P', 'S', 'A', 'D', 'G', 'M', 'F', 'C', 'E', 'H', 'I', 'L', 'O', 'U', 'W', 'Z')),
   shares BIGINT,
-  price_per_share NUMERIC,
-  total_value NUMERIC,
+  price_per_share NUMERIC(12, 4),
+  total_value NUMERIC(16, 2),
   insider_title TEXT,
   is_director BOOLEAN DEFAULT false,
   is_officer BOOLEAN DEFAULT false,
+  is_ten_percent_owner BOOLEAN DEFAULT false,
   ai_context TEXT,
-  ai_significance_score NUMERIC,
+  ai_significance_score NUMERIC(3, 2) CHECK (ai_significance_score >= 0 AND ai_significance_score <= 1),
   ai_generated_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -108,10 +146,21 @@ CREATE TABLE IF NOT EXISTS public.institutions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Institutional filings table (13F filings)
+CREATE TABLE IF NOT EXISTS public.institutional_filings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  institution_id UUID REFERENCES public.institutions(id) ON DELETE CASCADE,
+  accession_number TEXT UNIQUE NOT NULL,
+  report_date DATE NOT NULL,
+  filed_at TIMESTAMPTZ,
+  total_value BIGINT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Institutional holdings table
 CREATE TABLE IF NOT EXISTS public.institutional_holdings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  filing_id UUID,
+  filing_id UUID REFERENCES public.institutional_filings(id) ON DELETE CASCADE,
   institution_id UUID REFERENCES public.institutions(id),
   company_id UUID REFERENCES public.companies(id),
   report_date DATE,
@@ -132,11 +181,26 @@ CREATE TABLE IF NOT EXISTS public.watchlist_items (
   UNIQUE(user_id, company_id)
 );
 
--- Create indexes for performance
+-- ============================================
+-- PART 2: Indexes for Performance
+-- ============================================
+
 CREATE INDEX IF NOT EXISTS idx_insider_transactions_company ON public.insider_transactions(company_id);
 CREATE INDEX IF NOT EXISTS idx_insider_transactions_filed_at ON public.insider_transactions(filed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_insider_transactions_type ON public.insider_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_insider_transactions_ai_score ON public.insider_transactions(ai_significance_score DESC NULLS LAST);
 CREATE INDEX IF NOT EXISTS idx_watchlist_user ON public.watchlist_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_watchlist_company ON public.watchlist_items(company_id);
 CREATE INDEX IF NOT EXISTS idx_companies_ticker ON public.companies(ticker);
+CREATE INDEX IF NOT EXISTS idx_companies_cik ON public.companies(cik);
+CREATE INDEX IF NOT EXISTS idx_institutional_holdings_company ON public.institutional_holdings(company_id);
+CREATE INDEX IF NOT EXISTS idx_institutional_holdings_institution ON public.institutional_holdings(institution_id);
+CREATE INDEX IF NOT EXISTS idx_institutional_holdings_report_date ON public.institutional_holdings(report_date DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_stripe_customer ON public.profiles(stripe_customer_id);
+
+-- ============================================
+-- PART 3: Views
+-- ============================================
 
 -- Drop existing views first (required if columns changed)
 DROP VIEW IF EXISTS public.v_recent_insider_transactions;
@@ -158,6 +222,7 @@ SELECT
   it.insider_title,
   it.is_director,
   it.is_officer,
+  it.is_ten_percent_owner,
   it.ai_context,
   it.ai_significance_score,
   it.ai_generated_at,
@@ -194,12 +259,24 @@ JOIN public.institutions inst ON ih.institution_id = inst.id
 ORDER BY ih.report_date DESC;
 ```
 
-### 1.4 Configure Row Level Security (RLS)
+### 2.4 Configure Row Level Security (RLS)
+
+Run this SQL to enable RLS policies:
 
 ```sql
--- Enable RLS on tables
+-- ============================================
+-- ROW LEVEL SECURITY POLICIES
+-- ============================================
+
+-- Enable RLS on all tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.watchlist_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.insiders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.insider_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.institutions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.institutional_filings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.institutional_holdings ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Users can read/update their own profile
 CREATE POLICY "Users can view own profile" ON public.profiles
@@ -207,6 +284,10 @@ CREATE POLICY "Users can view own profile" ON public.profiles
 
 CREATE POLICY "Users can update own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
+
+-- Service role can insert profiles (for trigger)
+CREATE POLICY "Service role can insert profiles" ON public.profiles
+  FOR INSERT WITH CHECK (true);
 
 -- Watchlist: Users can manage their own watchlist
 CREATE POLICY "Users can view own watchlist" ON public.watchlist_items
@@ -218,21 +299,27 @@ CREATE POLICY "Users can insert own watchlist" ON public.watchlist_items
 CREATE POLICY "Users can delete own watchlist" ON public.watchlist_items
   FOR DELETE USING (auth.uid() = user_id);
 
--- Public read access for companies, transactions (no user data)
-ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view companies" ON public.companies FOR SELECT USING (true);
+-- Public read access for market data (no user data)
+CREATE POLICY "Anyone can view companies" ON public.companies
+  FOR SELECT USING (true);
 
-ALTER TABLE public.insider_transactions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view transactions" ON public.insider_transactions FOR SELECT USING (true);
+CREATE POLICY "Anyone can view insiders" ON public.insiders
+  FOR SELECT USING (true);
 
-ALTER TABLE public.institutions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view institutions" ON public.institutions FOR SELECT USING (true);
+CREATE POLICY "Anyone can view transactions" ON public.insider_transactions
+  FOR SELECT USING (true);
 
-ALTER TABLE public.institutional_holdings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view holdings" ON public.institutional_holdings FOR SELECT USING (true);
+CREATE POLICY "Anyone can view institutions" ON public.institutions
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can view filings" ON public.institutional_filings
+  FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can view holdings" ON public.institutional_holdings
+  FOR SELECT USING (true);
 ```
 
-### 1.5 Create Profile Trigger
+### 2.5 Create Profile Trigger
 
 Auto-create a profile when a user signs up:
 
@@ -245,294 +332,554 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    NEW.raw_user_meta_data->>'full_name',
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
     NEW.raw_user_meta_data->>'avatar_url'
   );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Drop existing trigger if exists
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
 -- Trigger on auth.users insert
-CREATE OR REPLACE TRIGGER on_auth_user_created
+CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
 
-### 1.6 Environment Variables for Supabase
+---
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxx
-SUPABASE_SERVICE_ROLE_KEY=eyJxxxxx
+## 3. Supabase Authentication & Email Setup
+
+### 3.1 Configure Site URL and Redirect URLs
+
+**This is critical for authentication to work correctly.**
+
+- [ ] Go to **Authentication → URL Configuration**
+- [ ] Set **Site URL**: `https://yourdomain.com` (your production domain)
+- [ ] Add **Redirect URLs** (one per line):
+  ```
+  https://yourdomain.com/auth/callback
+  https://yourdomain.com/reset-password
+  http://localhost:3000/auth/callback
+  http://localhost:3000/reset-password
+  ```
+
+> **Note**: The `Site URL` is used as the base URL for email confirmation links. It must match your production domain.
+
+### 3.2 Configure Email Templates
+
+Supabase sends authentication emails (confirmation, password reset, magic links). You should customize these templates.
+
+- [ ] Go to **Authentication → Email Templates**
+- [ ] Customize each template:
+
+#### Confirm Signup Template
+
+```html
+<h2>Confirm your email</h2>
+
+<p>Follow this link to confirm your email:</p>
+<p><a href="{{ .ConfirmationURL }}">Confirm your email</a></p>
+
+<p>Or copy and paste this URL into your browser:</p>
+<p>{{ .ConfirmationURL }}</p>
 ```
+
+#### Reset Password Template
+
+```html
+<h2>Reset Your Password</h2>
+
+<p>Follow this link to reset the password for your account:</p>
+<p><a href="{{ .ConfirmationURL }}">Reset Password</a></p>
+
+<p>Or copy and paste this URL into your browser:</p>
+<p>{{ .ConfirmationURL }}</p>
+
+<p>If you didn't request a password reset, you can ignore this email.</p>
+```
+
+#### Magic Link Template
+
+```html
+<h2>Your Magic Link</h2>
+
+<p>Follow this link to sign in:</p>
+<p><a href="{{ .ConfirmationURL }}">Sign In</a></p>
+
+<p>Or copy and paste this URL into your browser:</p>
+<p>{{ .ConfirmationURL }}</p>
+
+<p>This link will expire in 1 hour.</p>
+```
+
+### 3.3 Configure Email Sender Settings
+
+**Option A: Use Supabase Default SMTP (Development/Testing)**
+
+For development, Supabase's built-in email works but has limitations:
+- Rate limited to 4 emails per hour
+- From address cannot be customized
+- May end up in spam folders
+
+**Option B: Use Custom SMTP (Production - Recommended)**
+
+For production, configure a custom SMTP server:
+
+- [ ] Go to **Project Settings → Auth → SMTP Settings**
+- [ ] Enable **Custom SMTP**
+- [ ] Configure settings (using Resend as example):
+
+| Setting | Value |
+|---------|-------|
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| User | `resend` |
+| Password | Your Resend API key |
+| Sender email | `noreply@yourdomain.com` |
+| Sender name | `InsiderIntel` |
+
+> **Alternative SMTP providers**: AWS SES, SendGrid, Mailgun, Postmark
+
+### 3.4 Configure Auth Settings
+
+- [ ] Go to **Authentication → Settings**
+- [ ] **Email Auth**: Enable
+- [ ] **Confirm email**: Enable (recommended for production)
+  - Users will receive a confirmation email after signup
+  - They cannot sign in until email is confirmed
+- [ ] **Secure email change**: Enable
+  - Users must confirm both old and new email when changing
+- [ ] **Enable manual linking**: Disable (security)
+- [ ] **Minimum password length**: 8 (or higher)
+
+### 3.5 Test Email Configuration
+
+1. [ ] Create a test account via signup
+2. [ ] Check that confirmation email is received
+3. [ ] Click confirmation link - should redirect to your app
+4. [ ] Test password reset flow
+5. [ ] Verify email lands in inbox (not spam)
 
 ---
 
-## 2. Google OAuth Setup
+## 4. Google OAuth Setup
 
-Google OAuth is configured through Supabase for "Sign in with Google" functionality.
+Google OAuth allows users to sign in with their Google account.
 
-### 2.1 Create Google Cloud Project
+### 4.1 Create Google Cloud Project
 
 - [ ] Go to [Google Cloud Console](https://console.cloud.google.com)
-- [ ] Create a new project (or select existing)
-- [ ] Enable the **Google+ API** (or **Google Identity Services**)
+- [ ] Create a new project or select existing
+- [ ] Name: `InsiderIntel` (or similar)
 
-### 2.2 Configure OAuth Consent Screen
+### 4.2 Enable Required APIs
+
+- [ ] Go to **APIs & Services → Library**
+- [ ] Search and enable **Google+ API** (or **Google Identity Services API**)
+
+### 4.3 Configure OAuth Consent Screen
 
 - [ ] Go to **APIs & Services → OAuth consent screen**
 - [ ] Choose **External** user type
 - [ ] Fill in app information:
-  - App name: `InsiderIntel`
-  - User support email: your email
-  - App logo: (optional)
-  - App domain: `https://insiderintel.com`
-  - Authorized domains: `insiderintel.com`, `supabase.co`
-  - Developer contact: your email
-- [ ] Add scopes: `email`, `profile`, `openid`
+
+| Field | Value |
+|-------|-------|
+| App name | `InsiderIntel` |
+| User support email | Your email |
+| App logo | Optional (512x512 PNG) |
+| App domain | `https://yourdomain.com` |
+| Authorized domains | `yourdomain.com`, `supabase.co` |
+| Developer contact | Your email |
+
+- [ ] Add scopes:
+  - `email`
+  - `profile`
+  - `openid`
 - [ ] Add test users (if in testing mode)
 - [ ] Save and continue
 
-### 2.3 Create OAuth Credentials
+### 4.4 Create OAuth Credentials
 
 - [ ] Go to **APIs & Services → Credentials**
 - [ ] Click **Create Credentials → OAuth client ID**
 - [ ] Application type: **Web application**
 - [ ] Name: `InsiderIntel Supabase`
-- [ ] Add **Authorized JavaScript origins**:
-  - `https://your-project.supabase.co`
-- [ ] Add **Authorized redirect URIs**:
-  - `https://your-project.supabase.co/auth/v1/callback`
+- [ ] **Authorized JavaScript origins**:
+  ```
+  https://your-project-ref.supabase.co
+  ```
+- [ ] **Authorized redirect URIs**:
+  ```
+  https://your-project-ref.supabase.co/auth/v1/callback
+  ```
 - [ ] Click **Create**
 - [ ] Copy **Client ID** and **Client Secret**
 
-### 2.4 Configure Supabase Auth Provider
+### 4.5 Configure Supabase Auth Provider
 
 - [ ] Go to Supabase Dashboard → **Authentication → Providers**
-- [ ] Find **Google** and enable it
+- [ ] Find **Google** and toggle **Enable**
 - [ ] Paste your **Client ID**
 - [ ] Paste your **Client Secret**
+- [ ] **Skip nonce check**: Leave disabled
 - [ ] Save
 
-### 2.5 Configure Redirect URLs
+### 4.6 Publish OAuth App (For Production)
 
-In Supabase Dashboard → **Authentication → URL Configuration**:
+While in "Testing" mode, only test users can use Google OAuth.
 
-- [ ] Set **Site URL**: `https://insiderintel.com`
-- [ ] Add **Redirect URLs**:
-  - `https://insiderintel.com/auth/callback`
-  - `http://localhost:3000/auth/callback` (for development)
+- [ ] Go to **OAuth consent screen**
+- [ ] Click **Publish App**
+- [ ] Confirm publishing
+- [ ] Now any Google user can sign in
 
-### 2.6 Verify Setup
-
-1. [ ] Start your dev server
-2. [ ] Click "Sign in with Google" on login page
-3. [ ] Complete Google OAuth flow
-4. [ ] Verify redirect to `/dashboard`
-5. [ ] Check `profiles` table for new user
+> **Note**: If you request sensitive scopes, you may need Google verification. For basic auth (email, profile), this is usually not required.
 
 ---
 
-## 3. Anthropic Claude API
+## 5. Stripe Payments
 
-Claude AI generates contextual analysis for insider transactions.
+Stripe handles subscription payments for Retail ($29/mo) and Pro ($79/mo) plans.
 
-### 3.1 Create Anthropic Account
-
-- [ ] Sign up at [console.anthropic.com](https://console.anthropic.com)
-- [ ] Complete account verification
-- [ ] Add payment method (usage-based billing)
-
-### 3.2 Get API Key
-
-- [ ] Go to **API Keys** in the console
-- [ ] Click **Create Key**
-- [ ] Name: `InsiderIntel Production`
-- [ ] Copy the key (starts with `sk-ant-`)
-- [ ] Add to environment: `ANTHROPIC_API_KEY`
-
-### 3.3 Usage Information
-
-**Model used:** `claude-3-5-sonnet-20241022`
-
-**Features:**
-- Generates contextual analysis for insider transactions
-- Produces significance scores (0.0 - 1.0)
-- Batch processing with concurrency control
-- Company-level aggregate insights
-
-**Rate limiting (built-in):**
-- 100ms delay between requests
-- Max 5 concurrent API calls
-- Exponential backoff on errors
-
-**Cost considerations:**
-- Input: ~$3 per million tokens
-- Output: ~$15 per million tokens
-- Each transaction analysis uses ~500-1000 tokens
-
-### 3.4 Environment Variables for Anthropic
-
-```env
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxx
-```
-
----
-
-## 4. Stripe Payments
-
-### 4.1 Create Stripe Account
+### 5.1 Create Stripe Account
 
 - [ ] Sign up at [stripe.com](https://stripe.com)
-- [ ] Complete business verification
-- [ ] Enable test mode for development
+- [ ] Complete business verification (required for live mode)
+- [ ] Note: You can develop and test in **Test mode** first
 
-### 4.2 Create Products and Prices
+### 5.2 Create Products and Prices
 
-In the Stripe Dashboard, create subscription products:
+In the Stripe Dashboard → **Products**:
 
-**Retail Plan ($19/month)**
-- [ ] Go to Products → Add Product
-- [ ] Name: "Retail Plan"
-- [ ] Description: "Perfect for active individual investors"
-- [ ] Add Price: $19.00 USD, Recurring, Monthly
-- [ ] Copy the Price ID (starts with `price_`)
+**Retail Plan ($29/month)**
 
-**Pro Plan ($49/month)**
-- [ ] Go to Products → Add Product
-- [ ] Name: "Pro Plan"
-- [ ] Description: "For professionals who need comprehensive data"
-- [ ] Add Price: $49.00 USD, Recurring, Monthly
-- [ ] Copy the Price ID (starts with `price_`)
+- [ ] Click **Add Product**
+- [ ] Name: `Retail Plan`
+- [ ] Description: `Perfect for active individual investors tracking insider activity`
+- [ ] Add **Price**:
+  - Pricing model: Standard pricing
+  - Price: `$29.00`
+  - Billing period: Monthly
+  - Click **Add price**
+- [ ] Copy the **Price ID** (starts with `price_`) → `STRIPE_RETAIL_PRICE_ID`
 
-### 4.3 Get API Keys
+**Pro Plan ($79/month)**
 
-- [ ] Go to Developers → API Keys
-- [ ] Copy **Secret key** (starts with `sk_test_` or `sk_live_`)
-- [ ] Add to environment: `STRIPE_SECRET_KEY`
+- [ ] Click **Add Product**
+- [ ] Name: `Pro Plan`
+- [ ] Description: `For professionals who need comprehensive data and advanced analytics`
+- [ ] Add **Price**:
+  - Pricing model: Standard pricing
+  - Price: `$79.00`
+  - Billing period: Monthly
+  - Click **Add price**
+- [ ] Copy the **Price ID** → `STRIPE_PRO_PRICE_ID`
 
-### 4.4 Configure Webhook
+### 5.3 Get API Keys
 
-- [ ] Go to Developers → Webhooks
-- [ ] Click "Add endpoint"
-- [ ] Endpoint URL: `https://your-domain.com/api/stripe/webhook`
-- [ ] Select events to listen to:
-  - `checkout.session.completed`
-  - `customer.subscription.updated`
-  - `customer.subscription.deleted`
-  - `invoice.payment_failed`
-- [ ] Click "Add endpoint"
-- [ ] Copy **Signing secret** (starts with `whsec_`)
-- [ ] Add to environment: `STRIPE_WEBHOOK_SECRET`
+- [ ] Go to **Developers → API Keys**
+- [ ] Copy **Secret key** → `STRIPE_SECRET_KEY`
+  - Test mode: starts with `sk_test_`
+  - Live mode: starts with `sk_live_`
 
-### 4.5 Configure Customer Portal
+> **Never expose secret keys in client-side code.**
 
-- [ ] Go to Settings → Billing → Customer Portal
-- [ ] Enable the customer portal
-- [ ] Configure allowed actions:
-  - [ ] Allow customers to update payment methods
-  - [ ] Allow customers to view invoice history
-  - [ ] Allow customers to cancel subscriptions
-- [ ] Set cancellation options (immediate or end of period)
-- [ ] Save changes
+### 5.4 Configure Webhook
 
-### 4.6 Environment Variables for Stripe
+Webhooks notify your app when subscription events occur.
 
-```env
-STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxx
-STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
-STRIPE_RETAIL_PRICE_ID=price_xxxxxxxxxxxxx
-STRIPE_PRO_PRICE_ID=price_xxxxxxxxxxxxx
+- [ ] Go to **Developers → Webhooks**
+- [ ] Click **Add endpoint**
+- [ ] **Endpoint URL**: `https://yourdomain.com/api/stripe/webhook`
+- [ ] **Events to send** - select these:
+  - `checkout.session.completed` - User completed checkout
+  - `customer.subscription.created` - New subscription
+  - `customer.subscription.updated` - Plan change, renewal
+  - `customer.subscription.deleted` - Cancellation
+  - `invoice.payment_succeeded` - Successful payment
+  - `invoice.payment_failed` - Failed payment
+- [ ] Click **Add endpoint**
+- [ ] **Reveal** and copy **Signing secret** → `STRIPE_WEBHOOK_SECRET`
+
+### 5.5 Configure Customer Portal
+
+The Customer Portal lets users manage their subscription.
+
+- [ ] Go to **Settings → Billing → Customer portal**
+- [ ] Click **Activate test link** (test mode) or configure for live
+- [ ] Configure settings:
+
+| Setting | Recommended Value |
+|---------|-------------------|
+| Allow payment method updates | Yes |
+| Allow subscription cancellations | Yes |
+| Cancellation mode | At end of billing period |
+| Allow subscription pausing | Optional |
+| Allow switching plans | Yes |
+| Show invoice history | Yes |
+
+- [ ] Set **Default return URL**: `https://yourdomain.com/settings/billing`
+- [ ] Save
+
+### 5.6 Local Development with Stripe CLI
+
+To test webhooks locally:
+
+```bash
+# Install Stripe CLI
+# macOS
+brew install stripe/stripe-cli/stripe
+
+# Or download from https://stripe.com/docs/stripe-cli
+
+# Login to Stripe
+stripe login
+
+# Forward webhooks to local server
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+
+# The CLI will output a webhook signing secret like:
+# whsec_xxxxx
+# Use this for local STRIPE_WEBHOOK_SECRET
 ```
+
+### 5.7 Test Payments
+
+Use these test cards:
+
+| Scenario | Card Number |
+|----------|-------------|
+| Successful payment | `4242 4242 4242 4242` |
+| Requires authentication | `4000 0025 0000 3155` |
+| Declined | `4000 0000 0000 9995` |
+
+- Any future expiry date (e.g., 12/34)
+- Any 3-digit CVC
+- Any 5-digit ZIP
 
 ---
 
-## 5. Resend Email Service
+## 6. Resend Email Service
 
-### 5.1 Create Resend Account
+Resend sends transactional emails (daily digests, alerts, weekly summaries).
+
+### 6.1 Create Resend Account
 
 - [ ] Sign up at [resend.com](https://resend.com)
 - [ ] Verify your email address
 
-### 5.2 Add and Verify Domain
+### 6.2 Add and Verify Domain
 
-- [ ] Go to Domains → Add Domain
-- [ ] Enter your domain (e.g., `insiderintel.com`)
-- [ ] Add the DNS records provided:
-  - [ ] SPF record (TXT)
-  - [ ] DKIM record (TXT)
-  - [ ] DMARC record (TXT) - optional but recommended
-- [ ] Wait for domain verification (can take up to 48 hours)
+For production, you must verify your domain to send from custom addresses.
 
-### 5.3 Get API Key
+- [ ] Go to **Domains → Add Domain**
+- [ ] Enter your domain (e.g., `yourdomain.com`)
+- [ ] Add the DNS records provided to your domain's DNS settings:
 
-- [ ] Go to API Keys → Create API Key
-- [ ] Name: "InsiderIntel Production"
-- [ ] Permissions: Full access (or Sending access only)
-- [ ] Copy the API key (starts with `re_`)
-- [ ] Add to environment: `RESEND_API_KEY`
+| Type | Name | Value | Purpose |
+|------|------|-------|---------|
+| TXT | `@` or domain | `v=spf1 include:...` | SPF record |
+| CNAME or TXT | `resend._domainkey` | `...` | DKIM record |
+| TXT | `_dmarc` | `v=DMARC1; p=none; ...` | DMARC (optional but recommended) |
 
-### 5.4 Configure From Address
+- [ ] Wait for domain verification (usually minutes, can take up to 48 hours)
+- [ ] Verification status will show "Verified" when complete
 
-Choose a from address using your verified domain:
-- Recommended: `notifications@insiderintel.com`
-- Alternative: `noreply@insiderintel.com`
+### 6.3 Get API Key
 
-### 5.5 Environment Variables for Resend
+- [ ] Go to **API Keys → Create API Key**
+- [ ] Name: `InsiderIntel Production`
+- [ ] Permission: **Full access** (or **Sending access** only)
+- [ ] Copy the API key → `RESEND_API_KEY`
+
+### 6.4 Configure From Address
+
+The `EMAIL_FROM` variable defines the sender:
 
 ```env
-RESEND_API_KEY=re_xxxxxxxxxxxxx
-EMAIL_FROM=InsiderIntel <notifications@insiderintel.com>
+EMAIL_FROM=InsiderIntel <notifications@yourdomain.com>
+```
+
+Ensure the domain in the email address matches your verified domain.
+
+### 6.5 Test Email Delivery
+
+```bash
+# Test with curl
+curl -X POST 'https://api.resend.com/emails' \
+  -H 'Authorization: Bearer re_xxxxx' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "InsiderIntel <notifications@yourdomain.com>",
+    "to": "your-email@example.com",
+    "subject": "Test Email",
+    "html": "<p>This is a test email from InsiderIntel.</p>"
+  }'
 ```
 
 ---
 
-## 6. OpenFIGI API
+## 7. Anthropic Claude API
+
+Claude AI generates contextual analysis for insider transactions.
+
+### 7.1 Create Anthropic Account
+
+- [ ] Sign up at [console.anthropic.com](https://console.anthropic.com)
+- [ ] Complete account verification
+- [ ] Add a payment method (usage-based billing)
+
+### 7.2 Get API Key
+
+- [ ] Go to **API Keys** in the console
+- [ ] Click **Create Key**
+- [ ] Name: `InsiderIntel Production`
+- [ ] Copy the key (starts with `sk-ant-`) → `ANTHROPIC_API_KEY`
+
+### 7.3 Usage and Cost Information
+
+**Model used**: `claude-sonnet-4-20250514` (or latest)
+
+**Features:**
+- Generates contextual analysis for insider transactions
+- Produces significance scores (0.0 - 1.0)
+- Batch processing with built-in rate limiting
+- Company-level aggregate insights
+
+**Cost estimates:**
+- Input: ~$3 per million tokens
+- Output: ~$15 per million tokens
+- Each transaction analysis: ~500-1000 tokens (~$0.01-0.02)
+
+**Rate limiting (built-in to app):**
+- 100ms delay between requests
+- Max 5 concurrent API calls
+- Exponential backoff on errors
+
+---
+
+## 8. OpenFIGI API
 
 OpenFIGI provides CUSIP to ticker symbol mapping for 13F institutional holdings data.
 
-### 6.1 Create OpenFIGI Account (Optional but Recommended)
+### 8.1 API Key (Optional but Recommended)
 
-The API works without an account, but with lower rate limits.
+The API works without a key but with lower rate limits:
 
-**Without API key:**
-- 25 requests per minute
-- 5 CUSIP lookups per request
+| Access | Rate Limit | CUSIPs per Request |
+|--------|------------|-------------------|
+| No API key | 25 req/min | 5 |
+| With API key (free) | 250 req/min | 100 |
 
-**With API key (free):**
-- 250 requests per minute
-- 100 CUSIP lookups per request
-
-### 6.2 Get API Key
+### 8.2 Get API Key
 
 - [ ] Go to [openfigi.com/api](https://www.openfigi.com/api)
-- [ ] Click "Get API Key"
+- [ ] Click **Get API Key**
 - [ ] Create a free account
-- [ ] Copy your API key
-- [ ] Add to environment: `OPENFIGI_API_KEY`
+- [ ] Copy your API key → `OPENFIGI_API_KEY`
 
-### 6.3 Environment Variables for OpenFIGI
+### 8.3 How It Works in the App
 
-```env
-# Optional but recommended for better rate limits
-OPENFIGI_API_KEY=your-api-key-here
-```
-
-### 6.4 How It Works
-
-The system uses a multi-layer approach for CUSIP to ticker mapping:
-
+The system uses a multi-layer approach:
 1. **Hardcoded fallback** - ~60 common securities for instant lookup
 2. **OpenFIGI API** - Dynamic lookup for unknown CUSIPs
 3. **In-memory cache** - 7-day TTL to minimize API calls
 
 ---
 
-## 7. Vercel Cron Jobs
+## 9. Sentry Error Tracking
 
-### 7.1 Configure Cron Jobs in vercel.json
+Sentry provides real-time error tracking and performance monitoring.
 
-Create or update `vercel.json` in your project root:
+### 9.1 Create Sentry Project
+
+- [ ] Sign up at [sentry.io](https://sentry.io)
+- [ ] Create organization (or use existing)
+- [ ] Create project:
+  - Platform: **Next.js**
+  - Project name: `insiderintel`
+
+### 9.2 Get Project DSN
+
+- [ ] Go to **Settings → Projects → [insiderintel] → Client Keys (DSN)**
+- [ ] Copy the DSN → `NEXT_PUBLIC_SENTRY_DSN`
+
+### 9.3 Configure Source Maps (Optional)
+
+For better stack traces in production:
+
+- [ ] Go to **Settings → Auth Tokens**
+- [ ] Create token with scopes: `project:releases`, `org:read`
+- [ ] Set environment variables:
+  - `SENTRY_AUTH_TOKEN`
+  - `SENTRY_ORG`
+  - `SENTRY_PROJECT`
+
+### 9.4 Features Included
+
+- Client-side error tracking
+- Server-side error tracking (API routes, server components)
+- Session Replay (10% sample in production)
+- Performance monitoring (10% sample)
+- Cron job monitoring
+
+---
+
+## 10. Vercel Deployment
+
+### 10.1 Connect Repository
+
+- [ ] Sign up/login at [vercel.com](https://vercel.com)
+- [ ] Click **Add New → Project**
+- [ ] Import your Git repository
+- [ ] Select the repository containing InsiderIntel
+
+### 10.2 Configure Project Settings
+
+- [ ] **Framework Preset**: Next.js (auto-detected)
+- [ ] **Root Directory**: `.` (or subdirectory if monorepo)
+- [ ] **Build Command**: `next build` (default)
+- [ ] **Output Directory**: `.next` (default)
+- [ ] **Install Command**: `npm install` (default)
+
+### 10.3 Add Environment Variables
+
+Add all required environment variables in **Settings → Environment Variables**:
+
+- [ ] Add each variable from the [Environment Variables Reference](#12-environment-variables-reference)
+- [ ] Select environments: **Production**, **Preview**, **Development** as appropriate
+- [ ] Some variables (like `NEXT_PUBLIC_*`) should be in all environments
+- [ ] Production secrets should only be in Production
+
+### 10.4 Configure Domain
+
+- [ ] Go to **Settings → Domains**
+- [ ] Add your custom domain (e.g., `yourdomain.com`)
+- [ ] Follow DNS configuration instructions:
+  - For apex domain: Add A record pointing to Vercel IPs
+  - For subdomain: Add CNAME record pointing to `cname.vercel-dns.com`
+- [ ] Wait for DNS propagation and SSL certificate provisioning
+
+### 10.5 Deploy
+
+- [ ] Push to main branch to trigger deployment
+- [ ] Or click **Deploy** in Vercel dashboard
+- [ ] Monitor build logs for errors
+- [ ] Visit deployment URL to verify
+
+---
+
+## 11. Vercel Cron Jobs
+
+Cron jobs run scheduled tasks for email digests and AI context generation.
+
+### 11.1 Verify vercel.json Configuration
+
+The project includes `vercel.json` with cron schedules:
 
 ```json
 {
@@ -554,199 +901,338 @@ Create or update `vercel.json` in your project root:
 ```
 
 **Schedule explanations:**
-- Daily digest: 8:00 AM EST (13:00 UTC) every day
-- Weekly summary: 9:00 AM EST (14:00 UTC) every Monday
-- AI context generation: Every 6 hours
 
-### 7.2 Secure Cron Endpoints
+| Job | Schedule | Time (UTC) | Description |
+|-----|----------|------------|-------------|
+| Daily Digest | `0 13 * * *` | 1:00 PM daily | Sends daily watchlist activity |
+| Weekly Summary | `0 14 * * 1` | 2:00 PM Mondays | Sends weekly market summary |
+| AI Context | `0 */6 * * *` | Every 6 hours | Generates AI analysis |
 
-- [ ] Generate a secure random string for `CRON_SECRET`:
-  ```bash
-  openssl rand -hex 32
-  ```
-- [ ] Add to Vercel environment variables
-- [ ] Vercel automatically sends this in the `Authorization` header
+### 11.2 Generate CRON_SECRET
 
-### 7.3 Environment Variables for Cron
+Vercel automatically authenticates cron requests, but our endpoints also verify a secret:
 
-```env
-CRON_SECRET=your-secure-random-string
-INTERNAL_API_SECRET=another-secure-random-string
+```bash
+# Generate a secure random string
+openssl rand -hex 32
 ```
+
+- [ ] Add this value as `CRON_SECRET` in Vercel environment variables
+
+### 11.3 How Cron Authentication Works
+
+Vercel sends cron requests with an `Authorization` header:
+```
+Authorization: Bearer <CRON_SECRET>
+```
+
+The app verifies this in each cron route handler using `lib/auth/cron.ts`.
+
+### 11.4 Monitor Cron Jobs
+
+- [ ] Go to Vercel Dashboard → **Cron Jobs**
+- [ ] View scheduled jobs and their status
+- [ ] Check **Logs** for execution history and errors
+
+### 11.5 Cron Job Limitations by Plan
+
+| Vercel Plan | Max Crons | Min Interval |
+|-------------|-----------|--------------|
+| Hobby (Free) | 2 jobs | Daily |
+| Pro | 40 jobs | Every minute |
+| Enterprise | 100 jobs | Every minute |
+
+> **Note**: The free tier only supports 2 cron jobs and daily intervals. You may need to upgrade or consolidate jobs.
 
 ---
 
-## 8. Sentry Error Tracking
+## 12. Environment Variables Reference
 
-Sentry provides real-time error tracking and performance monitoring.
+### Required Variables
 
-### 8.1 Create Sentry Account
+| Variable | Source | Description |
+|----------|--------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard | Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard | Anonymous API key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard | Service role key (server only) |
+| `NEXT_PUBLIC_APP_URL` | Your domain | Production URL (e.g., `https://yourdomain.com`) |
+| `STRIPE_SECRET_KEY` | Stripe Dashboard | API secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhooks | Webhook signing secret |
+| `STRIPE_RETAIL_PRICE_ID` | Stripe Products | Retail plan price ID |
+| `STRIPE_PRO_PRICE_ID` | Stripe Products | Pro plan price ID |
+| `RESEND_API_KEY` | Resend Dashboard | Email API key |
+| `EMAIL_FROM` | Your domain | Sender address |
+| `ANTHROPIC_API_KEY` | Anthropic Console | Claude API key |
+| `CRON_SECRET` | Self-generated | Cron job authentication |
 
-- [ ] Sign up at [sentry.io](https://sentry.io)
-- [ ] Create a new organization (or use existing)
-- [ ] Create a new project with platform: **Next.js**
+### Optional Variables
 
-### 8.2 Get Project DSN
-
-- [ ] Go to **Settings → Projects → [Your Project] → Client Keys (DSN)**
-- [ ] Copy the DSN (looks like `https://xxx@xxx.ingest.sentry.io/xxx`)
-- [ ] Add to environment: `NEXT_PUBLIC_SENTRY_DSN`
-
-### 8.3 Configure Source Maps (Optional - for CI/CD)
-
-For better stack traces in production:
-
-- [ ] Go to **Settings → Auth Tokens**
-- [ ] Create a new token with `project:releases` and `org:read` scopes
-- [ ] Add to CI environment: `SENTRY_AUTH_TOKEN`
-- [ ] Add organization slug: `SENTRY_ORG`
-- [ ] Add project slug: `SENTRY_PROJECT`
-
-### 8.4 Environment Variables for Sentry
-
-```env
-# Required
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
-
-# Optional - for source map uploads
-SENTRY_ORG=your-org-slug
-SENTRY_PROJECT=your-project-slug
-SENTRY_AUTH_TOKEN=sntrys_xxxxx
-```
-
-### 8.5 Features Included
-
-- **Client-side error tracking** - Catches React errors, unhandled rejections
-- **Server-side error tracking** - API route errors, server component errors
-- **Session Replay** - Record user sessions for debugging (10% sample in prod)
-- **Performance monitoring** - Track slow transactions (10% sample in prod)
-- **Cron job monitoring** - Automatic Vercel cron monitoring
-
-### 8.6 Verify Setup
-
-1. [ ] Deploy to production
-2. [ ] Trigger a test error (e.g., visit `/debug-sentry` in development)
-3. [ ] Check Sentry dashboard for the error
-4. [ ] Verify source maps are working (stack traces show original code)
-
----
-
-## 9. Environment Variables Checklist
-
-### Required for Production
-
-| Variable | Source | Required |
-|----------|--------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard | Yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard | Yes |
-| `STRIPE_SECRET_KEY` | Stripe Dashboard | Yes |
-| `STRIPE_WEBHOOK_SECRET` | Stripe Webhooks | Yes |
-| `STRIPE_RETAIL_PRICE_ID` | Stripe Products | Yes |
-| `STRIPE_PRO_PRICE_ID` | Stripe Products | Yes |
-| `RESEND_API_KEY` | Resend Dashboard | Yes |
-| `EMAIL_FROM` | Your verified domain | Yes |
-| `CRON_SECRET` | Self-generated | Yes |
-| `NEXT_PUBLIC_APP_URL` | Your domain | Yes |
-| `ANTHROPIC_API_KEY` | Anthropic Console | Yes |
-
-### Optional
-
-| Variable | Source | Purpose |
-|----------|--------|---------|
-| `OPENFIGI_API_KEY` | OpenFIGI Dashboard | Higher rate limits for CUSIP lookups |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry Dashboard | Error tracking |
-| `SENTRY_ORG` | Sentry Dashboard | Source map uploads |
-| `SENTRY_PROJECT` | Sentry Dashboard | Source map uploads |
-| `SENTRY_AUTH_TOKEN` | Sentry Dashboard | Source map uploads |
-| `LOG_LEVEL` | N/A | Override default log level |
+| Variable | Source | Description |
+|----------|--------|-------------|
+| `OPENFIGI_API_KEY` | OpenFIGI | Higher rate limits for CUSIP lookups |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry | Error tracking DSN |
+| `SENTRY_ORG` | Sentry | Organization slug |
+| `SENTRY_PROJECT` | Sentry | Project slug |
+| `SENTRY_AUTH_TOKEN` | Sentry | Auth token for source maps |
+| `LOG_LEVEL` | N/A | Override log level (trace/debug/info/warn/error) |
 
 ### Complete .env.local Template
 
 ```env
-# Supabase Configuration
+# ============================================
+# SUPABASE
+# ============================================
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxx
 SUPABASE_SERVICE_ROLE_KEY=eyJxxxxx
 
-# Anthropic Configuration
-ANTHROPIC_API_KEY=sk-ant-xxxxx
+# ============================================
+# APPLICATION
+# ============================================
+NEXT_PUBLIC_APP_URL=https://yourdomain.com
 
-# Stripe Configuration
+# ============================================
+# STRIPE PAYMENTS
+# ============================================
 STRIPE_SECRET_KEY=sk_live_xxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 STRIPE_RETAIL_PRICE_ID=price_xxxxx
 STRIPE_PRO_PRICE_ID=price_xxxxx
 
-# Email Configuration (Resend)
+# ============================================
+# EMAIL (RESEND)
+# ============================================
 RESEND_API_KEY=re_xxxxx
-EMAIL_FROM=InsiderIntel <notifications@insiderintel.com>
+EMAIL_FROM=InsiderIntel <notifications@yourdomain.com>
 
-# Cron/Internal API Security
-CRON_SECRET=your-secure-random-string
-INTERNAL_API_SECRET=another-secure-random-string
+# ============================================
+# AI (ANTHROPIC)
+# ============================================
+ANTHROPIC_API_KEY=sk-ant-xxxxx
 
-# OpenFIGI API (optional - for better rate limits)
+# ============================================
+# CRON JOBS
+# ============================================
+CRON_SECRET=your-secure-random-string-here
+
+# ============================================
+# OPTIONAL: OPENFIGI
+# ============================================
 OPENFIGI_API_KEY=your-api-key-here
 
-# Sentry Error Tracking (optional but recommended)
+# ============================================
+# OPTIONAL: SENTRY
+# ============================================
 NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
 SENTRY_ORG=your-org-slug
-SENTRY_PROJECT=your-project-slug
+SENTRY_PROJECT=insiderintel
+SENTRY_AUTH_TOKEN=sntrys_xxxxx
 
-# Application Configuration
-NEXT_PUBLIC_APP_URL=https://insiderintel.com
+# ============================================
+# OPTIONAL: LOGGING
+# ============================================
+LOG_LEVEL=info
 ```
 
 ---
 
-## Post-Setup Verification
+## 13. Production Launch Checklist
 
-### Test Stripe Integration
+### Pre-Launch Verification
 
-1. [ ] Create a test user account
-2. [ ] Navigate to Settings → Billing
-3. [ ] Click "Upgrade to Retail"
-4. [ ] Complete checkout with test card: `4242 4242 4242 4242`
-5. [ ] Verify subscription tier updates in database
-6. [ ] Test "Manage Billing" portal access
+#### Supabase
+- [ ] Database schema created (all tables, indexes, views)
+- [ ] RLS policies enabled and tested
+- [ ] Profile trigger working (new users get profiles)
+- [ ] Email confirmation enabled
+- [ ] Email templates customized
+- [ ] Custom SMTP configured (not using Supabase defaults)
+- [ ] Site URL and redirect URLs configured
 
-### Test Email Service
+#### Authentication
+- [ ] Email signup working
+- [ ] Email confirmation emails received
+- [ ] Password reset flow working
+- [ ] Google OAuth working
+- [ ] Google OAuth app published (not in testing mode)
 
-1. [ ] Enable daily digest in notification settings
-2. [ ] Manually trigger: `GET /api/cron/send-daily-digest` with auth header
-3. [ ] Verify email received
-4. [ ] Check Resend dashboard for delivery status
+#### Stripe
+- [ ] Products and prices created
+- [ ] Webhook endpoint configured
+- [ ] All events selected for webhook
+- [ ] Customer portal enabled and configured
+- [ ] **Using live mode keys** (not test keys)
+- [ ] Test subscription flow end-to-end
 
-### Test Cron Jobs
+#### Email (Resend)
+- [ ] Domain verified
+- [ ] DNS records configured (SPF, DKIM, DMARC)
+- [ ] Test email sent successfully
+- [ ] From address matches verified domain
 
-1. [ ] Deploy to Vercel
-2. [ ] Check Vercel dashboard → Cron Jobs
-3. [ ] Verify jobs are scheduled
-4. [ ] Monitor first executions in logs
+#### Vercel
+- [ ] Repository connected
+- [ ] All environment variables set
+- [ ] Custom domain configured
+- [ ] SSL certificate active
+- [ ] Cron jobs visible in dashboard
+
+### Post-Launch Verification
+
+#### Functionality Tests
+- [ ] New user can sign up with email
+- [ ] New user receives and confirms email
+- [ ] User can sign in with Google
+- [ ] User can reset password
+- [ ] Dashboard loads with data
+- [ ] Watchlist add/remove works
+- [ ] Stripe checkout completes
+- [ ] Stripe portal accessible
+- [ ] Subscription tier updates correctly
+
+#### Cron Job Tests
+- [ ] Manually trigger daily digest
+- [ ] Manually trigger weekly summary
+- [ ] Manually trigger AI context generation
+- [ ] Verify cron jobs run on schedule
+
+#### Monitoring Setup
+- [ ] Sentry receiving errors (trigger test error)
+- [ ] Vercel logs accessible
+- [ ] Stripe webhook logs clean
 
 ---
 
-## Troubleshooting
+## 14. Troubleshooting
 
-### Stripe Webhook Not Receiving Events
+### Authentication Issues
 
-- Verify webhook URL is correct and publicly accessible
-- Check webhook signing secret matches
+**Problem**: Email confirmation link doesn't work
+
+**Solutions**:
+- Verify **Site URL** in Supabase matches your domain
+- Check redirect URLs include your callback path
+- Ensure DNS is properly configured for your domain
+
+---
+
+**Problem**: Google OAuth fails with redirect error
+
+**Solutions**:
+- Verify redirect URI in Google Console matches: `https://your-project.supabase.co/auth/v1/callback`
+- Ensure authorized JavaScript origins includes Supabase URL
+- Check Google OAuth app is published (not in testing mode)
+
+---
+
+**Problem**: Password reset email not received
+
+**Solutions**:
+- Check spam folder
+- Verify custom SMTP settings if configured
+- Check Supabase email rate limits (4/hour on free)
+- Review Resend logs for delivery status
+
+### Stripe Issues
+
+**Problem**: Webhook events not received
+
+**Solutions**:
+- Verify webhook URL is publicly accessible
+- Check webhook signing secret matches environment variable
 - Review Stripe webhook logs for errors
-
-### Emails Not Sending
-
-- Verify domain is fully verified in Resend
-- Check API key has sending permissions
-- Review Resend logs for bounce/error details
-
-### Cron Jobs Not Running
-
-- Ensure `vercel.json` is in project root
-- Verify `CRON_SECRET` matches Vercel's auto-generated header
-- Check Vercel deployment logs
+- For local testing, ensure Stripe CLI is forwarding
 
 ---
 
-*Last updated: January 15, 2026*
+**Problem**: Customer portal shows 404
+
+**Solutions**:
+- Ensure customer portal is activated in Stripe settings
+- Verify user has a Stripe customer ID in database
+- Check return URL is configured
+
+---
+
+**Problem**: Subscription tier doesn't update after payment
+
+**Solutions**:
+- Check webhook endpoint is receiving `checkout.session.completed`
+- Verify `profiles.stripe_customer_id` is set
+- Review server logs for webhook handler errors
+
+### Email Issues
+
+**Problem**: Emails going to spam
+
+**Solutions**:
+- Verify SPF, DKIM, and DMARC records are configured
+- Use a dedicated email subdomain (e.g., `mail.yourdomain.com`)
+- Build sender reputation gradually
+- Check Resend dashboard for reputation score
+
+---
+
+**Problem**: Domain verification failing
+
+**Solutions**:
+- DNS changes can take up to 48 hours
+- Verify DNS records are exact (no trailing dots, correct type)
+- Use MXToolbox to verify DNS propagation
+
+### Cron Job Issues
+
+**Problem**: Cron jobs not running
+
+**Solutions**:
+- Verify `vercel.json` is in project root and deployed
+- Check Vercel plan supports required cron frequency
+- Verify `CRON_SECRET` is set in Vercel environment
+- Review Vercel cron logs for errors
+
+---
+
+**Problem**: Cron job returns 401 Unauthorized
+
+**Solutions**:
+- Ensure `CRON_SECRET` in Vercel matches what the app expects
+- Vercel automatically sends the secret in Authorization header
+- Check cron auth middleware in `lib/auth/cron.ts`
+
+### Database Issues
+
+**Problem**: RLS policy blocking queries
+
+**Solutions**:
+- Verify user is authenticated (check `auth.uid()`)
+- Test queries in Supabase SQL Editor with RLS disabled
+- Review policy definitions for errors
+- Use service role key for admin operations (server only)
+
+---
+
+**Problem**: Profile not created for new user
+
+**Solutions**:
+- Verify trigger `on_auth_user_created` exists
+- Check function `handle_new_user()` for errors
+- Review Supabase logs for trigger failures
+- Manually create profile if needed for testing
+
+---
+
+## Quick Reference: Service Dashboards
+
+| Service | Dashboard URL | What to Monitor |
+|---------|---------------|-----------------|
+| Supabase | dashboard.supabase.com | Database, Auth, Logs |
+| Stripe | dashboard.stripe.com | Payments, Webhooks, Subscriptions |
+| Resend | resend.com/emails | Deliverability, Logs |
+| Anthropic | console.anthropic.com | Usage, Costs |
+| Vercel | vercel.com | Deployments, Crons, Logs |
+| Sentry | sentry.io | Errors, Performance |
+| Google Cloud | console.cloud.google.com | OAuth, API Usage |
+
+---
+
+*Last updated: January 18, 2026*
