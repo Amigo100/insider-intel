@@ -1,8 +1,12 @@
 {
   "crons": [
     {
+      "path": "/api/cron/ingest-filings",
+      "schedule": "0 */4 * * *"
+    },
+    {
       "path": "/api/cron/generate-context",
-      "schedule": "0 */6 * * *"
+      "schedule": "30 */4 * * *"
     },
     {
       "path": "/api/cron/send-daily-digest",
