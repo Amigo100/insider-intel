@@ -4,7 +4,7 @@
  * Runs every 4 hours to fetch recent Form 4 filings from SEC EDGAR.
  * Processes filings from the last 2 days to ensure no filings are missed.
  *
- * Schedule: 0 */4 * * * (every 4 hours)
+ * Schedule: "0 *\/4 * * *" (every 4 hours)
  */
 
 import { NextResponse } from 'next/server'

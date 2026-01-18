@@ -342,12 +342,12 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        {/* Logo section */}
+        {/* Logo section - matches header height (h-16 = 64px) */}
         <div
           className={cn(
             'flex items-center justify-between',
-            'px-5 py-5',
-            'border-b border-[hsl(var(--border-subtle))]'
+            'h-16 px-5',
+            'border-b border-[hsl(var(--border-default))]'
           )}
         >
           <Logo variant="light" size="md" href="/dashboard" />
