@@ -124,7 +124,7 @@ export default function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="hero-grid-bg relative overflow-hidden py-16 sm:py-24 lg:py-32">
+        <section className="hero-grid-bg relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24">
           {/* Gradient overlay for visual interest */}
           <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl pointer-events-none" aria-hidden="true">
             <div
@@ -139,20 +139,20 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
               {/* Badge - neutral colors, NOT amber (badge is not an action) */}
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-1.5 text-sm text-[#525252] opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-1.5 text-sm text-[#525252] animate-fade-in-up animate-delay-100">
                 <Sparkles className="h-4 w-4 text-[#525252]" />
                 <span>Real SEC Data • AI Insights</span>
               </div>
 
-              <h1 className="text-4xl font-bold tracking-tight text-[#171717] sm:text-5xl lg:text-6xl opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+              <h1 className="text-4xl font-bold tracking-tight text-[#171717] sm:text-5xl lg:text-6xl animate-fade-in-up animate-delay-200">
                 Track Insider Trading Activity Before the Market Moves
               </h1>
 
-              <p className="mx-auto mt-6 max-w-xl text-lg text-[#525252] sm:text-xl opacity-0 animate-fade-in-up" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+              <p className="mx-auto mt-6 max-w-xl text-lg text-[#525252] sm:text-xl animate-fade-in-up animate-delay-300">
                 Real-time Form 4 filings and institutional holdings with AI-powered context.
               </p>
 
-              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row animate-fade-in-up animate-delay-400">
                 {/* Primary CTA - Amber */}
                 <Link
                   href="/signup"
@@ -172,12 +172,12 @@ export default function LandingPage() {
             </div>
 
             {/* Dashboard Preview */}
-            <div className="mt-16 sm:mt-20 lg:mt-24 opacity-0 animate-fade-in-up" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+            <div className="mt-12 sm:mt-16 lg:mt-20 animate-fade-in-up animate-delay-500">
               <DashboardPreview />
             </div>
 
             {/* Stats Banner */}
-            <div className="mt-16 sm:mt-20 lg:mt-24">
+            <div className="mt-12 sm:mt-14 lg:mt-16">
               <StatsBanner />
             </div>
           </div>
