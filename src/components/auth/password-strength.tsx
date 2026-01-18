@@ -23,10 +23,10 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   const strength = useMemo(() => {
     const metCount = requirements.filter(r => r.met).length
     if (metCount === 0) return { level: 0, label: '', color: '' }
-    if (metCount === 1) return { level: 1, label: 'Weak', color: 'bg-red-500' }
-    if (metCount === 2) return { level: 2, label: 'Fair', color: 'bg-orange-500' }
-    if (metCount === 3) return { level: 3, label: 'Good', color: 'bg-yellow-500' }
-    return { level: 4, label: 'Strong', color: 'bg-emerald-500' }
+    if (metCount === 1) return { level: 1, label: 'Weak', color: 'bg-[#FF5252]' }
+    if (metCount === 2) return { level: 2, label: 'Fair', color: 'bg-[#FFB300]' }
+    if (metCount === 3) return { level: 3, label: 'Good', color: 'bg-[#FFB300]' }
+    return { level: 4, label: 'Strong', color: 'bg-[#00C853]' }
   }, [requirements])
 
   if (!password) return null
@@ -47,10 +47,10 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
         </div>
         {strength.label && (
           <p className={`text-xs font-medium ${
-            strength.level <= 1 ? 'text-red-500' :
-            strength.level === 2 ? 'text-orange-500' :
-            strength.level === 3 ? 'text-yellow-600' :
-            'text-emerald-500'
+            strength.level <= 1 ? 'text-[#FF5252]' :
+            strength.level === 2 ? 'text-[#FFB300]' :
+            strength.level === 3 ? 'text-[#FFB300]' :
+            'text-[#00C853]'
           }`}>
             {strength.label}
           </p>
@@ -63,7 +63,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           <div
             key={req.label}
             className={`flex items-center gap-1.5 text-xs transition-colors ${
-              req.met ? 'text-emerald-600' : 'text-muted-foreground'
+              req.met ? 'text-[#00C853]' : 'text-[#737373]'
             }`}
           >
             {req.met ? (

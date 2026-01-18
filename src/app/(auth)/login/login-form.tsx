@@ -241,7 +241,7 @@ export function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                className="text-xs text-[#737373] hover:text-[#171717] underline-offset-4 hover:underline transition-colors"
               >
                 Forgot password?
               </Link>
@@ -266,7 +266,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 rounded-sm"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 disabled={isLoading || isGoogleLoading}
               >
@@ -368,7 +368,7 @@ export function LoginForm() {
         {/* Sign Up Link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-medium text-primary hover:underline">
+          <Link href="/signup" className="font-medium text-[#FFA028] hover:text-[#FFB04D] hover:underline transition-colors">
             Sign up for free
           </Link>
         </p>

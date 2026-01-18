@@ -73,13 +73,7 @@ export function DashboardPreview() {
         </div>
       </FloatingCard>
       {/* Main container with 3D transform - Bloomberg themed */}
-      <div
-        className="rounded-xl border border-[#262626] bg-[#0D0D0D] shadow-2xl overflow-hidden"
-        style={{
-          transform: 'rotateY(-5deg) rotateX(2deg)',
-          transformStyle: 'preserve-3d',
-        }}
-      >
+      <div className="dashboard-preview">
         {/* Browser chrome - Bloomberg themed */}
         <div className="flex items-center gap-2 border-b border-[#262626] bg-[#1A1A1A]/50 px-4 py-3">
           <div className="flex items-center gap-1.5">
@@ -134,28 +128,28 @@ export function DashboardPreview() {
             {/* Stat cards */}
             <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
               <StatCard
-                label="Today's Trades"
-                value="47"
-                change="+12"
+                label="Insider Buys (24h)"
+                value="$24.5M"
+                change="+12.3%"
                 trend="up"
+              />
+              <StatCard
+                label="Insider Sells (24h)"
+                value="$18.2M"
+                change="-5.1%"
+                trend="down"
               />
               <StatCard
                 label="Cluster Alerts"
                 value="3"
-                change="New"
+                change="High Significance"
                 trend="up"
                 highlight
               />
               <StatCard
                 label="Watchlist Activity"
-                value="8"
-                change="+3"
-                trend="up"
-              />
-              <StatCard
-                label="Net Buy Volume"
-                value="$24.7M"
-                change="+18%"
+                value="12"
+                change="4 New Trades"
                 trend="up"
               />
             </div>
@@ -193,18 +187,18 @@ export function DashboardPreview() {
                   insider="Tim Cook"
                   title="CEO"
                   type="buy"
-                  value="$2.4M"
-                  time="2 hours ago"
+                  value="$2,450,000"
+                  time="2m ago"
                   significance="high"
                 />
                 <TransactionRow
-                  ticker="TSLA"
-                  company="Tesla, Inc."
-                  insider="Robyn Denholm"
-                  title="Chair"
+                  ticker="NVDA"
+                  company="NVIDIA Corp."
+                  insider="Jensen Huang"
+                  title="CEO"
                   type="sell"
-                  value="$890K"
-                  time="4 hours ago"
+                  value="$890,120"
+                  time="14m ago"
                   significance="medium"
                 />
                 <TransactionRow
@@ -213,19 +207,9 @@ export function DashboardPreview() {
                   insider="Satya Nadella"
                   title="CEO"
                   type="buy"
-                  value="$1.2M"
-                  time="6 hours ago"
+                  value="$1,200,000"
+                  time="28m ago"
                   significance="high"
-                />
-                <TransactionRow
-                  ticker="GOOGL"
-                  company="Alphabet Inc."
-                  insider="Ruth Porat"
-                  title="CFO"
-                  type="sell"
-                  value="$3.1M"
-                  time="Yesterday"
-                  significance="low"
                 />
               </div>
             </div>

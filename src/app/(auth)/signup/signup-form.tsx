@@ -190,8 +190,8 @@ export function SignupForm() {
       <Card className="border-0 shadow-lg sm:border">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,200,83,0.12)]">
+              <CheckCircle2 className="h-6 w-6 text-[#00C853]" />
             </div>
             <h2 className="mt-4 text-xl font-semibold">Check your email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -325,7 +325,7 @@ export function SignupForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 rounded-sm"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 disabled={isLoading || isGoogleLoading}
               >
@@ -371,7 +371,7 @@ export function SignupForm() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 rounded-sm"
                 aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 disabled={isLoading || isGoogleLoading}
               >
@@ -389,7 +389,7 @@ export function SignupForm() {
               </p>
             )}
             {confirmPassword && password === confirmPassword && (
-              <p className="text-xs text-emerald-600 flex items-center gap-1" role="status">
+              <p className="text-xs text-[#00C853] flex items-center gap-1" role="status">
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Passwords match
               </p>
@@ -420,7 +420,7 @@ export function SignupForm() {
                 I agree to the{' '}
                 <Link
                   href="/terms"
-                  className="text-primary hover:underline inline-flex items-center gap-0.5"
+                  className="text-[#FFA028] hover:text-[#FFB04D] hover:underline inline-flex items-center gap-0.5 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -431,7 +431,7 @@ export function SignupForm() {
                 and{' '}
                 <Link
                   href="/privacy"
-                  className="text-primary hover:underline inline-flex items-center gap-0.5"
+                  className="text-[#FFA028] hover:text-[#FFB04D] hover:underline inline-flex items-center gap-0.5 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -516,7 +516,7 @@ export function SignupForm() {
         {/* Sign In Link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-medium text-[#FFA028] hover:text-[#FFB04D] hover:underline transition-colors">
             Sign in
           </Link>
         </p>

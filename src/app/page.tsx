@@ -15,6 +15,7 @@ import { Testimonials } from '@/components/landing/testimonials'
 import { FeatureCards } from '@/components/landing/feature-cards'
 import { PricingSection } from '@/components/landing/pricing-section'
 import { FAQSection } from '@/components/landing/faq-section'
+import { TickerTape } from '@/components/landing/ticker-tape'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://insiderintel.com'
 
@@ -123,19 +124,16 @@ export default function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32 bg-white">
-          {/* Background decoration */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
-            <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl" aria-hidden="true">
-              <div
-                className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#FFA028]/20 to-[#00C853]/10 opacity-30"
-                style={{
-                  clipPath:
-                    'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-                }}
-              />
-            </div>
+        <section className="hero-grid-bg relative overflow-hidden py-16 sm:py-24 lg:py-32">
+          {/* Gradient overlay for visual interest */}
+          <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl pointer-events-none" aria-hidden="true">
+            <div
+              className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#FFA028]/20 to-[#00C853]/10 opacity-30"
+              style={{
+                clipPath:
+                  'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+              }}
+            />
           </div>
 
           <div className="container mx-auto px-4">
@@ -184,6 +182,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Ticker Tape - Scrolling transactions */}
+        <TickerTape />
 
         {/* Live Activity Section */}
         <section className="py-16 bg-white">

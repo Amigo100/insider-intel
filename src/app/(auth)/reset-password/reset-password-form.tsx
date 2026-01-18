@@ -336,8 +336,8 @@ export function ResetPasswordForm() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,200,83,0.12)]">
+              <CheckCircle2 className="h-6 w-6 text-[#00C853]" />
             </div>
             <h2 className="mt-4 text-xl font-semibold">Password updated</h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -409,7 +409,7 @@ export function ResetPasswordForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 rounded-sm"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 disabled={isLoading}
               >
@@ -450,7 +450,7 @@ export function ResetPasswordForm() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 rounded-sm"
                 aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 disabled={isLoading}
               >
@@ -465,7 +465,7 @@ export function ResetPasswordForm() {
               <p id="confirm-password-error" className="text-xs text-destructive" role="alert">{errors.confirmPassword}</p>
             )}
             {confirmPassword && password === confirmPassword && (
-              <p className="text-xs text-emerald-600 flex items-center gap-1" role="status">
+              <p className="text-xs text-[#00C853] flex items-center gap-1" role="status">
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Passwords match
               </p>
@@ -488,7 +488,7 @@ export function ResetPasswordForm() {
         {/* Back to Sign In */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Remember your password?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-medium text-[#FFA028] hover:text-[#FFB04D] hover:underline transition-colors">
             Sign in
           </Link>
         </p>

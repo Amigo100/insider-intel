@@ -19,12 +19,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       {/* Left Panel - Testimonial/Stats (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" aria-hidden="true">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0D0D0D] via-[#1A1A1A] to-[#0D0D0D]">
           {/* Grid pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]" />
           {/* Gradient orbs */}
-          <div className="absolute top-1/4 -left-20 h-[400px] w-[400px] rounded-full bg-primary/20 blur-[100px]" />
-          <div className="absolute bottom-1/4 right-0 h-[300px] w-[300px] rounded-full bg-emerald-500/10 blur-[80px]" />
+          <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[rgba(255,160,40,0.15)] blur-[100px]" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[rgba(0,200,83,0.08)] blur-[100px]" />
         </div>
 
         {/* Content */}
@@ -59,14 +59,14 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             </div>
 
             {/* Value proposition - honest description, no fake testimonial */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-8">
-              <Quote className="h-8 w-8 text-primary/60 mb-4" />
-              <blockquote className="text-lg leading-relaxed text-white/90">
+            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] backdrop-blur-sm p-6">
+              <Quote className="h-8 w-8 text-[rgba(255,160,40,0.6)] mb-4" />
+              <blockquote className="text-lg font-medium leading-relaxed text-[rgba(255,255,255,0.9)] mb-4">
                 Track what company insiders are doing with their own money.
                 When executives and directors buy or sell shares, it can signal
                 their confidence in the company&apos;s future.
               </blockquote>
-              <p className="mt-4 text-sm text-white/60">
+              <p className="text-sm text-[rgba(255,255,255,0.6)] leading-relaxed">
                 InsiderIntel aggregates SEC Form 4 and 13F filings to help you
                 spot trends in insider and institutional trading activity.
               </p>
@@ -95,7 +95,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center p-6">
-          <div id="auth-form" className="w-full max-w-md">{children}</div>
+          <div id="auth-form" className="w-full max-w-md animate-fade-in-up">{children}</div>
         </main>
 
         {/* Footer */}
@@ -117,10 +117,12 @@ interface StatCardProps {
 
 function StatCard({ icon: Icon, value, label }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur p-4">
-      <Icon className="h-5 w-5 text-primary mb-2" />
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-sm text-white/60">{label}</p>
+    <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] backdrop-blur-sm p-5 hover:bg-[rgba(255,255,255,0.08)] transition-colors">
+      <div className="w-10 h-10 rounded-lg bg-[rgba(255,160,40,0.15)] flex items-center justify-center mb-3">
+        <Icon className="h-5 w-5 text-[#FFA028]" />
+      </div>
+      <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
+      <p className="text-sm text-[rgba(255,255,255,0.6)]">{label}</p>
     </div>
   )
 }

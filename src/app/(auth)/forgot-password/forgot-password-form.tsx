@@ -90,8 +90,8 @@ export function ForgotPasswordForm() {
       <Card className="border-0 shadow-lg sm:border">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,200,83,0.12)]">
+              <CheckCircle2 className="h-6 w-6 text-[#00C853]" />
             </div>
             <h2 className="mt-4 text-xl font-semibold">Check your email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ export function ForgotPasswordForm() {
         {/* Back to Sign In */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Remember your password?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-medium text-[#FFA028] hover:text-[#FFB04D] hover:underline transition-colors">
             Sign in
           </Link>
         </p>
