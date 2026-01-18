@@ -46,15 +46,16 @@ export async function GET(request: NextRequest) {
     limit = Math.min(limit, 200) // Cap at 200
 
     // Validate type parameter
-    const validTypes = ['P', 'S', 'A', 'D', 'G', 'M', 'all']
-    if (!validTypes.includes(typeParam.toUpperCase())) {
+    const validTypes = ['P', 'S', 'A', 'D', 'G', 'M', 'ALL']
+    const typeUpper = typeParam.toUpperCase()
+    if (!validTypes.includes(typeUpper)) {
       return NextResponse.json(
         { error: `Invalid type parameter. Must be one of: ${validTypes.join(', ')}` },
         { status: 400 }
       )
     }
 
-    const type = typeParam.toUpperCase() === 'ALL' ? undefined : typeParam.toUpperCase()
+    const type = typeUpper === 'ALL' ? undefined : typeUpper
 
     // Fetch transactions
     const transactions = await getRecentTransactions({
