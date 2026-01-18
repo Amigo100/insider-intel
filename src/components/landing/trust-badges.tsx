@@ -12,50 +12,50 @@ import { Database, Lock, FileCheck, Cpu } from 'lucide-react'
  */
 export function TrustBadges() {
   return (
-    <section className="bg-slate-50 py-8">
+    <section className="bg-[#F5F5F5] py-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
           {/* SEC EDGAR - TRUE: We fetch data from SEC */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
-              <FileCheck className="h-5 w-5 text-slate-400" />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white">
+              <FileCheck className="h-5 w-5 text-[#737373]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">SEC EDGAR</p>
-              <p className="text-xs text-slate-500">Official SEC filings</p>
+              <p className="text-sm font-medium text-[#171717]">SEC EDGAR</p>
+              <p className="text-xs text-[#737373]">Official SEC filings</p>
             </div>
           </div>
 
           {/* OpenFIGI - TRUE: Used for CUSIP lookups */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
-              <Database className="h-5 w-5 text-slate-400" />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white">
+              <Database className="h-5 w-5 text-[#737373]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">OpenFIGI</p>
-              <p className="text-xs text-slate-500">Security identifiers</p>
+              <p className="text-sm font-medium text-[#171717]">OpenFIGI</p>
+              <p className="text-xs text-[#737373]">Security identifiers</p>
             </div>
           </div>
 
           {/* AI Powered - TRUE: Uses Claude for context generation */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
-              <Cpu className="h-5 w-5 text-slate-400" />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white">
+              <Cpu className="h-5 w-5 text-[#737373]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">AI-Powered</p>
-              <p className="text-xs text-slate-500">Claude analysis</p>
+              <p className="text-sm font-medium text-[#171717]">AI-Powered</p>
+              <p className="text-xs text-[#737373]">Claude analysis</p>
             </div>
           </div>
 
           {/* SSL/TLS - TRUE: Vercel provides this by default */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
-              <Lock className="h-5 w-5 text-slate-400" />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white">
+              <Lock className="h-5 w-5 text-[#737373]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">256-bit SSL</p>
-              <p className="text-xs text-slate-500">Encrypted connection</p>
+              <p className="text-sm font-medium text-[#171717]">256-bit SSL</p>
+              <p className="text-xs text-[#737373]">Encrypted connection</p>
             </div>
           </div>
         </div>

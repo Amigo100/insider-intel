@@ -92,15 +92,15 @@ function ActivityItem({
 
   return (
     <div
-      className="flex items-center gap-3 rounded-lg border bg-card/50 p-3 transition-all hover:bg-card animate-in fade-in slide-in-from-left-2"
+      className="flex items-center gap-3 rounded-lg border border-[#E5E5E5] bg-white p-3 transition-all hover:bg-[#F5F5F5] animate-in fade-in slide-in-from-left-2"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Icon */}
       <div
         className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
           isBuy
-            ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-            : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+            ? 'bg-[rgba(0,200,83,0.12)] text-[#00C853]'
+            : 'bg-[rgba(255,82,82,0.12)] text-[#FF5252]'
         }`}
       >
         {isBuy ? (
@@ -112,16 +112,16 @@ function ActivityItem({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm">
+        <p className="text-sm text-[#171717]">
           <span className="font-medium">{insiderRole}</span>
-          <span className="text-muted-foreground"> at </span>
+          <span className="text-[#737373]"> at </span>
           <span className="font-bold">{transaction.ticker}</span>
-          <span className="text-muted-foreground">
+          <span className="text-[#737373]">
             {' '}
             {isBuy ? 'purchased' : 'sold'}{' '}
           </span>
           {transaction.total_value && (
-            <span className={isBuy ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'}>
+            <span className={isBuy ? 'text-[#00C853] font-medium font-mono' : 'text-[#FF5252] font-medium font-mono'}>
               {formatValue(transaction.total_value)}
             </span>
           )}
@@ -129,7 +129,7 @@ function ActivityItem({
       </div>
 
       {/* Time */}
-      <span className="flex-shrink-0 text-xs text-muted-foreground">
+      <span className="flex-shrink-0 text-xs text-[#737373]">
         {timeAgo}
       </span>
     </div>
@@ -151,20 +151,20 @@ function StaticActivityFeed() {
 
   return (
     <div className="space-y-3">
-      <p className="text-center text-xs text-muted-foreground mb-2">
+      <p className="text-center text-xs text-[#737373] mb-2">
         Example transactions (sign up to see real data)
       </p>
       {staticData.map((item, index) => (
         <div
           key={index}
-          className="flex items-center gap-3 rounded-lg border bg-card/50 p-3 transition-all hover:bg-card animate-in fade-in slide-in-from-left-2"
+          className="flex items-center gap-3 rounded-lg border border-[#E5E5E5] bg-white p-3 transition-all hover:bg-[#F5F5F5] animate-in fade-in slide-in-from-left-2"
           style={{ animationDelay: `${index * 100}ms` }}
         >
           <div
             className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
               item.type === 'buy'
-                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                ? 'bg-[rgba(0,200,83,0.12)] text-[#00C853]'
+                : 'bg-[rgba(255,82,82,0.12)] text-[#FF5252]'
             }`}
           >
             {item.type === 'buy' ? (
@@ -174,20 +174,20 @@ function StaticActivityFeed() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm">
+            <p className="text-sm text-[#171717]">
               <span className="font-medium">{item.role}</span>
-              <span className="text-muted-foreground"> at </span>
+              <span className="text-[#737373]"> at </span>
               <span className="font-bold">{item.ticker}</span>
-              <span className="text-muted-foreground">
+              <span className="text-[#737373]">
                 {' '}
                 {item.type === 'buy' ? 'purchased' : 'sold'}{' '}
               </span>
-              <span className={item.type === 'buy' ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'}>
+              <span className={item.type === 'buy' ? 'text-[#00C853] font-medium font-mono' : 'text-[#FF5252] font-medium font-mono'}>
                 {item.value}
               </span>
             </p>
           </div>
-          <span className="flex-shrink-0 text-xs text-muted-foreground">
+          <span className="flex-shrink-0 text-xs text-[#737373]">
             {item.time}
           </span>
         </div>
@@ -205,11 +205,11 @@ export function LiveActivityHeader() {
     <div className="flex items-center justify-center gap-3 mb-8">
       {/* Pulsing green dot indicator */}
       <div className="relative flex items-center justify-center">
-        <span className="h-3 w-3 rounded-full bg-emerald-500" />
-        <span className="absolute h-3 w-3 rounded-full bg-emerald-500 animate-ping opacity-75" />
+        <span className="h-3 w-3 rounded-full bg-[#00C853]" />
+        <span className="absolute h-3 w-3 rounded-full bg-[#00C853] animate-ping opacity-75" />
       </div>
-      <h2 className="text-xl font-semibold text-slate-900">Live Insider Activity</h2>
-      <span className="text-sm text-slate-500">(From SEC filings)</span>
+      <h2 className="text-xl font-semibold text-[#171717]">Live Insider Activity</h2>
+      <span className="text-sm text-[#737373]">(From SEC filings)</span>
     </div>
   )
 }

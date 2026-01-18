@@ -33,8 +33,8 @@ export function DashboardPreview() {
         delay={0}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-[#10B981]/10 flex items-center justify-center border border-[#10B981]/20">
-            <ArrowUpRight className="h-3 w-3 text-[#10B981]" />
+          <div className="h-6 w-6 rounded-full bg-[#00C853]/10 flex items-center justify-center border border-[#00C853]/20">
+            <ArrowUpRight className="h-3 w-3 text-[#00C853]" />
           </div>
           <div>
             <p className="text-xs font-medium text-[#F5F5F5]">CEO at NVDA</p>
@@ -63,8 +63,8 @@ export function DashboardPreview() {
         delay={2}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-[#FF4D4D]/10 flex items-center justify-center border border-[#FF4D4D]/20">
-            <ArrowDownRight className="h-3 w-3 text-[#FF4D4D]" />
+          <div className="h-6 w-6 rounded-full bg-[#FF5252]/10 flex items-center justify-center border border-[#FF5252]/20">
+            <ArrowDownRight className="h-3 w-3 text-[#FF5252]" />
           </div>
           <div>
             <p className="text-xs font-medium text-[#F5F5F5]">CFO at META</p>
@@ -113,7 +113,7 @@ export function DashboardPreview() {
               <NavItem icon={Building2} label="Institutions" />
               <NavItem icon={Star} label="Watchlist" badge="3" />
               <NavItem icon={Bell} label="Alerts" badge="5" />
-              <div className="pt-4 mt-4 border-t border-slate-700">
+              <div className="pt-4 mt-4 border-t border-[#333333]">
                 <NavItem icon={Settings} label="Settings" />
               </div>
             </nav>
@@ -161,15 +161,15 @@ export function DashboardPreview() {
             </div>
 
             {/* Cluster Alert Banner - Bloomberg themed */}
-            <div className="mb-6 rounded-lg border border-[#10B981]/20 bg-[#10B981]/5 p-3 sm:p-4">
+            <div className="mb-6 rounded-lg border border-[#00C853]/20 bg-[#00C853]/5 p-3 sm:p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#10B981]/10 border border-[#10B981]/20">
-                  <Users className="h-4 w-4 text-[#10B981]" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00C853]/10 border border-[#00C853]/20">
+                  <Users className="h-4 w-4 text-[#00C853]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs sm:text-sm font-semibold text-[#F5F5F5]">
-                    <span className="text-[#10B981]">3 insiders</span> bought{' '}
-                    <span className="text-[#10B981]">$2.4M</span> at{' '}
+                    <span className="text-[#00C853]">3 insiders</span> bought{' '}
+                    <span className="text-[#00C853]">$2.4M</span> at{' '}
                     <span className="font-bold">NVDA</span> in 7 days
                   </p>
                   <p className="text-xs text-[#8C8C8C] truncate">
@@ -301,7 +301,7 @@ function StatCard({
       </p>
       <p
         className={`mt-1 text-[10px] sm:text-xs font-medium ${
-          trend === 'up' ? 'text-[#10B981]' : 'text-[#FF4D4D]'
+          trend === 'up' ? 'text-[#00C853]' : 'text-[#FF5252]'
         }`}
       >
         {trend === 'up' ? '↑' : '↓'} {change}
@@ -340,8 +340,8 @@ function TransactionRow({
           <span
             className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium ${
               type === 'buy'
-                ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'
-                : 'bg-[#FF4D4D]/10 text-[#FF4D4D] border border-[#FF4D4D]/20'
+                ? 'bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/20'
+                : 'bg-[#FF5252]/10 text-[#FF5252] border border-[#FF5252]/20'
             }`}
           >
             {type === 'buy' ? (

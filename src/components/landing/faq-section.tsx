@@ -107,28 +107,28 @@ export function FAQSection() {
   const currentCategory = faqData.find((cat) => cat.name === activeCategory)
 
   return (
-    <section id="faq" className="bg-slate-50 py-16 sm:py-24 scroll-mt-16">
+    <section id="faq" className="bg-[#F5F5F5] py-16 sm:py-24 scroll-mt-16">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-[#171717] sm:text-4xl">
             Frequently Asked Questions
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
+          <p className="mt-4 text-lg text-[#525252]">
             Everything you need to know about InsiderIntel
           </p>
         </div>
 
         {/* Category Tabs - Pill Style */}
         <div className="mx-auto mt-10 flex justify-center">
-          <div className="inline-flex gap-2 rounded-full bg-slate-200/50 p-1">
+          <div className="inline-flex gap-2 rounded-full bg-[#E5E5E5]/50 p-1">
             {faqData.map((category) => (
               <button
                 key={category.name}
                 onClick={() => setActiveCategory(category.name)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 ${
                   activeCategory === category.name
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-[#F5F5F5] text-[#171717] shadow-sm'
+                    : 'text-[#737373] hover:text-[#525252]'
                 }`}
               >
                 {category.name}
@@ -143,6 +143,7 @@ export function FAQSection() {
             {currentCategory?.items.map((item, index) => (
               <FAQAccordionItem
                 key={`${activeCategory}-${index}`}
+                id={`${activeCategory}-${index}`}
                 question={item.question}
                 answer={item.answer}
                 isOpen={openItems.has(item.question)}
@@ -154,13 +155,13 @@ export function FAQSection() {
 
         {/* Contact CTA */}
         <div className="mx-auto mt-12 max-w-xl text-center">
-          <div className="rounded-xl border border-slate-200 bg-white p-6">
-            <MessageCircle className="mx-auto h-8 w-8 text-slate-400" />
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">Still have questions?</h3>
-            <p className="mt-2 text-sm text-slate-500">
+          <div className="rounded-xl border border-[#E5E5E5] bg-white p-6">
+            <MessageCircle className="mx-auto h-8 w-8 text-[#737373]" />
+            <h3 className="mt-4 text-lg font-semibold text-[#171717]">Still have questions?</h3>
+            <p className="mt-2 text-sm text-[#737373]">
               Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
             </p>
-            <Button className="mt-4 border-slate-300 text-slate-700 hover:bg-slate-50" variant="outline" asChild>
+            <Button className="mt-4 border-[#E5E5E5] text-[#525252] hover:bg-[#F5F5F5] focus-visible:ring-[#FFA028]" variant="outline" asChild>
               <a href="mailto:support@insiderintel.com">Contact Support</a>
             </Button>
           </div>
@@ -175,30 +176,40 @@ interface FAQAccordionItemProps {
   answer: string
   isOpen: boolean
   onToggle: () => void
+  id: string
 }
 
-function FAQAccordionItem({ question, answer, isOpen, onToggle }: FAQAccordionItemProps) {
+function FAQAccordionItem({ question, answer, isOpen, onToggle, id }: FAQAccordionItemProps) {
+  const panelId = `faq-panel-${id}`
+  const buttonId = `faq-button-${id}`
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden transition-shadow hover:shadow-md">
+    <div className="rounded-xl border border-[#E5E5E5] bg-white overflow-hidden transition-shadow hover:shadow-md">
       <button
+        id={buttonId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between p-6 text-left"
+        className="flex w-full items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FFA028]"
         aria-expanded={isOpen}
+        aria-controls={panelId}
       >
-        <h3 className="text-base font-semibold text-slate-900 pr-4">{question}</h3>
+        <h3 className="text-base font-semibold text-[#171717] pr-4">{question}</h3>
         <ChevronDown
-          className={`h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-300 ${
+          className={`h-5 w-5 flex-shrink-0 text-[#737373] transition-transform duration-300 ${
             isOpen ? 'rotate-180' : ''
           }`}
+          aria-hidden="true"
         />
       </button>
       <div
+        id={panelId}
+        role="region"
+        aria-labelledby={buttonId}
         className={`grid transition-all duration-300 ease-in-out ${
           isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         }`}
       >
         <div className="overflow-hidden">
-          <p className="px-6 pb-6 text-slate-600 leading-relaxed">
+          <p className="px-6 pb-6 text-[#525252] leading-relaxed">
             {answer}
           </p>
         </div>

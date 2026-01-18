@@ -87,8 +87,8 @@ function FeatureCard({
     <Card className="group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:border-primary/50">
       <CardHeader className="pb-4">
         {/* Icon with background circle */}
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 ring-8 ring-primary/5 transition-all duration-300 group-hover:bg-primary/15 group-hover:ring-primary/10">
-          <Icon className="h-7 w-7 text-primary" />
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#E5E5E5] ring-8 ring-[#F5F5F5] transition-all duration-300 group-hover:bg-[#E5E5E5]/80 group-hover:ring-[#E5E5E5]/50">
+          <Icon className="h-7 w-7 text-[#525252]" />
         </div>
         <CardTitle className="text-xl">{title}</CardTitle>
       </CardHeader>
@@ -103,7 +103,7 @@ function FeatureCard({
         {/* Learn more link */}
         <Link
           href={linkHref}
-          className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+          className="inline-flex items-center gap-1 text-sm font-medium text-[#FFA028] transition-colors hover:text-[#FFA028]/80"
         >
           {linkText}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -134,12 +134,12 @@ function MiniBarChart() {
           <div key={i} className="flex-1 flex flex-col gap-0.5">
             {/* Buy bar (green) */}
             <div
-              className="w-full rounded-t bg-emerald-500 transition-all duration-500"
+              className="w-full rounded-t bg-[#00C853] transition-all duration-500"
               style={{ height: `${day.buy * 0.5}px` }}
             />
             {/* Sell bar (red) */}
             <div
-              className="w-full rounded-b bg-red-400 transition-all duration-500"
+              className="w-full rounded-b bg-[#FF5252] transition-all duration-500"
               style={{ height: `${day.sell * 0.3}px` }}
             />
           </div>
@@ -147,11 +147,11 @@ function MiniBarChart() {
       </div>
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="h-2 w-2 rounded-full bg-[#00C853]" />
           Buys
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-red-400" />
+          <span className="h-2 w-2 rounded-full bg-[#FF5252]" />
           Sells
         </span>
       </div>
@@ -165,10 +165,10 @@ function MiniBarChart() {
 function MiniPieChart() {
   // Simplified visual representation using colored segments
   const segments = [
-    { label: 'Vanguard', percent: 35, color: 'bg-blue-500' },
-    { label: 'BlackRock', percent: 28, color: 'bg-emerald-500' },
-    { label: 'State Street', percent: 20, color: 'bg-purple-500' },
-    { label: 'Others', percent: 17, color: 'bg-slate-400' },
+    { label: 'Vanguard', percent: 35, color: 'bg-[#4A90D9]' },
+    { label: 'BlackRock', percent: 28, color: 'bg-[#00C853]' },
+    { label: 'State Street', percent: 20, color: 'bg-[#8B5CF6]' },
+    { label: 'Others', percent: 17, color: 'bg-[#E5E5E5]' },
   ]
 
   return (
@@ -197,7 +197,7 @@ function MiniPieChart() {
             cy="18"
             r="15.91549430918954"
             fill="transparent"
-            stroke="#3b82f6"
+            stroke="#4A90D9"
             strokeWidth="3"
             strokeDasharray="35 65"
             strokeDashoffset="0"
@@ -207,7 +207,7 @@ function MiniPieChart() {
             cy="18"
             r="15.91549430918954"
             fill="transparent"
-            stroke="#10b981"
+            stroke="#00C853"
             strokeWidth="3"
             strokeDasharray="28 72"
             strokeDashoffset="-35"
@@ -217,7 +217,7 @@ function MiniPieChart() {
             cy="18"
             r="15.91549430918954"
             fill="transparent"
-            stroke="#8b5cf6"
+            stroke="#8B5CF6"
             strokeWidth="3"
             strokeDasharray="20 80"
             strokeDashoffset="-63"
@@ -227,7 +227,7 @@ function MiniPieChart() {
             cy="18"
             r="15.91549430918954"
             fill="transparent"
-            stroke="#94a3b8"
+            stroke="#E5E5E5"
             strokeWidth="3"
             strokeDasharray="17 83"
             strokeDashoffset="-83"
@@ -306,10 +306,10 @@ function AlertsPreview() {
           <div
             className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
               alert.type === 'buy'
-                ? 'bg-emerald-100 text-emerald-600'
+                ? 'bg-[rgba(0,200,83,0.12)] text-[#00C853]'
                 : alert.type === 'sell'
-                  ? 'bg-red-100 text-red-600'
-                  : 'bg-blue-100 text-blue-600'
+                  ? 'bg-[rgba(255,82,82,0.12)] text-[#FF5252]'
+                  : 'bg-[rgba(74,144,217,0.12)] text-[#4A90D9]'
             }`}
           >
             {alert.type === 'buy' ? (

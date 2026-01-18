@@ -97,8 +97,8 @@ export function Logo({
         // For dark backgrounds - amber container with dark icon
         return 'flex items-center justify-center bg-[hsl(var(--accent-amber))]'
       case 'dark':
-        // For light backgrounds - dark container with amber icon
-        return 'flex items-center justify-center bg-[hsl(var(--bg-app))]'
+        // For light backgrounds - amber at 15% opacity with amber icon
+        return 'flex items-center justify-center bg-[rgba(255,160,40,0.15)]'
       default:
         // Default uses CSS variables
         return 'flex items-center justify-center bg-[hsl(var(--accent-amber))]'
@@ -111,8 +111,8 @@ export function Logo({
         // Dark icon on amber background
         return 'text-[hsl(var(--bg-app))]'
       case 'dark':
-        // Amber icon on dark background
-        return 'text-[hsl(var(--accent-amber))]'
+        // Amber icon on amber-tinted background
+        return 'text-[#FFA028]'
       default:
         return 'text-[hsl(var(--bg-app))]'
     }
@@ -123,7 +123,7 @@ export function Logo({
       case 'light':
         return 'text-white'
       case 'dark':
-        return 'text-[hsl(var(--text-primary))]'
+        return 'text-[#171717]'
       default:
         return 'text-foreground'
     }
