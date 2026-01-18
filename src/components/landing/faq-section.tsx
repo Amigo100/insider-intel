@@ -71,7 +71,7 @@ const faqData: FAQCategory[] = [
       {
         question: 'Is my data secure?',
         answer:
-          'Absolutely. We use bank-grade 256-bit SSL encryption for all data transmission. Your personal information is stored securely and never shared with third parties. We implement industry security best practices and regularly audit our systems. Your payment information is handled by Stripe and never touches our servers.',
+          'Absolutely. We use bank-grade 256-bit SSL encryption for all data transmission. Your personal information is stored securely and never shared with third parties. We implement industry security best practices. Your payment information is handled by Stripe and never touches our servers.',
       },
       {
         question: 'Where does your data come from?',

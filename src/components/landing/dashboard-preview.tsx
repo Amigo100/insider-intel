@@ -17,7 +17,7 @@ import {
 
 /**
  * Realistic dashboard mockup for the landing page hero section.
- * Uses hardcoded dark theme colors to match the actual app appearance.
+ * Updated to match Bloomberg-inspired design (#0D0D0D background, amber accents).
  */
 export function DashboardPreview() {
   return (
@@ -27,18 +27,18 @@ export function DashboardPreview() {
         perspective: '1000px',
       }}
     >
-      {/* Floating notification cards - decorative (dark themed) */}
+      {/* Floating notification cards - decorative (Bloomberg themed) */}
       <FloatingCard
         className="absolute -left-4 top-20 z-10 hidden lg:block"
         delay={0}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+          <div className="h-6 w-6 rounded-full bg-[#10B981]/10 flex items-center justify-center border border-[#10B981]/20">
+            <ArrowUpRight className="h-3 w-3 text-[#10B981]" />
           </div>
           <div>
-            <p className="text-xs font-medium text-white">CEO at NVDA</p>
-            <p className="text-[10px] text-slate-400">Bought $1.2M</p>
+            <p className="text-xs font-medium text-[#F5F5F5]">CEO at NVDA</p>
+            <p className="text-[10px] text-[#8C8C8C]">Bought $1.2M</p>
           </div>
         </div>
       </FloatingCard>
@@ -48,12 +48,12 @@ export function DashboardPreview() {
         delay={1}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <Users className="h-3 w-3 text-emerald-400" />
+          <div className="h-6 w-6 rounded-full bg-[#FFA028]/10 flex items-center justify-center border border-[#FFA028]/20">
+            <Users className="h-3 w-3 text-[#FFA028]" />
           </div>
           <div>
-            <p className="text-xs font-medium text-white">Cluster Alert</p>
-            <p className="text-[10px] text-slate-400">3 insiders at AAPL</p>
+            <p className="text-xs font-medium text-[#F5F5F5]">Cluster Alert</p>
+            <p className="text-[10px] text-[#8C8C8C]">3 insiders at AAPL</p>
           </div>
         </div>
       </FloatingCard>
@@ -63,32 +63,32 @@ export function DashboardPreview() {
         delay={2}
       >
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-full bg-red-500/20 flex items-center justify-center">
-            <ArrowDownRight className="h-3 w-3 text-red-400" />
+          <div className="h-6 w-6 rounded-full bg-[#FF4D4D]/10 flex items-center justify-center border border-[#FF4D4D]/20">
+            <ArrowDownRight className="h-3 w-3 text-[#FF4D4D]" />
           </div>
           <div>
-            <p className="text-xs font-medium text-white">CFO at META</p>
-            <p className="text-[10px] text-slate-400">Sold $890K</p>
+            <p className="text-xs font-medium text-[#F5F5F5]">CFO at META</p>
+            <p className="text-[10px] text-[#8C8C8C]">Sold $890K</p>
           </div>
         </div>
       </FloatingCard>
-      {/* Main container with 3D transform - dark themed */}
+      {/* Main container with 3D transform - Bloomberg themed */}
       <div
-        className="rounded-xl border border-slate-700/50 bg-slate-900 shadow-2xl overflow-hidden"
+        className="rounded-xl border border-[#262626] bg-[#0D0D0D] shadow-2xl overflow-hidden"
         style={{
           transform: 'rotateY(-5deg) rotateX(2deg)',
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Browser chrome - dark themed */}
-        <div className="flex items-center gap-2 border-b border-slate-700/50 bg-slate-800/50 px-4 py-3">
+        {/* Browser chrome - Bloomberg themed */}
+        <div className="flex items-center gap-2 border-b border-[#262626] bg-[#1A1A1A]/50 px-4 py-3">
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
             <div className="h-3 w-3 rounded-full bg-green-500" />
           </div>
           <div className="flex-1 flex justify-center">
-            <div className="flex items-center gap-2 rounded-md bg-slate-700/50 px-3 py-1 text-xs text-slate-400">
+            <div className="flex items-center gap-2 rounded-md bg-[#1A1A1A] border border-[#262626] px-3 py-1 text-xs text-[#8C8C8C]">
               <Search className="h-3 w-3" />
               <span>app.insiderintel.com/dashboard</span>
             </div>
@@ -96,14 +96,14 @@ export function DashboardPreview() {
           <div className="w-16" /> {/* Spacer for symmetry */}
         </div>
 
-        {/* Dashboard content - dark themed */}
+        {/* Dashboard content - Bloomberg themed */}
         <div className="flex min-h-[400px] sm:min-h-[450px]">
           {/* Sidebar - hidden on mobile */}
-          <aside className="hidden w-52 flex-shrink-0 border-r border-slate-700/50 bg-slate-900 p-4 md:block">
+          <aside className="hidden w-52 flex-shrink-0 border-r border-[#262626] bg-[#0D0D0D] p-4 md:block">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-8">
-              <TrendingUp className="h-5 w-5 text-cyan-400" />
-              <span className="text-sm font-bold text-white">InsiderIntel</span>
+              <TrendingUp className="h-5 w-5 text-[#FFA028]" />
+              <span className="text-sm font-bold text-[#F5F5F5]">InsiderIntel</span>
             </div>
 
             {/* Nav items */}
@@ -119,14 +119,14 @@ export function DashboardPreview() {
             </nav>
           </aside>
 
-          {/* Main content - dark themed */}
-          <main className="flex-1 bg-slate-800/30 p-4 sm:p-6 overflow-hidden">
+          {/* Main content - Bloomberg themed */}
+          <main className="flex-1 bg-[#141414] p-4 sm:p-6 overflow-hidden">
             {/* Header */}
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-white sm:text-xl">
+              <h2 className="text-lg font-bold text-[#F5F5F5] sm:text-xl">
                 Good morning, Alex
               </h2>
-              <p className="text-xs text-slate-400 sm:text-sm">
+              <p className="text-xs text-[#8C8C8C] sm:text-sm">
                 Latest insider trading activity
               </p>
             </div>
@@ -160,29 +160,29 @@ export function DashboardPreview() {
               />
             </div>
 
-            {/* Cluster Alert Banner - dark themed */}
-            <div className="mb-6 rounded-lg border border-emerald-800 bg-gradient-to-r from-emerald-950/50 to-emerald-900/30 p-3 sm:p-4">
+            {/* Cluster Alert Banner - Bloomberg themed */}
+            <div className="mb-6 rounded-lg border border-[#10B981]/20 bg-[#10B981]/5 p-3 sm:p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
-                  <Users className="h-4 w-4 text-emerald-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#10B981]/10 border border-[#10B981]/20">
+                  <Users className="h-4 w-4 text-[#10B981]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-white">
-                    <span className="text-emerald-400">3 insiders</span> bought{' '}
-                    <span className="text-emerald-400">$2.4M</span> at{' '}
+                  <p className="text-xs sm:text-sm font-semibold text-[#F5F5F5]">
+                    <span className="text-[#10B981]">3 insiders</span> bought{' '}
+                    <span className="text-[#10B981]">$2.4M</span> at{' '}
                     <span className="font-bold">NVDA</span> in 7 days
                   </p>
-                  <p className="text-xs text-slate-400 truncate">
+                  <p className="text-xs text-[#8C8C8C] truncate">
                     NVIDIA Corporation - Cluster buying detected
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Transaction table - dark themed */}
-            <div className="rounded-lg border border-slate-700/50 bg-slate-800/50 overflow-hidden">
-              <div className="border-b border-slate-700/50 px-3 sm:px-4 py-2 sm:py-3">
-                <h3 className="text-xs sm:text-sm font-semibold text-white">
+            {/* Transaction table - Bloomberg themed */}
+            <div className="rounded-lg border border-[#262626] bg-[#1A1A1A]/50 overflow-hidden">
+              <div className="border-b border-[#262626] px-3 sm:px-4 py-2 sm:py-3">
+                <h3 className="text-xs sm:text-sm font-semibold text-[#F5F5F5]">
                   Recent Insider Transactions
                 </h3>
               </div>
@@ -257,14 +257,14 @@ function NavItem({
     <div
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
         active
-          ? 'bg-slate-800 text-white'
-          : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+          ? 'bg-[#1A1A1A] text-[#F5F5F5]'
+          : 'text-[#8C8C8C] hover:bg-[#1A1A1A]/50 hover:text-[#F5F5F5]'
       }`}
     >
       <Icon className="h-4 w-4" />
       <span className="flex-1">{label}</span>
       {badge && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-medium text-primary-foreground">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FFA028] px-1.5 text-xs font-medium text-[#0D0D0D]">
           {badge}
         </span>
       )}
@@ -289,19 +289,19 @@ function StatCard({
     <div
       className={`rounded-lg border p-3 sm:p-4 ${
         highlight
-          ? 'border-emerald-800 bg-emerald-950/30'
-          : 'border-slate-700/50 bg-slate-800/50'
+          ? 'border-[#FFA028]/20 bg-[#FFA028]/5'
+          : 'border-[#262626] bg-[#1A1A1A]/50'
       }`}
     >
-      <p className="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-wide">
+      <p className="text-[10px] sm:text-xs font-medium text-[#8C8C8C] uppercase tracking-wide">
         {label}
       </p>
-      <p className="mt-1 text-lg sm:text-2xl font-bold text-white">
+      <p className="mt-1 text-lg sm:text-2xl font-bold text-[#F5F5F5] tabular-nums">
         {value}
       </p>
       <p
         className={`mt-1 text-[10px] sm:text-xs font-medium ${
-          trend === 'up' ? 'text-emerald-400' : 'text-red-400'
+          trend === 'up' ? 'text-[#10B981]' : 'text-[#FF4D4D]'
         }`}
       >
         {trend === 'up' ? '↑' : '↓'} {change}
@@ -330,18 +330,18 @@ function TransactionRow({
   significance: 'high' | 'medium' | 'low'
 }) {
   return (
-    <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-700/50 last:border-b-0 hover:bg-slate-700/20 transition-colors">
+    <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 border-b border-[#262626] last:border-b-0 hover:bg-[#1A1A1A]/30 transition-colors">
       {/* Ticker & Company */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-white text-xs sm:text-sm">
+          <span className="font-bold text-[#F5F5F5] text-xs sm:text-sm">
             {ticker}
           </span>
           <span
             className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium ${
               type === 'buy'
-                ? 'bg-emerald-500/20 text-emerald-400'
-                : 'bg-red-500/20 text-red-400'
+                ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'
+                : 'bg-[#FF4D4D]/10 text-[#FF4D4D] border border-[#FF4D4D]/20'
             }`}
           >
             {type === 'buy' ? (
@@ -352,27 +352,27 @@ function TransactionRow({
             {type === 'buy' ? 'BUY' : 'SELL'}
           </span>
         </div>
-        <p className="text-[10px] sm:text-xs text-slate-400 truncate">
+        <p className="text-[10px] sm:text-xs text-[#8C8C8C] truncate">
           {company}
         </p>
       </div>
 
       {/* Insider - hidden on small screens */}
       <div className="hidden sm:block min-w-0 flex-1">
-        <p className="text-xs sm:text-sm font-medium text-slate-300 truncate">
+        <p className="text-xs sm:text-sm font-medium text-[#D9D9D9] truncate">
           {insider}
         </p>
-        <p className="text-[10px] sm:text-xs text-slate-400">
+        <p className="text-[10px] sm:text-xs text-[#8C8C8C]">
           {title}
         </p>
       </div>
 
       {/* Value */}
       <div className="text-right">
-        <p className="text-xs sm:text-sm font-semibold text-white">
+        <p className="text-xs sm:text-sm font-semibold text-[#F5F5F5] tabular-nums">
           {value}
         </p>
-        <p className="text-[10px] sm:text-xs text-slate-400">
+        <p className="text-[10px] sm:text-xs text-[#8C8C8C]">
           {time}
         </p>
       </div>
@@ -382,10 +382,10 @@ function TransactionRow({
         <div
           className={`h-2 w-2 rounded-full ${
             significance === 'high'
-              ? 'bg-orange-500'
+              ? 'bg-[#FFA028]'
               : significance === 'medium'
-                ? 'bg-yellow-500'
-                : 'bg-slate-500'
+                ? 'bg-[#FFD666]'
+                : 'bg-[#595959]'
           }`}
           title={`${significance} significance`}
         />
@@ -395,7 +395,7 @@ function TransactionRow({
 }
 
 /**
- * Floating card component with animation - dark themed
+ * Floating card component with animation - Bloomberg themed
  */
 function FloatingCard({
   children,
@@ -408,7 +408,7 @@ function FloatingCard({
 }) {
   return (
     <div
-      className={`rounded-lg border border-slate-700/50 bg-slate-800 p-3 shadow-lg animate-float ${className}`}
+      className={`rounded-lg border border-[#262626] bg-[#1A1A1A] p-3 shadow-lg animate-float ${className}`}
       style={{
         animationDelay: `${delay * 0.5}s`,
       }}

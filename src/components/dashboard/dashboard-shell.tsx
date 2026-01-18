@@ -21,7 +21,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
 
   return (
     <CommandPaletteProvider>
-      <div className="dark min-h-screen bg-slate-900">
+      <div className="dark min-h-screen bg-[hsl(var(--bg-app))]">
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
@@ -32,7 +32,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
 
           {/* Page content */}
           <main className="p-4 sm:p-6 lg:p-8">
-            <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-4 md:p-6">
+            <div className="bg-[hsl(var(--bg-card)/0.3)] rounded-xl border border-[hsl(var(--border-default)/0.5)] p-4 md:p-6">
               {children}
             </div>
           </main>

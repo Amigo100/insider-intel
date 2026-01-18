@@ -111,12 +111,12 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-700/50 bg-slate-900 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-[hsl(var(--border-default))] bg-[hsl(var(--bg-card))] px-4 sm:px-6">
       <MobileMenuButton onClick={onMenuToggle} />
 
       {/* Search */}
       <div ref={searchRef} className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-muted))]" aria-hidden="true" />
         <Input
           ref={inputRef}
           type="search"
@@ -139,7 +139,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
           onKeyDown={handleKeyDown}
         />
         {isSearching && (
-          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" aria-hidden="true" />
+          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[hsl(var(--text-muted))]" aria-hidden="true" />
         )}
 
         {/* Search Results Dropdown */}
@@ -148,7 +148,7 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
             id="search-results"
             role="listbox"
             aria-label="Search results"
-            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 shadow-lg"
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-[hsl(var(--border-default))] bg-[hsl(var(--bg-elevated))] shadow-lg"
           >
             <ul className="py-1">
               {searchResults.map((result, index) => (
@@ -159,20 +159,20 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
                     role="option"
                     aria-selected={index === selectedIndex}
                     className={cn(
-                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.05]',
-                      index === selectedIndex && 'bg-white/[0.05]'
+                      'flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-[hsl(var(--bg-hover))]',
+                      index === selectedIndex && 'bg-[hsl(var(--bg-hover))]'
                     )}
                     onClick={() => navigateToCompany(result.ticker)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-[hsl(var(--text-primary))]">
                       {result.ticker}
                     </span>
-                    <span className="flex-1 truncate text-slate-300">
+                    <span className="flex-1 truncate text-[hsl(var(--text-secondary))]">
                       {result.name}
                     </span>
                     {result.has_recent_activity && (
-                      <span className="flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                      <span className="flex h-2 w-2 rounded-full bg-[hsl(var(--signal-positive))]" aria-hidden="true" />
                     )}
                   </button>
                 </li>
@@ -184,10 +184,10 @@ export function Header({ user, onMenuToggle }: HeaderProps) {
         {/* No results message */}
         {showResults && searchResults.length === 0 && searchQuery.length >= 1 && !isSearching && (
           <div
-            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-white/[0.08] bg-slate-800 p-3 shadow-lg"
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-[hsl(var(--border-default))] bg-[hsl(var(--bg-elevated))] p-3 shadow-lg"
             role="alert"
           >
-            <p className="text-sm text-slate-400">No companies found</p>
+            <p className="text-sm text-[hsl(var(--text-muted))]">No companies found</p>
           </div>
         )}
       </div>

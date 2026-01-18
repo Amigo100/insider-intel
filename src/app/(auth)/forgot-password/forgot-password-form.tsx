@@ -126,9 +126,9 @@ export function ForgotPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Error */}
           {error && (
-            <div className="rounded-lg bg-destructive/10 p-4 text-sm">
+            <div className="rounded-lg bg-destructive/10 p-4 text-sm" role="alert" aria-live="polite">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" />
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive mt-0.5" aria-hidden="true" />
                 <div className="space-y-1">
                   <p className="font-medium text-destructive">{error.message}</p>
                   {error.action && (
@@ -143,7 +143,7 @@ export function ForgotPasswordForm() {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="email"
                 type="email"
@@ -156,11 +156,13 @@ export function ForgotPasswordForm() {
                 className={`pl-10 ${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 disabled={isLoading}
                 autoComplete="email"
+                aria-invalid={!!error}
+                aria-describedby={error && !error.action ? 'email-error' : undefined}
               />
             </div>
             {error && !error.action && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <Info className="h-3 w-3" />
+              <p id="email-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <Info className="h-3 w-3" aria-hidden="true" />
                 {error.message}
               </p>
             )}

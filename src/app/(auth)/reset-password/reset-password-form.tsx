@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Lock, AlertCircle, CheckCircle2, ArrowLeft, Clock } from 'lucide-react'
+import { Loader2, Lock, AlertCircle, CheckCircle2, ArrowLeft, Clock, Eye, EyeOff } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -40,6 +40,8 @@ export function ResetPasswordForm() {
   const [sessionState, setSessionState] = useState<SessionState>('loading')
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
@@ -377,8 +379,8 @@ export function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* General Error */}
           {errors.general && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert" aria-live="polite">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
               <span>{errors.general}</span>
             </div>
           )}
@@ -387,10 +389,10 @@ export function ResetPasswordForm() {
           <div className="space-y-2">
             <Label htmlFor="password">New Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Enter new password"
                 value={password}
                 onChange={(e) => {
@@ -398,24 +400,40 @@ export function ResetPasswordForm() {
                   if (errors.password)
                     setErrors((prev) => ({ ...prev, password: undefined }))
                 }}
-                className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
+                className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
                 disabled={isLoading}
+                autoComplete="new-password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : 'password-strength'}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                disabled={isLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password}</p>
+              <p id="password-error" className="text-xs text-destructive" role="alert">{errors.password}</p>
             )}
-            {password && <PasswordStrength password={password} />}
+            {password && <div id="password-strength"><PasswordStrength password={password} /></div>}
           </div>
 
           {/* Confirm Password Field */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => {
@@ -423,16 +441,32 @@ export function ResetPasswordForm() {
                   if (errors.confirmPassword)
                     setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
                 }}
-                className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
                 disabled={isLoading}
+                autoComplete="new-password"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                disabled={isLoading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+              <p id="confirm-password-error" className="text-xs text-destructive" role="alert">{errors.confirmPassword}</p>
             )}
             {confirmPassword && password === confirmPassword && (
-              <p className="text-xs text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
+              <p className="text-xs text-emerald-600 flex items-center gap-1" role="status">
+                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Passwords match
               </p>
             )}

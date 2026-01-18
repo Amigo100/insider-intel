@@ -552,7 +552,7 @@ export function InstitutionsFilterBar({
             onChange={(e) => onSearchChange(e.target.value)}
             aria-label="Search by institution or ticker"
             className={cn(
-              'h-9 pl-9',
+              'h-9 pl-9 pr-9',
               'bg-[hsl(var(--bg-app))]',
               'border-[hsl(var(--border-default))]',
               'text-[hsl(var(--text-primary))]',
@@ -560,6 +560,25 @@ export function InstitutionsFilterBar({
               'focus-visible:ring-[hsl(var(--accent-amber))]'
             )}
           />
+          {searchValue && (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              aria-label="Clear search"
+              className={cn(
+                'absolute right-2 top-1/2 -translate-y-1/2',
+                'flex h-6 w-6 items-center justify-center rounded',
+                'text-[hsl(var(--text-muted))]',
+                'hover:text-[hsl(var(--text-primary))]',
+                'hover:bg-[hsl(var(--bg-hover))]',
+                'focus-visible:outline-none',
+                'focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent-amber))]',
+                'transition-colors duration-150'
+              )}
+            >
+              <CloseIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {/* Quarter dropdown */}

@@ -113,7 +113,10 @@ async function getCompanyData(ticker: string) {
     { name: string; title: string | null; lastActivity: string; type: string }
   >()
   for (const txn of transactions) {
-    if (txn.insider_name && txn.filed_at && txn.transaction_type && !insiderMap.has(txn.insider_name)) {
+    // Skip transactions with null required fields
+    if (!txn.insider_name || !txn.filed_at || !txn.transaction_type) continue
+
+    if (!insiderMap.has(txn.insider_name)) {
       insiderMap.set(txn.insider_name, {
         name: txn.insider_name,
         title: txn.insider_title,

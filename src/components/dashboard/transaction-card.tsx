@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SignificanceBadge } from './significance-badge'
@@ -50,8 +49,8 @@ function getTransactionTypeInfo(type: string) {
 
   return {
     label: isPurchase ? 'BUY' : isSale ? 'SELL' : TransactionTypeLabels[type as keyof typeof TransactionTypeLabels] || type,
-    variant: isPurchase ? 'success' : isSale ? 'destructive' : 'secondary',
-    Icon: isPurchase ? ArrowUpRight : ArrowDownRight,
+    variant: isPurchase ? 'buy' : isSale ? 'sell' : 'secondary',
+    showIcon: isPurchase || isSale,
   } as const
 }
 
@@ -96,16 +95,15 @@ export function TransactionCard({ transaction, className }: TransactionCardProps
                   {transaction.ticker}
                 </span>
                 <Badge
-                  variant={typeInfo.variant as 'success' | 'destructive' | 'secondary'}
+                  variant={typeInfo.variant as 'buy' | 'sell' | 'secondary'}
+                  showIcon={typeInfo.showIcon}
                   className="shrink-0"
                 >
-                  {isPurchaseOrSale && (
-                    <typeInfo.Icon className="mr-1 h-3 w-3" />
-                  )}
                   {typeInfo.label}
                 </Badge>
                 <SignificanceBadge
                   score={transaction.ai_significance_score}
+                  showLabel
                   className="shrink-0"
                 />
               </div>
@@ -161,7 +159,6 @@ export function TransactionCardCompact({
   className,
 }: TransactionCardProps) {
   const typeInfo = getTransactionTypeInfo(transaction.transaction_type)
-  const isPurchaseOrSale = ['P', 'S'].includes(transaction.transaction_type)
 
   const relativeTime = formatDistanceToNow(new Date(transaction.filed_at), {
     addSuffix: true,
@@ -177,10 +174,10 @@ export function TransactionCardCompact({
       >
         <div className="flex items-center gap-3 min-w-0">
           <Badge
-            variant={typeInfo.variant as 'success' | 'destructive' | 'secondary'}
+            variant={typeInfo.variant as 'buy' | 'sell' | 'secondary'}
+            showIcon={typeInfo.showIcon}
             className="shrink-0"
           >
-            {isPurchaseOrSale && <typeInfo.Icon className="mr-1 h-3 w-3" />}
             {typeInfo.label}
           </Badge>
           <div className="min-w-0">

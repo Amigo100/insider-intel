@@ -7,11 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   TransactionFilters,
-  ResultsSummary,
   Pagination,
 } from '@/components/dashboard/transaction-filters'
-import { TransactionTable } from '@/components/dashboard/transaction-table'
-import { InsiderTradesEmptyState } from './empty-state-client'
+import { TransactionsWithDensity } from './transactions-with-density'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
 /**
@@ -180,31 +178,14 @@ export default async function InsiderTradesPage({ searchParams }: PageProps) {
           'border border-[hsl(var(--border-default))]'
         )}
       >
-        {/* Results Summary Bar (inside the card) */}
-        <ResultsSummary
-          start={pageStart}
-          end={pageEnd}
-          total={total}
-          loading={false}
-        />
-
-        {/* Transaction Table */}
+        {/* Transactions with Density Toggle */}
         <Suspense fallback={<TableSkeleton />}>
-          {transactions.length > 0 ? (
-            <TransactionTable
-              transactions={transactions}
-              totalCount={total}
-              pageStart={pageStart}
-              pageEnd={pageEnd}
-              showResultsSummary={false}
-              expandable={true}
-              maxHeight="calc(100vh - 380px)"
-            />
-          ) : (
-            <div className="p-8">
-              <InsiderTradesEmptyState />
-            </div>
-          )}
+          <TransactionsWithDensity
+            transactions={transactions}
+            total={total}
+            pageStart={pageStart}
+            pageEnd={pageEnd}
+          />
         </Suspense>
 
         {/* Pagination */}

@@ -53,10 +53,9 @@ async function getDashboardData(userId: string) {
   try {
     const supabase = await createClient()
 
-    // Get date range for queries (7 days)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const rangeStart = sevenDaysAgo
+    // Get date range for queries (last 7 days)
+    const rangeStart = new Date()
+    rangeStart.setDate(rangeStart.getDate() - 7)
 
     // Fetch recent transactions for table
     const { data: recentTransactions } = await supabase
@@ -110,7 +109,7 @@ async function getDashboardData(userId: string) {
       .from('v_recent_insider_transactions')
       .select('*')
       .eq('transaction_type', 'P')
-      .gte('filed_at', sevenDaysAgo.toISOString())
+      .gte('filed_at', rangeStart.toISOString())
 
     const clusterMap = new Map<string, ClusterData>()
 
@@ -198,14 +197,19 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1
-          className={cn(
-            'text-2xl font-bold tracking-tight',
-            'text-[hsl(var(--text-primary))]'
-          )}
-        >
-          Dashboard
-        </h1>
+        <div>
+          <h1
+            className={cn(
+              'text-2xl font-bold tracking-tight',
+              'text-[hsl(var(--text-primary))]'
+            )}
+          >
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-[hsl(var(--text-muted))]">
+            Latest insider trading activity
+          </p>
+        </div>
       </div>
 
       {/* Metrics Row */}

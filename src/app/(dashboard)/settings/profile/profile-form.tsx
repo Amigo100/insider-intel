@@ -120,10 +120,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const hasChanges = fullName !== initialData.fullName
 
   return (
-    <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
-      <div className="p-6 border-b border-white/[0.08]">
-        <h2 className="text-lg font-semibold text-white">Profile</h2>
-        <p className="text-sm text-slate-400 mt-1">
+    <div className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-xl border border-[hsl(var(--border-default))]">
+      <div className="p-6 border-b border-[hsl(var(--border-default))]">
+        <h2 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Profile</h2>
+        <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
           Manage your personal information and account details
         </p>
       </div>
@@ -131,15 +131,15 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Display Name Encouragement Banner */}
           {needsDisplayName(initialData.fullName) && (
-            <div className="rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-4 flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-500/20">
-                <User className="h-4 w-4 text-cyan-400" />
+            <div className="rounded-lg bg-[hsl(var(--accent-amber)/0.1)] border border-[hsl(var(--accent-amber)/0.2)] p-4 flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--accent-amber)/0.2)]">
+                <User className="h-4 w-4 text-[hsl(var(--accent-amber))]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">
+                <p className="text-sm font-medium text-[hsl(var(--text-primary))]">
                   Add your display name
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[hsl(var(--text-muted))] mt-0.5">
                   Set your name below so we can personalize your dashboard greeting and make the app feel more like home.
                 </p>
               </div>
@@ -148,7 +148,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           {/* Display Name */}
           <div className="space-y-2">
-            <Label htmlFor="fullName" className="text-slate-300 text-sm font-medium">
+            <Label htmlFor="fullName" className="text-[hsl(var(--text-secondary))] text-sm font-medium">
               Display Name
             </Label>
             <Input
@@ -156,16 +156,16 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your name (e.g., Alex Smith)"
-              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400/50 focus:ring-cyan-400/20"
+              autoComplete="name"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[hsl(var(--text-muted))]">
               This is how your name will appear across the app
             </p>
           </div>
 
           {/* Email (read-only) */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
+            <Label htmlFor="email" className="text-[hsl(var(--text-secondary))] text-sm font-medium">
               Email
             </Label>
             <Input
@@ -173,16 +173,16 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               type="email"
               value={initialData.email}
               disabled
-              className="bg-slate-900 border-slate-700 text-slate-500"
+              className="opacity-60"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[hsl(var(--text-muted))]">
               Email cannot be changed. Contact support if you need to update it.
             </p>
           </div>
 
           {/* Current Plan - Not a form control, use semantic markup */}
           <div className="space-y-2">
-            <p className="text-slate-300 text-sm font-medium">Current Plan</p>
+            <p className="text-[hsl(var(--text-secondary))] text-sm font-medium">Current Plan</p>
             <div className="flex items-center gap-3">
               <Badge
                 variant={getTierVariant(initialData.subscriptionTier)}
@@ -191,12 +191,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 {getTierLabel(initialData.subscriptionTier)}
               </Badge>
               {initialData.subscriptionTier === 'free' && (
-                <Button variant="link" className="h-auto p-0 text-sm text-cyan-400 hover:text-cyan-300" asChild>
+                <Button variant="link" className="h-auto p-0 text-sm text-[hsl(var(--accent-amber))] hover:text-[hsl(var(--accent-amber)/0.8)]" asChild>
                   <Link href="/settings/billing">Upgrade your plan</Link>
                 </Button>
               )}
             </div>
-            <p id="plan-description" className="text-xs text-slate-500">
+            <p id="plan-description" className="text-xs text-[hsl(var(--text-muted))]">
               {initialData.subscriptionTier === 'free'
                 ? 'Free tier with basic features. Upgrade to unlock more.'
                 : initialData.subscriptionTier === 'retail'
@@ -207,8 +207,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           {/* Account Created - Not a form control, use semantic markup */}
           <div className="space-y-2">
-            <p className="text-slate-300 text-sm font-medium">Account Created</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-[hsl(var(--text-secondary))] text-sm font-medium">Account Created</p>
+            <p className="text-sm text-[hsl(var(--text-muted))]">
               {formatDate(initialData.createdAt)}
             </p>
           </div>
@@ -216,7 +216,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           {/* Error Message */}
           {error && (
             <div
-              className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400"
+              className="rounded-lg bg-[hsl(var(--signal-negative)/0.1)] border border-[hsl(var(--signal-negative)/0.2)] p-3 text-sm text-[hsl(var(--signal-negative))]"
               role="alert"
               aria-live="polite"
             >
@@ -228,13 +228,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <div className="flex items-center gap-4 pt-2">
             <Button
               type="submit"
+              variant={hasChanges && !isSaving ? 'primary' : 'secondary'}
               disabled={isSaving || !hasChanges}
-              className={cn(
-                'min-w-[140px] transition-all duration-200',
-                hasChanges && !isSaving
-                  ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400 hover:shadow-[0_4px_20px_rgba(34,211,238,0.4)]'
-                  : 'bg-slate-700/50 text-slate-500 cursor-not-allowed opacity-60'
-              )}
+              className="min-w-[140px]"
             >
               {isSaving ? (
                 <>
@@ -251,7 +247,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               )}
             </Button>
             {!hasChanges && !saveSuccess && (
-              <span className="text-xs text-slate-500 italic">
+              <span className="text-xs text-[hsl(var(--text-muted))] italic">
                 Make changes above to enable saving
               </span>
             )}

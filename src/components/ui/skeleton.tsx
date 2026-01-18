@@ -440,13 +440,12 @@ function SkeletonTableBody({
  */
 function SkeletonDashboardCard({
   className,
-  title,
+  title = true,
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & {
-  title?: boolean | undefined
+}: Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> & {
+  title?: boolean
 }) {
-  const showTitle = title !== false
   return (
     <div
       className={cn(
@@ -458,7 +457,7 @@ function SkeletonDashboardCard({
       aria-hidden="true"
       {...props}
     >
-      {showTitle && (
+      {title && (
         <div className="flex items-center gap-2 px-5 py-4 border-b border-[hsl(var(--border-subtle))]">
           <Skeleton className="h-4 w-4 rounded" />
           <Skeleton className="h-4 w-32" />

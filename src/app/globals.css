@@ -62,27 +62,22 @@
 
   /* ===== SEMANTIC SIGNAL COLORS ===== */
   /* Positive: Vibrant green for BUY signals */
-  --signal-positive: 145 100% 39%;
+  --signal-positive: 145 100% 39%;      /* #00C853 - Success/Buy */
   --signal-positive-muted: 145 80% 45%;
   /* Negative: Vibrant red for SELL signals */
-  --signal-negative: 0 100% 66%;
+  --signal-negative: 0 100% 66%;        /* #FF5252 - Error/Sell */
   --signal-negative-muted: 0 80% 60%;
-  /* Warning: Amber-yellow for warnings */
-  --signal-warning: 45 100% 51%;    /* #FFB300 */
-  /* Neutral: Info blue */
-  --signal-neutral: 210 70% 56%;    /* #4A90D9 */
+  /* Warning: Amber/Yellow for warnings */
+  --signal-warning: 45 100% 50%;        /* #FFB300 - Warning */
+  /* Neutral: Blue for neutral info */
+  --signal-neutral: 210 70% 56%;        /* #4A90D9 - Neutral info */
 
   /* ===== BLOOMBERG ACCENT (Actions Only) ===== */
-  --accent-primary: 36 100% 56%;      /* #FFA028 - Bloomberg amber */
-  --accent-primary-hover: 36 100% 65%; /* #FFB04D - Hover state */
-  --accent-primary-muted: 36 100% 56%; /* For subtle backgrounds with opacity */
-  --accent-secondary: 45 76% 54%;      /* #D4AF37 - Premium/gold */
-  --accent-info: 210 70% 56%;          /* #4A90D9 - Links, info */
-
-  /* Legacy mappings */
-  --accent-amber: 36 100% 56%;
-  --accent-amber-hover: 36 100% 65%;
-  --accent-amber-muted: 36 100% 56%;
+  --accent-amber: 36 100% 56%;          /* #FFA028 - Primary amber */
+  --accent-amber-hover: 36 100% 65%;    /* #FFB04D - Hover state */
+  --accent-amber-muted: 36 100% 56%;    /* For backgrounds with opacity */
+  --accent-info: 210 70% 56%;           /* #4A90D9 - Info blue */
+  --accent-secondary: 45 70% 58%;       /* #D4AF37 - Premium gold */
 
   /* ===== LEGACY MAPPINGS (for backwards compatibility) ===== */
   --color-buy: 145 100% 39%;
@@ -100,15 +95,15 @@
   /* ===== BORDER SCALE ===== */
   --border-default: 0 0% 20%;
   --border-subtle: 0 0% 16%;
-  --border-focus: 36 100% 56%;     /* #FFA028 - Focus rings (amber) */
-  --border-glass: 0 0% 100%;       /* rgba(255, 255, 255, 0.08) - Glassmorphism borders */
+  --border-focus: 36 100% 56%;      /* #FFA028 - Amber focus state */
+  --border-glass: 0 0% 100%;        /* rgba(255, 255, 255, 0.08) - Glassmorphism */
 
   /* ===== TEXT SCALE ===== */
   --text-primary: 0 0% 96%;
   --text-secondary: 0 0% 83%;
   --text-tertiary: 0 0% 63%;
   --text-muted: 0 0% 45%;
-  --text-disabled: 0 0% 32%;       /* #525252 - Disabled text */
+  --text-disabled: 0 0% 32%;        /* #525252 - Disabled/fully inactive */
 
   /* ===== GLASSMORPHISM ===== */
   --glass-bg: 0 0% 10%;
@@ -161,8 +156,11 @@
 /* Signal background utilities */
 .bg-signal-positive { background-color: hsl(var(--signal-positive) / 0.15); }
 .bg-signal-negative { background-color: hsl(var(--signal-negative) / 0.15); }
+.bg-signal-warning { background-color: hsl(var(--signal-warning) / 0.15); }
 .text-signal-positive { color: hsl(var(--signal-positive)); }
 .text-signal-negative { color: hsl(var(--signal-negative)); }
+.text-signal-warning { color: hsl(var(--signal-warning)); }
+.text-signal-neutral { color: hsl(var(--signal-neutral)); }
 
 /* ===== BLOOMBERG ACCENT UTILITIES ===== */
 .accent-amber { color: hsl(var(--accent-amber)); }
@@ -170,6 +168,11 @@
 .bg-accent-amber-muted { background-color: hsl(var(--accent-amber) / 0.15); }
 .border-accent-amber { border-color: hsl(var(--accent-amber)); }
 .ring-accent-amber { --tw-ring-color: hsl(var(--accent-amber)); }
+
+/* Premium/Gold accent utilities */
+.accent-secondary { color: hsl(var(--accent-secondary)); }
+.bg-accent-secondary { background-color: hsl(var(--accent-secondary)); }
+.bg-accent-secondary-muted { background-color: hsl(var(--accent-secondary) / 0.15); }
 
 /* ===== GRADIENT UTILITIES ===== */
 .gradient-dark {
@@ -228,6 +231,7 @@
 .text-secondary-custom { color: hsl(var(--text-secondary)); }
 .text-tertiary-custom { color: hsl(var(--text-tertiary)); }
 .text-muted-custom { color: hsl(var(--text-muted)); }
+.text-disabled { color: hsl(var(--text-disabled)); }
 
 /* ===== TABULAR NUMBERS ===== */
 /* Use for financial data, prices, and aligned numeric columns */
@@ -251,6 +255,8 @@
 /* ===== BORDER UTILITIES ===== */
 .border-default { border-color: hsl(var(--border-default)); }
 .border-subtle { border-color: hsl(var(--border-subtle)); }
+.border-focus { border-color: hsl(var(--border-focus)); }
+.border-glass { border-color: hsl(var(--border-glass) / 0.08); }
 .border-hover-custom { border-color: hsl(var(--bg-hover)); }
 .border-focus-custom { border-color: hsl(var(--accent-amber)); }
 

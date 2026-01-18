@@ -134,18 +134,18 @@ export function BillingContent({ initialData }: BillingContentProps) {
     <div className="space-y-6">
       {/* Error Message */}
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="rounded-lg bg-[hsl(var(--signal-negative)/0.1)] border border-[hsl(var(--signal-negative)/0.2)] p-4">
+          <p className="text-sm text-[hsl(var(--signal-negative))]">{error}</p>
         </div>
       )}
 
       {/* Current Plan Card */}
-      <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
-        <div className="p-6 border-b border-white/[0.08]">
-          <h2 className="text-lg font-semibold text-white">Current Plan</h2>
-          <p className="text-sm text-slate-400 mt-1">
+      <div className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-xl border border-[hsl(var(--border-default))]">
+        <div className="p-6 border-b border-[hsl(var(--border-default))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Current Plan</h2>
+          <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
             You are currently on the{' '}
-            <span className="font-semibold text-white">{currentPlan?.name}</span> plan
+            <span className="font-semibold text-[hsl(var(--text-primary))]">{currentPlan?.name}</span> plan
           </p>
         </div>
         <div className="p-6">
@@ -153,12 +153,12 @@ export function BillingContent({ initialData }: BillingContentProps) {
             <div className="flex items-center gap-4">
               {currentPlan && (
                 <>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-400/10">
-                    <currentPlan.icon className="h-6 w-6 text-cyan-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--accent-amber)/0.1)]">
+                    <currentPlan.icon className="h-6 w-6 text-[hsl(var(--accent-amber))]" />
                   </div>
                   <div>
-                    <p className="text-lg font-semibold text-white">{currentPlan.name}</p>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-lg font-semibold text-[hsl(var(--text-primary))]">{currentPlan.name}</p>
+                    <p className="text-sm text-[hsl(var(--text-muted))]">
                       {currentPlan.price}{' '}
                       <span className="text-xs">{currentPlan.period}</span>
                     </p>
@@ -171,7 +171,6 @@ export function BillingContent({ initialData }: BillingContentProps) {
                 variant="outline"
                 onClick={handleManageBilling}
                 disabled={isLoading === 'portal'}
-                className="border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
               >
                 {isLoading === 'portal' ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -186,10 +185,10 @@ export function BillingContent({ initialData }: BillingContentProps) {
       </div>
 
       {/* Plan Comparison */}
-      <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
-        <div className="p-6 border-b border-white/[0.08]">
-          <h2 className="text-lg font-semibold text-white">Available Plans</h2>
-          <p className="text-sm text-slate-400 mt-1">
+      <div className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-xl border border-[hsl(var(--border-default))]">
+        <div className="p-6 border-b border-[hsl(var(--border-default))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Available Plans</h2>
+          <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
             Choose the plan that best fits your investing needs
           </p>
         </div>
@@ -205,13 +204,13 @@ export function BillingContent({ initialData }: BillingContentProps) {
                   className={cn(
                     'relative rounded-xl border p-6 transition-all',
                     plan.popular
-                      ? 'border-cyan-400/50 shadow-[0_0_20px_rgba(34,211,238,0.15)]'
-                      : 'border-white/[0.08]',
-                    isCurrentPlan && 'bg-slate-700/30'
+                      ? 'border-[hsl(var(--accent-amber)/0.5)] shadow-[0_0_20px_hsl(var(--accent-amber)/0.15)]'
+                      : 'border-[hsl(var(--border-default))]',
+                    isCurrentPlan && 'bg-[hsl(var(--bg-elevated)/0.3)]'
                   )}
                 >
                   {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold">
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[hsl(var(--accent-amber))] text-[hsl(var(--bg-app))] font-semibold">
                       Most Popular
                     </Badge>
                   )}
@@ -221,23 +220,23 @@ export function BillingContent({ initialData }: BillingContentProps) {
                       className={cn(
                         'flex h-10 w-10 items-center justify-center rounded-full',
                         plan.popular
-                          ? 'bg-cyan-400/20 text-cyan-400'
-                          : 'bg-slate-700/50 text-slate-400'
+                          ? 'bg-[hsl(var(--accent-amber)/0.2)] text-[hsl(var(--accent-amber))]'
+                          : 'bg-[hsl(var(--bg-elevated)/0.5)] text-[hsl(var(--text-muted))]'
                       )}
                     >
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white">{plan.name}</h3>
-                      <p className="text-sm text-slate-400">
+                      <h3 className="font-semibold text-[hsl(var(--text-primary))]">{plan.name}</h3>
+                      <p className="text-sm text-[hsl(var(--text-muted))]">
                         {plan.description}
                       </p>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    <span className="text-3xl font-bold text-white">{plan.price}</span>
-                    <span className="text-sm text-slate-400">
+                    <span className="text-3xl font-bold text-[hsl(var(--text-primary))]">{plan.price}</span>
+                    <span className="text-sm text-[hsl(var(--text-muted))]">
                       {' '}
                       {plan.period}
                     </span>
@@ -246,14 +245,14 @@ export function BillingContent({ initialData }: BillingContentProps) {
                   <ul className="mb-6 space-y-2">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
-                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-400" />
-                        <span className="text-slate-300">{feature}</span>
+                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[hsl(var(--signal-positive))]" />
+                        <span className="text-[hsl(var(--text-secondary))]">{feature}</span>
                       </li>
                     ))}
                     {plan.limitations.map((limitation, index) => (
                       <li
                         key={`limit-${index}`}
-                        className="flex items-start gap-2 text-sm text-slate-500"
+                        className="flex items-start gap-2 text-sm text-[hsl(var(--text-muted))]"
                       >
                         <span className="mt-0.5 h-4 w-4 flex-shrink-0 text-center">
                           -
@@ -265,7 +264,8 @@ export function BillingContent({ initialData }: BillingContentProps) {
 
                   {isCurrentPlan ? (
                     <Button
-                      className="w-full min-h-10 bg-slate-700 text-slate-400 cursor-not-allowed"
+                      variant="secondary"
+                      className="w-full min-h-10 cursor-not-allowed"
                       disabled
                     >
                       Current Plan
@@ -273,19 +273,15 @@ export function BillingContent({ initialData }: BillingContentProps) {
                   ) : plan.id === 'free' ? (
                     <Button
                       variant="outline"
-                      className="w-full min-h-10 border-slate-700 text-slate-500 cursor-not-allowed"
+                      className="w-full min-h-10 cursor-not-allowed opacity-60"
                       disabled
                     >
                       Downgrade
                     </Button>
                   ) : (
                     <Button
-                      className={cn(
-                        'w-full min-h-10',
-                        plan.popular
-                          ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-semibold shadow-[0_2px_10px_rgba(34,211,238,0.3)] hover:from-cyan-300 hover:to-cyan-400'
-                          : 'border-slate-700 bg-transparent text-slate-300 hover:bg-slate-700 hover:text-white border'
-                      )}
+                      variant={plan.popular ? 'primary' : 'outline'}
+                      className="w-full min-h-10"
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={isLoading === plan.id}
                     >
@@ -304,30 +300,30 @@ export function BillingContent({ initialData }: BillingContentProps) {
       </div>
 
       {/* Billing FAQ */}
-      <div className="bg-slate-800/50 rounded-xl border border-white/[0.08]">
-        <div className="p-6 border-b border-white/[0.08]">
-          <h2 className="text-lg font-semibold text-white">Billing FAQ</h2>
+      <div className="bg-[hsl(var(--bg-elevated)/0.5)] rounded-xl border border-[hsl(var(--border-default))]">
+        <div className="p-6 border-b border-[hsl(var(--border-default))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Billing FAQ</h2>
         </div>
         <div className="p-6 space-y-6">
           <div>
-            <h4 className="font-medium text-white">Can I cancel anytime?</h4>
-            <p className="text-sm text-slate-400 mt-1">
+            <h4 className="font-medium text-[hsl(var(--text-primary))]">Can I cancel anytime?</h4>
+            <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
               Yes, you can cancel your subscription at any time. You will
               continue to have access until the end of your billing period.
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-white">What payment methods do you accept?</h4>
-            <p className="text-sm text-slate-400 mt-1">
+            <h4 className="font-medium text-[hsl(var(--text-primary))]">What payment methods do you accept?</h4>
+            <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
               We accept all major credit cards, debit cards, and various digital
               payment methods through Stripe.
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-white">
+            <h4 className="font-medium text-[hsl(var(--text-primary))]">
               What happens to my data if I downgrade?
             </h4>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-[hsl(var(--text-muted))] mt-1">
               Your data is preserved, but you may lose access to premium
               features. Watchlist items beyond the free tier limit will be
               retained but hidden until you upgrade again.
