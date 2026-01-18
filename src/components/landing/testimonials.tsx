@@ -33,7 +33,7 @@ const useCases: UseCase[] = [
  */
 export function Testimonials() {
   return (
-    <section className="py-16 sm:py-24 bg-white">
+    <section className="py-12 sm:py-16 bg-[#F5F5F5]">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-[#171717] sm:text-4xl">
@@ -44,7 +44,7 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
           {useCases.map((useCase, index) => (
             <UseCaseCard key={index} useCase={useCase} />
           ))}
@@ -58,17 +58,17 @@ function UseCaseCard({ useCase }: { useCase: UseCase }) {
   const Icon = useCase.icon
 
   return (
-    <div className="rounded-xl border border-[#E5E5E5] bg-white p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2">
-      {/* Icon */}
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#F5F5F5]">
-        <Icon className="h-6 w-6 text-[#525252]" />
+    <div className="group relative rounded-xl border border-[#E5E5E5] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#FFA028]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2">
+      {/* Icon with amber accent on hover */}
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5F5F5] transition-colors group-hover:bg-[rgba(255,160,40,0.1)]">
+        <Icon className="h-6 w-6 text-[#525252] transition-colors group-hover:text-[#FFA028]" />
       </div>
 
       {/* Title */}
       <h3 className="text-lg font-semibold text-[#171717]">{useCase.title}</h3>
 
       {/* Description */}
-      <p className="mt-2 text-sm text-[#525252]">{useCase.description}</p>
+      <p className="mt-2 text-sm text-[#525252] leading-relaxed">{useCase.description}</p>
     </div>
   )
 }

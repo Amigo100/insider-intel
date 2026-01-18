@@ -118,17 +118,17 @@ export function FAQSection() {
           </p>
         </div>
 
-        {/* Category Tabs - Pill Style */}
+        {/* Category Tabs - Pill Style with amber active */}
         <div className="mx-auto mt-10 flex justify-center">
-          <div className="inline-flex gap-2 rounded-full bg-[#E5E5E5]/50 p-1">
+          <div className="inline-flex gap-1 rounded-full bg-white p-1 shadow-sm border border-[#E5E5E5]">
             {faqData.map((category) => (
               <button
                 key={category.name}
                 onClick={() => setActiveCategory(category.name)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 ${
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFA028] focus-visible:ring-offset-2 ${
                   activeCategory === category.name
-                    ? 'bg-[#F5F5F5] text-[#171717] shadow-sm'
-                    : 'text-[#737373] hover:text-[#525252]'
+                    ? 'bg-[#171717] text-white'
+                    : 'text-[#737373] hover:text-[#171717] hover:bg-[#F5F5F5]'
                 }`}
               >
                 {category.name}
@@ -155,13 +155,15 @@ export function FAQSection() {
 
         {/* Contact CTA */}
         <div className="mx-auto mt-12 max-w-xl text-center">
-          <div className="rounded-xl border border-[#E5E5E5] bg-white p-6">
-            <MessageCircle className="mx-auto h-8 w-8 text-[#737373]" />
+          <div className="rounded-xl border border-[#E5E5E5] bg-white p-8 shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F5F5]">
+              <MessageCircle className="h-6 w-6 text-[#525252]" />
+            </div>
             <h3 className="mt-4 text-lg font-semibold text-[#171717]">Still have questions?</h3>
-            <p className="mt-2 text-sm text-[#737373]">
+            <p className="mt-2 text-sm text-[#525252]">
               Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
             </p>
-            <Button className="mt-4 border-[#E5E5E5] text-[#525252] hover:bg-[#F5F5F5] focus-visible:ring-[#FFA028]" variant="outline" asChild>
+            <Button className="mt-5 border-[#E5E5E5] text-[#525252] hover:bg-[#F5F5F5] hover:border-[#D4D4D4] focus-visible:ring-[#FFA028]" variant="outline" asChild>
               <a href="mailto:support@insiderintel.com">Contact Support</a>
             </Button>
           </div>
@@ -184,21 +186,27 @@ function FAQAccordionItem({ question, answer, isOpen, onToggle, id }: FAQAccordi
   const buttonId = `faq-button-${id}`
 
   return (
-    <div className="rounded-xl border border-[#E5E5E5] bg-white overflow-hidden transition-shadow hover:shadow-md">
+    <div className={`rounded-xl border bg-white overflow-hidden transition-all duration-200 ${
+      isOpen ? 'border-[#FFA028]/30 shadow-md' : 'border-[#E5E5E5] hover:shadow-md hover:border-[#D4D4D4]'
+    }`}>
       <button
         id={buttonId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FFA028]"
+        className="group flex w-full items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FFA028]"
         aria-expanded={isOpen}
         aria-controls={panelId}
       >
         <h3 className="text-base font-semibold text-[#171717] pr-4">{question}</h3>
-        <ChevronDown
-          className={`h-5 w-5 flex-shrink-0 text-[#737373] transition-transform duration-300 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-          aria-hidden="true"
-        />
+        <div className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+          isOpen ? 'bg-[rgba(255,160,40,0.1)]' : 'bg-[#F5F5F5] group-hover:bg-[#E5E5E5]'
+        }`}>
+          <ChevronDown
+            className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+              isOpen ? 'rotate-180 text-[#FFA028]' : 'text-[#525252]'
+            }`}
+            aria-hidden="true"
+          />
+        </div>
       </button>
       <div
         id={panelId}

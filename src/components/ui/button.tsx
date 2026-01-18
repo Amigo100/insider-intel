@@ -59,8 +59,8 @@ const buttonVariants = cva(
         // For tertiary actions, toolbars, less prominent UI
         ghost: [
           'bg-transparent',
-          'text-[hsl(var(--text-secondary))]',
-          'hover:bg-[hsl(var(--bg-hover))] hover:text-[hsl(var(--text-primary))]',
+          'text-[hsl(var(--muted-foreground))]',
+          'hover:bg-[hsl(var(--muted))] hover:text-[hsl(var(--foreground))]',
         ].join(' '),
 
         // Destructive: Red signal color
