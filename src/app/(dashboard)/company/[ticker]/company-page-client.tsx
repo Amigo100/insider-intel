@@ -77,12 +77,31 @@ interface ActivityDataPoint {
   [key: string]: string | number
 }
 
+interface PriceDataPoint {
+  date: string
+  open: number | null
+  high: number | null
+  low: number | null
+  close: number | null
+  volume: number | null
+}
+
+interface TradeMarker {
+  date: string
+  type: 'P' | 'S'
+  value: number
+  insiderName: string
+  shares: number
+}
+
 interface CompanyPageClientProps {
   company: CompanyData
   transactions: InsiderTransactionWithDetails[]
   holders: HolderData[]
   activityData: ActivityDataPoint[]
   keyInsiders: KeyInsider[]
+  priceData: PriceDataPoint[]
+  tradeMarkers: TradeMarker[]
   stats: Stats
   watchlistItemId: string | null
   isLoggedIn: boolean
@@ -170,6 +189,8 @@ export function CompanyPageClient({
   holders,
   activityData,
   keyInsiders,
+  priceData,
+  tradeMarkers,
   stats,
   watchlistItemId,
   isLoggedIn,
@@ -334,6 +355,8 @@ export function CompanyPageClient({
         holders={holders}
         activityData={activityData}
         keyInsiders={keyInsiders}
+        priceData={priceData}
+        tradeMarkers={tradeMarkers}
         stats={stats}
       />
     </div>

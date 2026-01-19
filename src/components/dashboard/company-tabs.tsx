@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select'
 import { InsiderActivityChart } from '@/components/charts/insider-activity-chart'
 import { HoldingsPieChart } from '@/components/charts/holdings-pie-chart'
+import { PriceWithTradesChart } from '@/components/charts/price-with-trades-chart'
 import { SignificanceIndicator } from '@/components/dashboard/significance-badge'
 import type { InsiderTransactionWithDetails } from '@/types/database'
 
@@ -67,6 +68,23 @@ interface KeyInsider {
   type: string
 }
 
+interface PriceDataPoint {
+  date: string
+  open: number | null
+  high: number | null
+  low: number | null
+  close: number | null
+  volume: number | null
+}
+
+interface TradeMarker {
+  date: string
+  type: 'P' | 'S'
+  value: number
+  insiderName: string
+  shares: number
+}
+
 interface Stats {
   buyCount: number
   sellCount: number
@@ -84,6 +102,8 @@ interface CompanyTabsProps {
   holders: HolderData[]
   activityData: ActivityDataPoint[]
   keyInsiders: KeyInsider[]
+  priceData: PriceDataPoint[]
+  tradeMarkers: TradeMarker[]
   stats: Stats
 }
 
@@ -252,16 +272,36 @@ function OverviewTab({
   transactions,
   activityData,
   keyInsiders,
+  priceData,
+  tradeMarkers,
 }: {
   transactions: InsiderTransactionWithDetails[]
   activityData: ActivityDataPoint[]
   keyInsiders: KeyInsider[]
+  priceData: PriceDataPoint[]
+  tradeMarkers: TradeMarker[]
 }) {
   const recentTransactions = transactions.slice(0, 5)
 
   return (
     <div className="space-y-6">
-      {/* 2-column layout: Chart + Key Insiders */}
+      {/* Price Chart with Trade Overlay - Full width */}
+      {priceData.length > 0 && (
+        <DashboardCard
+          title="Price History with Insider Trades"
+          icon={TrendingUp}
+        >
+          <div className="p-5">
+            <PriceWithTradesChart
+              priceData={priceData}
+              trades={tradeMarkers}
+              height={300}
+            />
+          </div>
+        </DashboardCard>
+      )}
+
+      {/* 2-column layout: Activity Chart + Key Insiders */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Activity Chart - 2/3 width */}
         <DashboardCard
@@ -792,6 +832,8 @@ export function CompanyTabs({
   holders,
   activityData,
   keyInsiders,
+  priceData,
+  tradeMarkers,
   stats,
 }: CompanyTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('overview')
@@ -858,6 +900,8 @@ export function CompanyTabs({
             transactions={transactions}
             activityData={activityData}
             keyInsiders={keyInsiders}
+            priceData={priceData}
+            tradeMarkers={tradeMarkers}
           />
         )}
       </div>

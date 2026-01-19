@@ -278,6 +278,60 @@ export async function fetchRecentForm4Filings(
 }
 
 /**
+ * Fetches the filing index page and extracts the Form 4 XML filename
+ *
+ * @param cik - Company CIK number (normalized, no leading zeros)
+ * @param accessionNoDashes - Accession number without dashes
+ * @param accessionWithDashes - Accession number with dashes
+ * @returns The Form 4 XML filename, or null if not found
+ */
+async function findForm4XmlFilename(
+  cik: string,
+  accessionNoDashes: string,
+  accessionWithDashes: string
+): Promise<string | null> {
+  const indexUrl = `${SEC_ARCHIVES_BASE_URL}/${cik}/${accessionNoDashes}/${accessionWithDashes}-index.htm`
+
+  await delay(REQUEST_DELAY_MS)
+  const response = await fetchWithRetry(indexUrl)
+
+  if (!response.ok) {
+    return null
+  }
+
+  const html = await response.text()
+
+  // Look for Form 4 XML file in the index
+  // Patterns: wk-form4_*.xml, wf-form4*.xml, xslForm4*.xml, form4.xml, primary_doc.xml
+  const xmlPatterns = [
+    /href="[^"]*\/([^"\/]*form4[^"\/]*\.xml)"/gi,
+    /href="[^"]*\/(primary_doc\.xml)"/gi,
+    /href="[^"]*\/([^"\/]+\.xml)"/gi, // Fallback: any XML file
+  ]
+
+  for (const pattern of xmlPatterns) {
+    const matches = [...html.matchAll(pattern)]
+    for (const match of matches) {
+      const filename = match[1]
+      // Skip xslForm4 stylesheets and index files
+      if (filename.includes('xsl') || filename.includes('index')) continue
+      // Prefer files with 'form4' in the name
+      if (filename.toLowerCase().includes('form4') || filename === 'primary_doc.xml') {
+        return filename
+      }
+    }
+  }
+
+  // If no form4 file found, try the first XML that's not a stylesheet
+  const anyXmlMatch = html.match(/href="[^"]*\/([^"\/]+\.xml)"/i)
+  if (anyXmlMatch && !anyXmlMatch[1].includes('xsl')) {
+    return anyXmlMatch[1]
+  }
+
+  return null
+}
+
+/**
  * Fetches the raw XML content of a Form 4 filing
  *
  * @param cik - Company CIK number (with or without leading zeros)
@@ -300,30 +354,38 @@ export async function fetchForm4FilingXML(
     ? accessionNumber
     : `${accessionNumber.slice(0, 10)}-${accessionNumber.slice(10, 12)}-${accessionNumber.slice(12)}`
 
-  // Construct URL: /Archives/edgar/data/{cik}/{accession-no-dashes}/{accession}.xml
-  // The filename uses the format with dashes
-  const url = `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/${accessionWithDashes}.xml`
+  // First, fetch the index page to find the actual Form 4 XML filename
+  const xmlFilename = await findForm4XmlFilename(normalizedCik, accessionNoDashes, accessionWithDashes)
 
-  await delay(REQUEST_DELAY_MS)
+  if (xmlFilename) {
+    const xmlUrl = `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/${xmlFilename}`
+    await delay(REQUEST_DELAY_MS)
+    const response = await fetchWithRetry(xmlUrl)
 
-  const response = await fetchWithRetry(url)
-
-  if (!response.ok) {
-    // Try alternative filename format (primary_doc.xml)
-    if (response.status === 404) {
-      const altUrl = `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/primary_doc.xml`
-      await delay(REQUEST_DELAY_MS)
-      const altResponse = await fetchWithRetry(altUrl)
-
-      if (altResponse.ok) {
-        return await altResponse.text()
-      }
+    if (response.ok) {
+      return await response.text()
     }
-
-    throw new Error(`Failed to fetch Form 4 XML: ${response.status} ${response.statusText}`)
   }
 
-  return await response.text()
+  // Fallback: try direct accession number as filename (legacy format)
+  const legacyUrl = `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/${accessionWithDashes}.xml`
+  await delay(REQUEST_DELAY_MS)
+  const legacyResponse = await fetchWithRetry(legacyUrl)
+
+  if (legacyResponse.ok) {
+    return await legacyResponse.text()
+  }
+
+  // Final fallback: primary_doc.xml
+  const primaryDocUrl = `${SEC_ARCHIVES_BASE_URL}/${normalizedCik}/${accessionNoDashes}/primary_doc.xml`
+  await delay(REQUEST_DELAY_MS)
+  const primaryResponse = await fetchWithRetry(primaryDocUrl)
+
+  if (primaryResponse.ok) {
+    return await primaryResponse.text()
+  }
+
+  throw new Error(`Failed to fetch Form 4 XML for ${accessionWithDashes}: Could not find XML file`)
 }
 
 /**

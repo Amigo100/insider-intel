@@ -3,9 +3,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { CompanyPageClient } from './company-page-client'
 import { cn } from '@/lib/utils'
 import type { InsiderTransactionWithDetails } from '@/types/database'
+import type { Database } from '@/types/supabase'
 
 interface PageProps {
   params: Promise<{ ticker: string }>
@@ -127,6 +129,40 @@ async function getCompanyData(ticker: string) {
   }
   const keyInsiders = Array.from(insiderMap.values()).slice(0, 5)
 
+  // Fetch stock price data for chart (last 12 months)
+  const twelveMonthsAgo = new Date()
+  twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1)
+  const priceStartDate = twelveMonthsAgo.toISOString().split('T')[0]
+
+  const { data: priceData } = await supabase
+    .from('stock_prices')
+    .select('price_date, open, high, low, close, volume')
+    .eq('ticker', ticker.toUpperCase())
+    .gte('price_date', priceStartDate)
+    .order('price_date', { ascending: true })
+
+  // Format price data for chart
+  const formattedPriceData = (priceData || []).map((p) => ({
+    date: p.price_date,
+    open: p.open,
+    high: p.high,
+    low: p.low,
+    close: p.close,
+    volume: p.volume,
+  }))
+
+  // Format trade markers for chart overlay
+  const tradeMarkers = transactions
+    .filter((t) => t.transaction_type === 'P' || t.transaction_type === 'S')
+    .filter((t) => t.transaction_date && t.total_value && t.shares)
+    .map((t) => ({
+      date: t.transaction_date!,
+      type: t.transaction_type as 'P' | 'S',
+      value: t.total_value!,
+      insiderName: t.insider_name || 'Unknown',
+      shares: t.shares!,
+    }))
+
   return {
     company,
     transactions: transactions as InsiderTransactionWithDetails[],
@@ -154,6 +190,8 @@ async function getCompanyData(ticker: string) {
       })),
     activityData,
     keyInsiders,
+    priceData: formattedPriceData,
+    tradeMarkers,
     stats: {
       buyCount: buys.length,
       sellCount: sells.length,
@@ -195,7 +233,16 @@ export default async function CompanyPage({ params }: PageProps) {
     notFound()
   }
 
-  const { company, transactions, holders, activityData, keyInsiders, stats } = data
+  const {
+    company,
+    transactions,
+    holders,
+    activityData,
+    keyInsiders,
+    priceData,
+    tradeMarkers,
+    stats,
+  } = data
 
   // Check if company is in user's watchlist
   const watchlistItemId = user ? await checkWatchlist(company.id, user.id) : null
@@ -240,6 +287,8 @@ export default async function CompanyPage({ params }: PageProps) {
         holders={holders}
         activityData={activityData}
         keyInsiders={keyInsiders}
+        priceData={priceData}
+        tradeMarkers={tradeMarkers}
         stats={stats}
         watchlistItemId={watchlistItemId}
         isLoggedIn={!!user}
