@@ -24,6 +24,30 @@ interface ChartResult {
   quotes: ChartQuote[]
 }
 
+// Type for quote result from yahoo-finance2
+interface QuoteResult {
+  regularMarketPrice?: number | null
+  regularMarketChange?: number | null
+  regularMarketChangePercent?: number | null
+  regularMarketVolume?: number | null
+  marketCap?: number | null
+  shortName?: string | null
+  longName?: string | null
+}
+
+// Type for search result from yahoo-finance2
+interface SearchQuote {
+  symbol?: string | null
+  shortname?: string | null
+  longname?: string | null
+  exchange?: string | null
+  quoteType?: string | null
+}
+
+interface SearchResult {
+  quotes?: SearchQuote[]
+}
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -141,7 +165,7 @@ export async function getQuote(ticker: string): Promise<StockQuote | null> {
   log.debug({ ticker }, 'Fetching quote')
 
   try {
-    const result = await yahooFinance.quote(ticker.toUpperCase())
+    const result = await yahooFinance.quote(ticker.toUpperCase()) as unknown as QuoteResult | null
 
     if (!result || !result.regularMarketPrice) {
       log.warn({ ticker }, 'No quote data available')
@@ -235,7 +259,7 @@ export async function get6MonthTrend(ticker: string): Promise<number[]> {
  */
 export async function validateTicker(ticker: string): Promise<boolean> {
   try {
-    const quote = await yahooFinance.quote(ticker.toUpperCase())
+    const quote = await yahooFinance.quote(ticker.toUpperCase()) as unknown as QuoteResult | null
     return quote?.regularMarketPrice != null
   } catch {
     return false
@@ -257,10 +281,10 @@ export async function searchStocks(
     const result = await yahooFinance.search(query, {
       newsCount: 0,
       quotesCount: limit,
-    })
+    }) as unknown as SearchResult
 
     return (result.quotes || [])
-      .filter((q): q is typeof q & { symbol: string } =>
+      .filter((q): q is SearchQuote & { symbol: string } =>
         q.symbol != null && q.quoteType === 'EQUITY'
       )
       .map((q) => ({
