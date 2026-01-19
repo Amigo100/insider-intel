@@ -177,7 +177,7 @@ export async function GET(
         prices = pricesToInsert.map((p) => ({
           ...p,
           id: '',
-          created_at: null,
+          created_at: new Date().toISOString(),
         }))
         fromCache = false
 

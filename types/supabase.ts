@@ -333,6 +333,7 @@ export type Database = {
       stock_prices: {
         Row: {
           id: string
+          company_id: string | null
           ticker: string
           price_date: string
           open: number | null
@@ -344,6 +345,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          company_id?: string | null
           ticker: string
           price_date: string
           open?: number | null
@@ -355,6 +357,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          company_id?: string | null
           ticker?: string
           price_date?: string
           open?: number | null
@@ -364,7 +367,15 @@ export type Database = {
           volume?: number | null
           created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stock_prices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       watchlist_items: {
         Row: {
