@@ -6,6 +6,7 @@
  */
 
 import yahooFinance from 'yahoo-finance2'
+import type { ChartResultArray } from 'yahoo-finance2/dist/esm/src/modules/chart'
 import { createLogger } from '@/lib/logger'
 
 const log = createLogger({ module: 'yfinance' })
@@ -91,10 +92,10 @@ export async function getHistoricalPrices(
       period1: startDate,
       period2: endDate,
       interval: '1d',
-    })
+    }) as ChartResultArray
 
     const quotes = result.quotes || []
-    const prices: StockPrice[] = quotes.map((item) => ({
+    const prices: StockPrice[] = quotes.map((item: { date: Date; open?: number; high?: number; low?: number; close?: number; volume?: number }) => ({
       date: formatDate(new Date(item.date)),
       open: item.open ?? null,
       high: item.high ?? null,
@@ -202,11 +203,11 @@ export async function get6MonthTrend(ticker: string): Promise<number[]> {
       period1: getDateMonthsAgo(6),
       period2: new Date(),
       interval: '1wk', // Weekly data for cleaner sparkline
-    })
+    }) as ChartResultArray
 
     const quotes = result.quotes || []
     // Extract just the closing prices
-    return quotes.map((item) => item.close).filter((price): price is number => price != null)
+    return quotes.map((item: { close?: number }) => item.close).filter((price): price is number => price != null)
   } catch (error) {
     log.error({ ticker, error }, 'Failed to fetch 6-month trend')
     return []
