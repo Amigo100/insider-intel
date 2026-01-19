@@ -404,6 +404,7 @@ export function TransactionTable({
       densityStyles.text,
       'text-right',
       'font-mono tabular-nums',
+      'text-[hsl(var(--text-primary))]',
       'border-b border-[hsl(var(--border-subtle,var(--border)))]'
     )
 
@@ -614,7 +615,7 @@ export function TransactionTable({
                       <td className={getDensityNumericCellStyles()}>
                         {formatPrice(transaction.price_per_share)}
                       </td>
-                      <td className={cn(cellBase, 'whitespace-nowrap')}>
+                      <td className={cn(cellBase, 'whitespace-nowrap', 'text-[hsl(var(--text-primary))]')}>
                         {format(new Date(transaction.filed_at), density === 'compact' ? 'MM/dd/yy' : 'MMM d, yyyy')}
                       </td>
                     </tr>
