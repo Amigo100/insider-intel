@@ -165,7 +165,9 @@ export function useWatchlist(initialData: WatchlistData) {
         const result = await res.json()
 
         if (!res.ok) {
-          throw new Error(result.error || 'Failed to add')
+          // Use the descriptive message from API if available
+          const errorMessage = result.message || result.error || 'Failed to add'
+          throw new Error(errorMessage)
         }
 
         // Add item to local state

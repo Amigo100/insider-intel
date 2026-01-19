@@ -36,6 +36,7 @@
     "resend": "^4.1.2",
     "stripe": "^17.5.0",
     "tailwind-merge": "^2.6.0",
+    "yahoo-finance2": "^3.11.2",
     "zod": "^4.3.5"
   },
   "devDependencies": {

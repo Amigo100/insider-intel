@@ -235,8 +235,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (companyError || !company) {
+      // Company not in database - this means no insider transactions have been filed yet
       return NextResponse.json(
-        { error: 'Company not found' },
+        {
+          error: 'No insider transaction data available',
+          code: 'NO_INSIDER_DATA',
+          message: `${ticker.toUpperCase()} has no recent insider transactions filed with the SEC. Only stocks with Form 4 filings can be added to your watchlist.`,
+          ticker: ticker.toUpperCase(),
+        },
         { status: 404 }
       )
     }
