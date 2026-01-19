@@ -54,16 +54,16 @@ function CustomTooltip({
   if (!active || !payload || !payload.length) return null
 
   return (
-    <div className="rounded-lg border bg-popover p-3 shadow-md">
-      <p className="mb-2 font-medium">{label}</p>
+    <div className="rounded-lg border border-[hsl(var(--border-default))] bg-[hsl(var(--bg-elevated))] p-3 shadow-md">
+      <p className="mb-2 font-medium text-[hsl(var(--text-primary))]">{label}</p>
       {payload.map((entry, index) => (
         <div key={index} className="flex items-center gap-2 text-sm">
           <span
             className="h-3 w-3 rounded-sm"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-muted-foreground capitalize">{entry.name}:</span>
-          <span className="font-medium">{formatCurrency(entry.value)}</span>
+          <span className="text-[hsl(var(--text-muted))] capitalize">{entry.name}:</span>
+          <span className="font-medium text-[hsl(var(--text-primary))]">{formatCurrency(entry.value)}</span>
         </div>
       ))}
     </div>

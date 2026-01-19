@@ -15,7 +15,7 @@ import {
   BarChart3,
   Filter,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, decodeHtmlEntities } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -244,25 +244,37 @@ function DashboardCard({
   )
 }
 
+// Transaction type labels and colors
+const TRANSACTION_TYPES: Record<string, { label: string; isPositive: boolean }> = {
+  P: { label: 'BUY', isPositive: true },      // Purchase
+  S: { label: 'SELL', isPositive: false },    // Sale
+  A: { label: 'AWARD', isPositive: true },    // Award/Grant
+  D: { label: 'DISP', isPositive: false },    // Disposition to issuer
+  G: { label: 'GIFT', isPositive: false },    // Gift
+  M: { label: 'EXER', isPositive: true },     // Exercise/conversion
+  F: { label: 'TAX', isPositive: false },     // Tax withholding
+  C: { label: 'CONV', isPositive: true },     // Conversion
+}
+
 // Transaction Badge
 function TransactionBadge({ type }: { type: string }) {
-  const isBuy = type === 'P'
+  const typeInfo = TRANSACTION_TYPES[type] || { label: type, isPositive: false }
 
   return (
     <Badge
       className={cn(
         'gap-1',
-        isBuy
+        typeInfo.isPositive
           ? 'bg-[hsl(var(--signal-positive)/0.15)] text-[hsl(var(--signal-positive))] border-[hsl(var(--signal-positive)/0.3)]'
           : 'bg-[hsl(var(--signal-negative)/0.15)] text-[hsl(var(--signal-negative))] border-[hsl(var(--signal-negative)/0.3)]'
       )}
     >
-      {isBuy ? (
+      {typeInfo.isPositive ? (
         <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
       ) : (
         <ArrowDownRight className="h-3 w-3" aria-hidden="true" />
       )}
-      {isBuy ? 'BUY' : 'SELL'}
+      {typeInfo.label}
     </Badge>
   )
 }
@@ -339,7 +351,7 @@ function OverviewTab({
                         {insider.name}
                       </p>
                       <p className="text-xs text-[hsl(var(--text-muted))] truncate">
-                        {insider.title || 'Insider'}
+                        {decodeHtmlEntities(insider.title) || 'Insider'}
                       </p>
                     </div>
                     <div className="text-right shrink-0 ml-2">
@@ -383,7 +395,7 @@ function OverviewTab({
                         </span>
                         {txn.insider_title && (
                           <span className="text-sm text-[hsl(var(--text-muted))]">
-                            · {txn.insider_title}
+                            · {decodeHtmlEntities(txn.insider_title)}
                           </span>
                         )}
                       </div>
@@ -579,7 +591,7 @@ function InsiderActivityTab({
                         {txn.insider_name}
                       </p>
                       <p className="text-xs text-[hsl(var(--text-muted))]">
-                        {txn.insider_title || 'Insider'}
+                        {decodeHtmlEntities(txn.insider_title) || 'Insider'}
                       </p>
                     </td>
                     <td className="px-5 py-3.5">

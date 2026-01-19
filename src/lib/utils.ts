@@ -120,3 +120,20 @@ function capitalizeFirst(str: string): string {
   if (!str) return str
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
+
+/**
+ * Decode common HTML entities in a string
+ * Used to clean up SEC filing data that may contain encoded characters
+ */
+export function decodeHtmlEntities(str: string | null | undefined): string {
+  if (!str) return ''
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+}
