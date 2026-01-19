@@ -6,9 +6,9 @@
  */
 
 import yahooFinance from 'yahoo-finance2'
-import { logger } from '@/lib/logger'
+import { createLogger } from '@/lib/logger'
 
-const log = logger.child({ module: 'yfinance' })
+const log = createLogger({ module: 'yfinance' })
 
 // =============================================================================
 // Types
