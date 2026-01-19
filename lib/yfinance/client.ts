@@ -87,18 +87,19 @@ export async function getHistoricalPrices(
   log.info({ ticker, months, startDate: formatDate(startDate) }, 'Fetching historical prices')
 
   try {
-    const result = await yahooFinance.historical(ticker.toUpperCase(), {
+    const result = await yahooFinance.chart(ticker.toUpperCase(), {
       period1: startDate,
       period2: endDate,
       interval: '1d',
     })
 
-    const prices: StockPrice[] = result.map((item) => ({
-      date: formatDate(item.date),
+    const quotes = result.quotes || []
+    const prices: StockPrice[] = quotes.map((item) => ({
+      date: formatDate(new Date(item.date)),
       open: item.open ?? null,
       high: item.high ?? null,
       low: item.low ?? null,
-      close: item.close,
+      close: item.close ?? 0,
       volume: item.volume ?? null,
     }))
 
@@ -197,14 +198,15 @@ export async function getQuotes(tickers: string[]): Promise<Map<string, StockQuo
  */
 export async function get6MonthTrend(ticker: string): Promise<number[]> {
   try {
-    const result = await yahooFinance.historical(ticker.toUpperCase(), {
+    const result = await yahooFinance.chart(ticker.toUpperCase(), {
       period1: getDateMonthsAgo(6),
       period2: new Date(),
       interval: '1wk', // Weekly data for cleaner sparkline
     })
 
+    const quotes = result.quotes || []
     // Extract just the closing prices
-    return result.map((item) => item.close).filter((price): price is number => price != null)
+    return quotes.map((item) => item.close).filter((price): price is number => price != null)
   } catch (error) {
     log.error({ ticker, error }, 'Failed to fetch 6-month trend')
     return []
