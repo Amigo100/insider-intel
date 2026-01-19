@@ -265,14 +265,16 @@ export function PriceWithTradesChart({
     )
   }
 
-  // Get all trade points for reference dots
-  const tradePoints = chartData.flatMap((d) =>
-    d.trades.map((t) => ({
-      date: d.date,
-      price: d.close,
-      trade: t,
-    }))
-  )
+  // Get all trade points for reference dots (filter out null prices)
+  const tradePoints = chartData
+    .filter((d) => d.close !== null)
+    .flatMap((d) =>
+      d.trades.map((t) => ({
+        date: d.date,
+        price: d.close as number,
+        trade: t,
+      }))
+    )
 
   return (
     <div className={cn('w-full', className)} style={{ height }}>
