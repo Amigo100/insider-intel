@@ -330,6 +330,42 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_prices: {
+        Row: {
+          id: string
+          ticker: string
+          price_date: string
+          open: number | null
+          high: number | null
+          low: number | null
+          close: number | null
+          volume: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          ticker: string
+          price_date: string
+          open?: number | null
+          high?: number | null
+          low?: number | null
+          close?: number | null
+          volume?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          ticker?: string
+          price_date?: string
+          open?: number | null
+          high?: number | null
+          low?: number | null
+          close?: number | null
+          volume?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       watchlist_items: {
         Row: {
           id: string
